@@ -20,7 +20,7 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, '..', 'uploads'), { prefix: '/uploads' });
 
   const config = new DocumentBuilder()
-    .setTitle('EduCore LMS API')
+    .setTitle('Mentorito LMS API')
     .setDescription('Learning Management System API')
     .setVersion('1.0')
     .addBearerAuth(
