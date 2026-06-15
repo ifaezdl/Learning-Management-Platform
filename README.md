@@ -17,15 +17,33 @@ A modern Learning Management System (LMS) built with Next.js, NestJS, and Postgr
 
 ### Frontend
 
+<<<<<<< HEAD
+
+=======
+
+> > > > > > > 7e5a91682dec4f69bbe3f32868e08ca54a40e43b
+
 - Next.js
 - TypeScript
 
 ### Backend
 
+<<<<<<< HEAD
+
+=======
+
+> > > > > > > 7e5a91682dec4f69bbe3f32868e08ca54a40e43b
+
 - NestJS
 - TypeScript
 
 ### Database
+
+<<<<<<< HEAD
+
+=======
+
+> > > > > > > 7e5a91682dec4f69bbe3f32868e08ca54a40e43b
 
 - PostgreSQL
 - Prisma ORM
