@@ -1,0 +1,200 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlserver"
+}
+
+model Category {
+  Id          Int       @id(map: "PK__Category__3214EC07937AC0FB") @default(autoincrement())
+  Title       String    @db.NVarChar(100)
+  Description String?   @db.NVarChar(500)
+  CreatedAt   DateTime  @default(now(), map: "DF__Category__Create__19DFD96B")
+  Courses     Courses[]
+}
+
+model CourseProgress {
+  Id          Int       @id(map: "PK__CoursePr__3214EC077F96C853") @default(autoincrement())
+  Course_Id   Int
+  Lesson_Id   Int
+  Student_Id  Int
+  IsCompleted Boolean?  @default(false, map: "DF__CoursePro__IsCom__3C34F16F")
+  CompletedAt DateTime?
+  Courses     Courses   @relation(fields: [Course_Id], references: [Id], onUpdate: NoAction, map: "FK_CourseProgress_Courses")
+  Lessons     Lessons   @relation(fields: [Lesson_Id], references: [Id], onUpdate: NoAction, map: "FK_CourseProgress_Lessons")
+  Users       Users     @relation(fields: [Student_Id], references: [Id], onUpdate: NoAction, map: "FK_CourseProgress_Users")
+
+  @@index([Lesson_Id], map: "IX_Progress_Lesson")
+  @@index([Student_Id], map: "IX_Progress_Student")
+}
+
+model Courses {
+  Id               Int              @id(map: "PK__Courses__3214EC07B5E41990") @default(autoincrement())
+  Title            String           @db.NVarChar(200)
+  Description      String?          @db.NVarChar(Max)
+  Price            Decimal          @default(0, map: "DF__Courses__Price__2645B050") @db.Decimal(18, 2)
+  IsPublished      Boolean          @default(false, map: "DF__Courses__IsPubli__2739D489")
+  CreatedAt        DateTime         @default(now(), map: "DF__Courses__Created__282DF8C2")
+  UpdatedAt        DateTime?
+  Teacher_Id       Int
+  CategoryId       Int
+  Level_Id         Int?
+  Slug             String?          @unique(map: "UQ_Courses_Slug") @db.NVarChar(250)
+  Thumbnail        String?          @db.NVarChar(500)
+  ShortDescription String?          @db.NVarChar(500)
+  DurationMinutes  Int?
+  DiscountPrice    Decimal?         @db.Decimal(18, 2)
+  AverageRating    Decimal          @default(0, map: "DF_Courses_AverageRating") @db.Decimal(3, 2)
+  CourseProgress   CourseProgress[]
+  Category         Category         @relation(fields: [CategoryId], references: [Id], onUpdate: NoAction, map: "FK_Courses_Categories")
+  Level            Level?           @relation(fields: [Level_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Courses_Level")
+  Users            Users            @relation(fields: [Teacher_Id], references: [Id], onUpdate: NoAction, map: "FK_Courses_Teachers")
+  Enrollments      Enrollments[]
+  Lessons          Lessons[]
+  Payments         Payments[]
+  Reviews          Reviews[]
+
+  @@index([CategoryId], map: "IX_Courses_CategoryId")
+  @@index([Teacher_Id], map: "IX_Courses_TeacherId")
+}
+
+model Enrollments {
+  Id             Int       @id(map: "PK__Enrollme__3214EC07C6FA034D") @default(autoincrement())
+  Student_Id     Int
+  Course_Id      Int
+  EnrollmentDate DateTime? @default(now(), map: "DF__Enrollmen__Enrol__37703C52")
+  Status         Int?      @db.TinyInt
+  Courses        Courses   @relation(fields: [Course_Id], references: [Id], onUpdate: NoAction, map: "FK_Enrollments_Courses")
+  Users          Users     @relation(fields: [Student_Id], references: [Id], onUpdate: NoAction, map: "FK_Enrollments_Users")
+
+  @@index([Course_Id], map: "IX_Enrollments_Course")
+  @@index([Student_Id], map: "IX_Enrollments_StudentId")
+}
+
+model LessonFiles {
+  Id        Int       @id(map: "PK__LessonFi__3214EC07146AC6F1") @default(autoincrement())
+  Lesson_Id Int
+  FileName  String?   @db.NVarChar(250)
+  FileUrl   String?   @db.NVarChar(500)
+  FileSize  BigInt?
+  CreatedAt DateTime? @default(now(), map: "DF__LessonFil__Creat__339FAB6E")
+  Lessons   Lessons   @relation(fields: [Lesson_Id], references: [Id], onUpdate: NoAction, map: "FK_LessonFiles_Lessons")
+}
+
+model Lessons {
+  Id              Int              @id(map: "PK__Lessons__3214EC0743574742") @default(autoincrement())
+  Course_Id       Int
+  Title           String           @db.NVarChar(200)
+  Description     String?          @db.NVarChar(Max)
+  VideoUrl        String?          @db.NVarChar(500)
+  DurationMinutes Int?
+  SortOrder       Int?
+  IsFreePreview   Boolean?         @default(false, map: "DF__Lessons__IsFreeP__2EDAF651")
+  CreatedAt       DateTime?        @default(now(), map: "DF__Lessons__Created__2FCF1A8A")
+  IsPublished     Boolean          @default(true, map: "DF_Lessons_IsPublished")
+  CourseProgress  CourseProgress[]
+  LessonFiles     LessonFiles[]
+  Courses         Courses          @relation(fields: [Course_Id], references: [Id], onUpdate: NoAction, map: "FK_Lessons_Courses")
+
+  @@index([Course_Id], map: "IX_Lessons_Course")
+}
+
+model Payments {
+  Id        Int       @id(map: "PK__Payments__3214EC07B4300BC2") @default(autoincrement())
+  User_Id   Int
+  Course_Id Int
+  Amount    Decimal   @db.Decimal(18, 2)
+  RefNumber String?   @db.NVarChar(100)
+  Status    Int?      @db.TinyInt
+  CreatedAt DateTime? @default(now(), map: "DF__Payments__Create__42E1EEFE")
+  Courses   Courses   @relation(fields: [Course_Id], references: [Id], onUpdate: NoAction, map: "FK_Payments_Courses")
+  Users     Users     @relation(fields: [User_Id], references: [Id], onUpdate: NoAction, map: "FK_Payments_Users")
+
+  @@index([Course_Id], map: "IX_Payments_Course")
+  @@index([User_Id], map: "IX_Payments_User")
+}
+
+model Reviews {
+  Id         Int       @id(map: "PK__Reviews__3214EC070F9D32CF") @default(autoincrement())
+  User_Id    Int
+  Course_Id  Int
+  Rating     Int       @db.TinyInt
+  Comment    String?   @db.NVarChar(Max)
+  CreatedAt  DateTime? @default(now(), map: "DF__Reviews__Created__489AC854")
+  IsApproved Boolean   @default(true, map: "DF_Reviews_IsApproved")
+  Courses    Courses   @relation(fields: [Course_Id], references: [Id], onUpdate: NoAction, map: "FK_Reviews_Courses")
+  Users      Users     @relation(fields: [User_Id], references: [Id], onUpdate: NoAction, map: "FK_Reviews_Users")
+
+  @@index([Course_Id], map: "IX_Reviews_Course")
+  @@index([User_Id], map: "IX_Reviews_User")
+}
+
+model Roles {
+  Id       Int     @id(map: "PK__Roles__3214EC07CA9E747D") @default(autoincrement())
+  RoleName String  @unique(map: "UQ__Roles__8A2B616014866A28") @db.NVarChar(50)
+  Users    Users[]
+}
+
+model Sex {
+  Id           Int     @id(map: "PK__Sex__3214EC074F564CEB") @default(autoincrement())
+  GenderPrefix String? @db.NChar(10)
+  SexName      String  @db.NChar(20)
+  Users        Users[]
+}
+
+model sysdiagrams {
+  name         String @db.NVarChar(128)
+  principal_id Int
+  diagram_id   Int    @id(map: "PK__sysdiagr__C2B05B6168ED0EBE") @default(autoincrement())
+  version      Int?
+  definition   Bytes?
+
+  @@unique([principal_id, name], map: "UK_principal_name")
+}
+
+model Users {
+  Id             Int              @id(map: "PK__Users__3214EC0739C89C87") @default(autoincrement())
+  FirstName      String?          @db.NVarChar(50)
+  LastName       String?          @db.NVarChar(50)
+  UserName       String?          @unique(map: "UQ__Users__C9F2845634423FCD") @db.NVarChar(50)
+  NationalCode   String?          @unique(map: "UQ__Users__3DFA4106A5098678") @db.NVarChar(10)
+  Sex_Id         Int?
+  PasswordHash   String           @db.NVarChar(500)
+  Role_Id        Int
+  CreatedAt      DateTime         @default(now(), map: "DF__Users__CreatedAt__208CD6FA")
+  UpdatedAt      DateTime?
+  Avatar         String?          @db.NVarChar(500)
+  Email          String?          @unique(map: "UQ__Users__A9D105346030AC18") @db.NVarChar(200)
+  Mobile         String?          @unique(map: "UQ__Users__6FAE07828EE36961") @db.NVarChar(11)
+  IsActive       Boolean          @default(true, map: "DF__Users__IsActive__2180FB33")
+  LastLogin      DateTime?        @db.DateTime
+  CourseProgress CourseProgress[]
+  Courses        Courses[]
+  Enrollments    Enrollments[]
+  Payments       Payments[]
+  RefreshTokens  RefreshTokens[]
+  Reviews        Reviews[]
+  Roles          Roles            @relation(fields: [Role_Id], references: [Id], onUpdate: NoAction, map: "FK_users_Roles")
+  Sex            Sex?             @relation(fields: [Sex_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_users_Sex")
+}
+
+model Level {
+  Id        Int       @id(map: "PK__Level__3214EC07FD21E927") @default(autoincrement())
+  LevelName String    @db.NVarChar(50)
+  CreatedAt DateTime  @default(now(), map: "DF_Level_CreatedAt") @db.DateTime
+  Courses   Courses[]
+}
+
+model RefreshTokens {
+  Id        Int       @id(map: "PK__RefreshT__3214EC07701890CF") @default(autoincrement())
+  User_Id   Int
+  Token     String    @db.NVarChar(500)
+  ExpiresAt DateTime  @db.DateTime
+  CreatedAt DateTime  @default(now(), map: "DF_RefreshTokens_CreatedAt") @db.DateTime
+  RevokedAt DateTime? @db.DateTime
+  Users     Users     @relation(fields: [User_Id], references: [Id], onUpdate: NoAction, map: "FK_RefreshTokens_Users")
+
+  @@index([User_Id], map: "IX_RefreshTokens_UserId")
+}
