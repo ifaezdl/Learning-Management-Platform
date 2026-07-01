@@ -2,6 +2,7 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -37,6 +38,13 @@ export class AuthService {
         username: user.UserName,
         email: user.Email,
       },
+    };
+  }
+
+  login(loginDto: LoginDto) {
+    return {
+      message: 'Login endpoint works',
+      data: loginDto,
     };
   }
 }
