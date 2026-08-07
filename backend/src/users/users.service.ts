@@ -24,6 +24,7 @@ export class UsersService {
         Email: true,
         Mobile: true,
         Role_Id: true,
+        Sex_Id: true,
         IsActive: true,
         Avatar: true,
         CreatedAt: true,
