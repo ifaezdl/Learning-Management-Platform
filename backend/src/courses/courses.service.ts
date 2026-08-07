@@ -12,7 +12,7 @@ import { SaveLearningOutcomesDto } from './dto/save-learning-outcomes.dto';
 import { SavePrerequisitesDto } from './dto/save-prerequisites.dto';
 @Injectable()
 export class CoursesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   private generateSlug(title: string): string {
     return title
@@ -197,7 +197,7 @@ export class CoursesService {
     });
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, userId?: number) {
     const course = await this.prisma.courses.findUnique({
       where: { Id: id },
       include: {
@@ -223,17 +223,11 @@ export class CoursesService {
             },
           },
         },
-
         CourseLearningOutcomes: {
-          orderBy: {
-            DisplayOrder: 'asc',
-          },
+          orderBy: { DisplayOrder: 'asc' },
         },
-
         CoursePrequisties: {
-          orderBy: {
-            DisplayOrder: 'asc',
-          },
+          orderBy: { DisplayOrder: 'asc' },
         },
       },
     });
@@ -242,7 +236,22 @@ export class CoursesService {
       throw new NotFoundException('Course not found');
     }
 
-    return course;
+    let isEnrolled = false;
+
+    if (userId) {
+      const enrollment = await this.prisma.enrollments.findFirst({
+        where: {
+          Course_Id: id,
+          Student_Id: userId,
+        },
+      });
+      isEnrolled = !!enrollment;
+    }
+
+    return {
+      ...course,
+      isEnrolled,
+    };
   }
 
   async update(id: number, userId: number, dto: UpdateCourseDto) {

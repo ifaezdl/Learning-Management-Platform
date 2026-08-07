@@ -423,9 +423,9 @@ const InstructorProfileSettings = () => {
 
                               <option value={5}>مرد</option>
                               <option value={6}>زن</option>
-                            </select>
-                          </div>
-                        </div>
+                            </select >
+                          </div >
+                        </div >
 
                         <div className="col-md-12">
                           <button
@@ -443,15 +443,15 @@ const InstructorProfileSettings = () => {
                             )}
                           </button>
                         </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
+                      </div >
+                    </div >
+                  </div >
+                </div >
+              </form >
+            </div >
+          </div >
+        </div >
+      </div >
     </>
   );
 };

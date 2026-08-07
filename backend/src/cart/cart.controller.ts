@@ -28,7 +28,7 @@ export class CartController {
   @ApiOperation({ summary: "Get current user's cart" })
   @ApiResponse({ status: 200, description: 'Returns cart items' })
   async getCart(@CurrentUser() user: any) {
-    console.log('=== CART CONTROLLER ===');
+    console.log('controller');
     console.log(user);
     return this.cartService.getCart(user.id);
   }

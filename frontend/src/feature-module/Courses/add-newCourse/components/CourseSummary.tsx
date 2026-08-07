@@ -72,8 +72,9 @@ const CourseSummary: React.FC<CourseSummaryProps> = ({
 
   if (loading) {
     return (
-      <div className="text-center py-5">
-        <div className="spinner-border text-primary" role="status" />
+      <div className="d-flex flex-column align-items-center justify-content-center py-5">
+        <div className="spinner-border text-primary mb-3" role="status" />
+        <p className="text-muted mb-0">در حال بارگذاری اطلاعات دوره...</p>
       </div>
     );
   }
@@ -81,109 +82,190 @@ const CourseSummary: React.FC<CourseSummaryProps> = ({
   if (!course) return null;
 
   return (
-    <div className="card">
-      <div className="card-header">
-        <h5 className="mb-0">خلاصه دوره</h5>
-      </div>
-      <div className="card-body">
-        <div className="row mb-4">
-          <div className="col-md-6">
-            <table className="table table-borderless">
-              <tbody>
-                <tr>
-                  <td className="text-muted" style={{ width: "140px" }}>
-                    عنوان
-                  </td>
-                  <td>
-                    <strong>{course.Title}</strong>
-                  </td>
-                </tr>
-                <tr>
-                  <td className="text-muted">دسته‌بندی</td>
-                  <td>{course.Category?.Title || "-"}</td>
-                </tr>
-                <tr>
-                  <td className="text-muted">سطح</td>
-                  <td>{course.Level?.LevelName || "تعیین نشده"}</td>
-                </tr>
-              </tbody>
-            </table>
+    <div className="card border-0 shadow-sm">
+      {/* Header */}
+      <div
+        className="card-header border-0 py-4"
+        style={{
+          background: "linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)",
+          borderRadius: "0.5rem 0.5rem 0 0",
+        }}
+      >
+        <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
+          <div className="d-flex align-items-center gap-2">
+            <i className="fas fa-clipboard-list text-white fs-5" />
+            <h5 className="mb-0 text-white">خلاصه دوره</h5>
           </div>
-          <div className="col-md-6">
-            <table className="table table-borderless">
-              <tbody>
-                <tr>
-                  <td className="text-muted" style={{ width: "140px" }}>
-                    قیمت
-                  </td>
-                  <td>
-                    <strong>{course.Price} ریال</strong>
-                  </td>
-                </tr>
-                <tr>
-                  <td className="text-muted">قیمت با تخفیف</td>
-                  <td>
-                    {course.DiscountPrice != null
-                      ? `${course.DiscountPrice} ریال`
-                      : "تعیین نشده"}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="text-muted">وضعیت</td>
-                  <td>
-                    {course.IsPublished ? (
-                      <span className="badge bg-success">منتشر شده</span>
-                    ) : (
-                      <span className="badge bg-warning text-dark">
-                        پیش‌نویس
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div className="row text-center mb-4">
-          <div className="col-md-4 mb-3">
-            <div className="border rounded p-3">
-              <h3 className="text-primary mb-1">{sections.length}</h3>
-              <small className="text-muted">سرفصل‌ها</small>
-            </div>
-          </div>
-          <div className="col-md-4 mb-3">
-            <div className="border rounded p-3">
-              <h3 className="text-primary mb-1">{totalLessons}</h3>
-              <small className="text-muted">دروس</small>
-            </div>
-          </div>
-          <div className="col-md-4 mb-3">
-            <div className="border rounded p-3">
-              <h3 className="text-primary mb-1">{totalFiles}</h3>
-              <small className="text-muted">فایل‌ها</small>
-            </div>
-          </div>
-        </div>
-
-        <div className="text-center">
           {course.IsPublished ? (
-            <div className="py-3">
-              <i className="fas fa-check-circle fa-3x text-success mb-3" />
-              <p className="text-muted mb-0">این دوره قبلاً منتشر شده است.</p>
+            <span className="badge bg-white text-success px-3 py-2 rounded-pill">
+              <i className="fas fa-check-circle me-1" /> منتشر شده
+            </span>
+          ) : (
+            <span className="badge bg-white text-primary px-3 py-2 rounded-pill">
+              <i className="fas fa-pen me-1" /> پیش‌نویس
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="card-body p-4">
+        {/* Info cards */}
+        <div className="row g-3 mb-4">
+          <div className="col-md-6">
+            <div className="bg-light rounded-3 p-3 h-100">
+              <h6
+                className="text-muted text-uppercase mb-3"
+                style={{ fontSize: 12, letterSpacing: 0.5 }}
+              >
+                اطلاعات کلی
+              </h6>
+              <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <span className="text-muted small">عنوان</span>
+                <strong className="text-end">{course.Title}</strong>
+              </div>
+              <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <span className="text-muted small">دسته‌بندی</span>
+                <span>{course.Category?.Title || "-"}</span>
+              </div>
+              <div className="d-flex justify-content-between align-items-center py-2">
+                <span className="text-muted small">سطح</span>
+                <span>{course.Level?.LevelName || "تعیین نشده"}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="col-md-6">
+            <div className="bg-light rounded-3 p-3 h-100">
+              <h6
+                className="text-muted text-uppercase mb-3"
+                style={{ fontSize: 12, letterSpacing: 0.5 }}
+              >
+                قیمت‌گذاری
+              </h6>
+              <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <span className="text-muted small">قیمت</span>
+                <strong className="text-primary">
+                  {Number(course.Price).toLocaleString("fa-IR")} ریال
+                </strong>
+              </div>
+              <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <span className="text-muted small">قیمت با تخفیف</span>
+                <span>
+                  {course.DiscountPrice != null
+                    ? `${course.DiscountPrice.toLocaleString("fa-IR")} ریال`
+                    : "تعیین نشده"}
+                </span>
+              </div>
+              <div className="d-flex justify-content-between align-items-center py-2">
+                <span className="text-muted small">وضعیت</span>
+                {course.IsPublished ? (
+                  <span className="badge bg-success-subtle text-success">
+                    منتشر شده
+                  </span>
+                ) : (
+                  <span className="badge bg-warning-subtle text-warning">
+                    پیش‌نویس
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="row g-3 mb-4">
+          <div className="col-md-4">
+            <div className="d-flex align-items-center gap-3 border rounded-3 p-3 h-100">
+              <div
+                className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                style={{
+                  width: 48,
+                  height: 48,
+                  backgroundColor: "#EEF2FF",
+                  color: "#4f46e5",
+                }}
+              >
+                <i className="fas fa-layer-group" />
+              </div>
+              <div>
+                <h4 className="mb-0">{sections.length}</h4>
+                <small className="text-muted">سرفصل‌ها</small>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-4">
+            <div className="d-flex align-items-center gap-3 border rounded-3 p-3 h-100">
+              <div
+                className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                style={{
+                  width: 48,
+                  height: 48,
+                  backgroundColor: "#ECFDF5",
+                  color: "#10b981",
+                }}
+              >
+                <i className="fas fa-play-circle" />
+              </div>
+              <div>
+                <h4 className="mb-0">{totalLessons}</h4>
+                <small className="text-muted">دروس</small>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-4">
+            <div className="d-flex align-items-center gap-3 border rounded-3 p-3 h-100">
+              <div
+                className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                style={{
+                  width: 48,
+                  height: 48,
+                  backgroundColor: "#FFF7ED",
+                  color: "#f97316",
+                }}
+              >
+                <i className="fas fa-paperclip" />
+              </div>
+              <div>
+                <h4 className="mb-0">{totalFiles}</h4>
+                <small className="text-muted">فایل‌ها</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Publish section */}
+        <div
+          className="text-center rounded-3 p-4"
+          style={{
+            backgroundColor: course.IsPublished ? "#ECFDF5" : "#F8FAFC",
+            border: `1px dashed ${course.IsPublished ? "#10b981" : "#cbd5e1"}`,
+          }}
+        >
+          {course.IsPublished ? (
+            <div className="py-2">
+              <i className="fas fa-check-circle fa-2x text-success mb-2" />
+              <p className="text-muted mb-0">
+                این دوره قبلاً منتشر شده و برای دانشجویان قابل مشاهده است.
+              </p>
             </div>
           ) : (
-            <button
-              className="btn btn-success btn-lg px-5"
-              onClick={handlePublish}
-              disabled={publishing}
-            >
-              {publishing && (
-                <span className="spinner-border spinner-border-sm me-2" />
-              )}
-              <i className="fas fa-rocket me-2" />
-              انتشار دوره
-            </button>
+            <div className="py-2">
+              <p className="text-muted mb-3">
+                دوره شما آماده انتشار است. با انتشار، دوره برای دانشجویان قابل
+                مشاهده و ثبت‌نام خواهد بود.
+              </p>
+              <button
+                className="btn btn-success btn-lg px-5 rounded-pill"
+                onClick={handlePublish}
+                disabled={publishing}
+              >
+                {publishing && (
+                  <span className="spinner-border spinner-border-sm me-2" />
+                )}
+                <i className="fas fa-rocket me-2" />
+                انتشار دوره
+              </button>
+            </div>
           )}
         </div>
       </div>

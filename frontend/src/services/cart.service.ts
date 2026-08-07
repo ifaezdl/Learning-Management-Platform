@@ -26,7 +26,6 @@ class CartService {
   }
 
   async addToCart(courseId: number): Promise<CartItem> {
-    debugger;
     const response = await api.post(`/cart/${courseId}`);
     return response.data;
   }

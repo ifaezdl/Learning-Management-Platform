@@ -84,6 +84,8 @@ import ProtectedRoute from "./protectedRoutes";
 import PublicRoute from "./publicRoute";
 import RoleRoute from "./roleRoutes";
 import AdminPage from "../admin/adminPage";
+import PaymentSuccess from "../Courses/course-checkout/paymentSuccess";
+import PaymentFailure from "../Courses/course-checkout/paymentFailure";
 
 const routes = all_routes;
 
@@ -144,6 +146,8 @@ export const publicRoutes = [
     element: <CourseCheckout />,
     route: Route,
   },
+  { path: routes.paymentSuccess, element: <PaymentSuccess />, route: Route },
+  { path: routes.paymentFailure, element: <PaymentFailure />, route: Route },
   {
     path: routes.addNewCourse,
     element: (
