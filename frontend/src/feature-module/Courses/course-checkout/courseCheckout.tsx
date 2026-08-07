@@ -156,9 +156,8 @@ const CourseCheckout = () => {
 
                     {cartItems.map((item, index) => (
                       <div
-                        className={`d-flex align-items-center p-3 rounded-3 bg-white border ${
-                          index !== cartItems.length - 1 ? "mb-3" : ""
-                        }`}
+                        className={`d-flex align-items-center p-3 rounded-3 bg-white border ${index !== cartItems.length - 1 ? "mb-3" : ""
+                          }`}
                         key={item.Id}
                       >
                         <div

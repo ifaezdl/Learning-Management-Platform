@@ -420,11 +420,12 @@ const InstructorProfileSettings = () => {
                               }
                               required
                             >
-                              <option value={1}>مرد</option>
-                              <option value={2}>زن</option>
-                            </select>
-                          </div>
-                        </div>
+
+                              <option value={5}>مرد</option>
+                              <option value={6}>زن</option>
+                            </select >
+                          </div >
+                        </div >
 
                         <div className="col-md-12">
                           <button
@@ -442,15 +443,15 @@ const InstructorProfileSettings = () => {
                             )}
                           </button>
                         </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
+                      </div >
+                    </div >
+                  </div >
+                </div >
+              </form >
+            </div >
+          </div >
+        </div >
+      </div >
     </>
   );
 };

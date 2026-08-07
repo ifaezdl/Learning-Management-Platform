@@ -419,8 +419,8 @@ const InstructorProfileSettings = () => {
                               }
                               required
                             >
-                              <option value={1}>مرد</option>
-                              <option value={2}>زن</option>
+                              <option value={5}>مرد</option>
+                              <option value={6}>زن</option>
                             </select>
                           </div>
                         </div>

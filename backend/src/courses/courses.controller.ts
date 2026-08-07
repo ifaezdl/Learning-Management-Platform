@@ -33,7 +33,7 @@ import { BrowseCoursesDto } from './dto/browsw-course.dto';
 @ApiTags('Courses')
 @Controller('courses')
 export class CoursesController {
-  constructor(private readonly coursesService: CoursesService) {}
+  constructor(private readonly coursesService: CoursesService) { }
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)

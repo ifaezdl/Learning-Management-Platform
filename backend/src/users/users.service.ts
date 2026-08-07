@@ -11,7 +11,7 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async findById(id: number) {
     const user = await this.prisma.users.findUnique({
@@ -92,20 +92,20 @@ export class UsersService {
         OR: [
           dto.userName
             ? {
-                UserName: dto.userName,
-              }
+              UserName: dto.userName,
+            }
             : undefined,
 
           dto.email
             ? {
-                Email: dto.email,
-              }
+              Email: dto.email,
+            }
             : undefined,
 
           dto.mobile
             ? {
-                Mobile: dto.mobile,
-              }
+              Mobile: dto.mobile,
+            }
             : undefined,
         ].filter(Boolean) as any,
       },

@@ -27,7 +27,7 @@ import { EnrollmentGuard } from '../auth/guards/enrollment.guard';
 @ApiTags('Lessons')
 @Controller()
 export class LessonsController {
-  constructor(private readonly lessonsService: LessonsService) {}
+  constructor(private readonly lessonsService: LessonsService) { }
 
   @Post('sections/:sectionId/lessons')
   @UseGuards(JwtAuthGuard, RolesGuard)
