@@ -87,7 +87,7 @@ const StudentProfile = () => {
             <div className="col-lg-9">
               <div className="page-title d-flex align-items-center justify-content-between">
                 <h5 className="fw-bold">پروفایل من</h5>
-                {/* <button
+                <button
                   type="button"
                   className="edit-profile-icon border-0 bg-transparent"
                   onClick={() => {
@@ -107,7 +107,7 @@ const StudentProfile = () => {
                   }}
                 >
                   <i className="isax isax-edit-2" />
-                </button> */}
+                </button>
               </div>
               <div className="card mb-0">
                 <div className="card-body">

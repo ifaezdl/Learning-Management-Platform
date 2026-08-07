@@ -158,6 +158,7 @@ const StudentChangePassword = () => {
     }
   }, [password]);
 
+<<<<<<< HEAD
   const strengthIndicator = (value: string): number => {
     let strengths = 0;
     if (value.length >= 8) strengths = 1;
@@ -173,6 +174,8 @@ const StudentChangePassword = () => {
       strengths = 3;
     return strengths;
   };
+=======
+>>>>>>> ad31bcd37df4483ed9d9c57afa1c50bb725fd558
 
   useEffect(() => {
     if (password) {
@@ -234,11 +237,18 @@ const StudentChangePassword = () => {
                                 onClick={togglePasswordVisibility}
                               >
                                 <i
+<<<<<<< HEAD
                                   className={`isax ${
                                     isPasswordVisible
                                       ? "isax-eye"
                                       : "isax-eye-slash"
                                   }`}
+=======
+                                  className={`isax ${isPasswordVisible
+                                    ? "isax-eye"
+                                    : "isax-eye-slash"
+                                    }`}
+>>>>>>> ad31bcd37df4483ed9d9c57afa1c50bb725fd558
                                 ></i>
                               </span>
                             </div>
@@ -267,6 +277,7 @@ const StudentChangePassword = () => {
                             <div
                               id="passwordStrength"
                               style={{ display: "flex" }}
+<<<<<<< HEAD
                               className={`password-strength ${
                                 strength === "poor"
                                   ? "poor-active"
@@ -278,6 +289,18 @@ const StudentChangePassword = () => {
                                         ? "heavy-active"
                                         : ""
                               }`}
+=======
+                              className={`password-strength ${strength === "poor"
+                                ? "poor-active"
+                                : strength === "weak"
+                                  ? "avg-active"
+                                  : strength === "strong"
+                                    ? "strong-active"
+                                    : strength === "heavy"
+                                      ? "heavy-active"
+                                      : ""
+                                }`}
+>>>>>>> ad31bcd37df4483ed9d9c57afa1c50bb725fd558
                             >
                               <span id="poor" className="active"></span>
                               <span id="weak" className="active"></span>
@@ -301,11 +324,18 @@ const StudentChangePassword = () => {
                                 }
                               />
                               <span
+<<<<<<< HEAD
                                 className={`isax toggle-passworda ${
                                   eyeConfirmPassword
                                     ? "isax-eye-slash"
                                     : "isax-eye"
                                 } text-gray-7 fs-14`}
+=======
+                                className={`isax toggle-passworda ${eyeConfirmPassword
+                                  ? "isax-eye-slash"
+                                  : "isax-eye"
+                                  } text-gray-7 fs-14`}
+>>>>>>> ad31bcd37df4483ed9d9c57afa1c50bb725fd558
                                 onClick={() =>
                                   setEyeConfirmPassword((prev) => !prev)
                                 }
@@ -346,11 +376,18 @@ const StudentChangePassword = () => {
                               onClick={togglePasswordVisibility}
                             >
                               <i
+<<<<<<< HEAD
                                 className={`isax ${
                                   isPasswordVisible
                                     ? "isax-eye"
                                     : "isax-eye-slash"
                                 }`}
+=======
+                                className={`isax ${isPasswordVisible
+                                  ? "isax-eye"
+                                  : "isax-eye-slash"
+                                  }`}
+>>>>>>> ad31bcd37df4483ed9d9c57afa1c50bb725fd558
                               ></i>
                             </span>
                           </div>
@@ -375,6 +412,7 @@ const StudentChangePassword = () => {
                           <div
                             id="passwordStrength"
                             style={{ display: "flex" }}
+<<<<<<< HEAD
                             className={`password-strength ${
                               strength === "poor"
                                 ? "poor-active"
@@ -386,6 +424,18 @@ const StudentChangePassword = () => {
                                       ? "heavy-active"
                                       : ""
                             }`}
+=======
+                            className={`password-strength ${strength === "poor"
+                              ? "poor-active"
+                              : strength === "weak"
+                                ? "avg-active"
+                                : strength === "strong"
+                                  ? "strong-active"
+                                  : strength === "heavy"
+                                    ? "heavy-active"
+                                    : ""
+                              }`}
+>>>>>>> ad31bcd37df4483ed9d9c57afa1c50bb725fd558
                           >
                             <span id="poor" className="active"></span>
                             <span id="weak" className="active"></span>
@@ -409,11 +459,18 @@ const StudentChangePassword = () => {
                               }
                             />
                             <span
+<<<<<<< HEAD
                               className={`isax toggle-passworda ${
                                 eyeConfirmPassword
                                   ? "isax-eye-slash"
                                   : "isax-eye"
                               } text-gray-7 fs-14`}
+=======
+                              className={`isax toggle-passworda ${eyeConfirmPassword
+                                ? "isax-eye-slash"
+                                : "isax-eye"
+                                } text-gray-7 fs-14`}
+>>>>>>> ad31bcd37df4483ed9d9c57afa1c50bb725fd558
                               onClick={() =>
                                 setEyeConfirmPassword((prev) => !prev)
                               }
