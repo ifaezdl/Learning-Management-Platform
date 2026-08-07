@@ -1,14 +1,16 @@
 import React, { useEffect, useState, useRef } from "react";
-import Breadcrumb from "../../../../core/common/Breadcrumb/breadcrumb";
-import ImageWithBasePath from "../../../../core/common/imageWithBasePath";
+import toast from "react-hot-toast";
+
 import ProfileCard from "../../common/profileCard";
 import InstructorSidebar from "../../common/instructorSidebar";
-import InstructorSettingsLink from "../settings-link/instructorSettingsLink";
-import toast from "react-hot-toast";
+import { useAuth } from "../../../../context/AuthContext";
+import { api_base_url } from "../../../../environment";
+import ImageWithBasePath from "../../../../core/common/imageWithBasePath";
 import userService from "../../../../services/user.service";
+import InstructorSettingsLink from "../settings-link/instructorSettingsLink";
 
 interface UserProfile {
-  id: number;
+  Id: number;
   FirstName: string;
   LastName: string;
   UserName: string;
@@ -20,11 +22,13 @@ interface UserProfile {
 }
 
 const InstructorProfileSettings = () => {
+  const { updateUser } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [editProfile, setEditProfile] = useState({
     firstName: "",
     lastName: "",
@@ -63,6 +67,15 @@ const InstructorProfileSettings = () => {
     loadProfile();
   }, []);
 
+  // پاکسازی آدرس بلاب موقت هنگام unmount شدن کامپوننت
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
   // تابع برای باز کردن دیالوگ انتخاب فایل
   const handleUploadClick = () => {
     if (fileInputRef.current) {
@@ -70,106 +83,104 @@ const InstructorProfileSettings = () => {
     }
   };
 
-  // تابع آپلود آواتار
-  // تابع فشرده‌سازی عکس
-  const compressImage = (
-    base64: string,
-    quality: number = 0.6,
-    maxWidth: number = 150,
-    maxHeight: number = 150,
-  ): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.src = base64;
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        let width = img.width;
-        let height = img.height;
-
-        // محدود کردن اندازه
-        if (width > height) {
-          if (width > maxWidth) {
-            height *= maxWidth / width;
-            width = maxWidth;
-          }
-        } else {
-          if (height > maxHeight) {
-            width *= maxHeight / height;
-            height = maxHeight;
-          }
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        ctx?.drawImage(img, 0, 0, width, height);
-
-        // تبدیل به JPEG با کیفیت پایین‌تر
-        resolve(canvas.toDataURL("image/jpeg", quality));
-      };
-      img.onerror = reject;
-    });
-  };
-
-  // تابع آپلود آواتار اصلاح شده
   const handleAvatarUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
+
     if (!file) return;
 
-    // محدودیت حجم 500KB
     if (file.size > 500 * 1024) {
       toast.error("حجم فایل باید کمتر از ۵۰۰ کیلوبایت باشد");
       return;
     }
 
+    // نمایش فوری تصویر انتخاب‌شده، پیش از اتمام آپلود
+    const localUrl = URL.createObjectURL(file);
+    setPreviewUrl(localUrl);
+
     setUploadingAvatar(true);
+
     try {
-      // تبدیل به base64
-      const base64 = await convertToBase64(file);
+      const result = await userService.uploadAvatar(file);
 
-      // فشرده‌سازی عکس
-      const compressed = await compressImage(base64, 0.5, 150, 150);
+      if (result?.user) {
+        setProfile(result.user);
 
-      setEditProfile((prev) => ({
-        ...prev,
-        avatar: compressed,
-      }));
+        setEditProfile((prev) => ({
+          ...prev,
+          avatar: result.user.Avatar,
+        }));
 
-      toast.success("آواتار با موفقیت آپلود شد");
-    } catch (error) {
-      console.error("خطا در آپلود:", error);
-      toast.error("خطا در آپلود آواتار");
+        const existingUser = JSON.parse(localStorage.getItem("user") || "{}");
+
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            ...existingUser,
+            avatar: result.user.Avatar,
+          }),
+        );
+
+        toast.success("آواتار با موفقیت آپلود شد");
+      }
+    } catch (error: any) {
+      console.error("خطا در آپلود آواتار:", error);
+
+      toast.error(error?.response?.data?.message || "خطا در آپلود آواتار");
+
+      // اگر آپلود شکست خورد، پیش‌نمایش موقت را پاک کن
+      setPreviewUrl(null);
     } finally {
       setUploadingAvatar(false);
+
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
+
+      // آزادسازی حافظه بلاب موقت پس از اتمام آپلود
+      URL.revokeObjectURL(localUrl);
+      setPreviewUrl((current) => (current === localUrl ? null : current));
     }
   };
 
-  // تابع تبدیل فایل به base64
-  const convertToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (error) => reject(error);
-    });
-  };
-
   // تابع حذف آواتار
-  const handleDeleteAvatar = () => {
-    setEditProfile((prev) => ({
-      ...prev,
-      avatar: "",
-    }));
-    toast.success("آواتار با موفقیت حذف شد");
+
+  const handleDeleteAvatar = async () => {
+    try {
+      setUploadingAvatar(true);
+
+      await userService.deleteAvatar();
+
+      setEditProfile((prev) => ({
+        ...prev,
+        avatar: "",
+      }));
+
+      setPreviewUrl(null);
+
+      // Update localStorage as well
+      const existingUser = JSON.parse(localStorage.getItem("user") || "{}");
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          ...existingUser,
+          avatar: "",
+        }),
+      );
+
+      toast.success("آواتار با موفقیت حذف شد");
+    } catch (error: any) {
+      console.error("خطا در حذف آواتار:", error);
+
+      toast.error(error?.response?.data?.message || "خطا در حذف آواتار");
+    } finally {
+      setUploadingAvatar(false);
+    }
   };
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
-    debugger;
     e.preventDefault();
     setIsUpdating(true);
 
@@ -177,27 +188,28 @@ const InstructorProfileSettings = () => {
       const updatedUser = await userService.updateProfile(editProfile);
       if (updatedUser?.user) {
         setProfile(updatedUser.user);
-        const existingUser = JSON.parse(localStorage.getItem("user") || "{}");
-        const updatedUserData = {
-          ...existingUser,
+
+        updateUser({
+          id: updatedUser.user.Id,
           firstName: updatedUser.user.FirstName,
           lastName: updatedUser.user.LastName,
+          userName: updatedUser.user.UserName,
           email: updatedUser.user.Email,
           mobile: updatedUser.user.Mobile,
-          userName: updatedUser.user.UserName,
           avatar: updatedUser.user.Avatar,
-        };
-        localStorage.setItem("user", JSON.stringify(updatedUserData));
+          sexId: updatedUser.user.Sex_Id,
+          roleId: updatedUser.user.Role_Id,
+        });
 
         toast.success("پروفایل با موفقیت به‌روزرسانی شد!");
       } else {
         toast.error(" خطا در به‌روزرسانی پروفایل");
       }
     } catch (err: any) {
-      console.error("❌ خطای کامل:", err);
-      console.error("❌ پاسخ خطا:", err?.response);
-      console.error("❌ داده‌های خطا:", err?.response?.data);
-      console.error("❌ وضعیت خطا:", err?.response?.status);
+      console.error(" خطای کامل:", err);
+      console.error(" پاسخ خطا:", err?.response);
+      console.error(" داده‌های خطا:", err?.response?.data);
+      console.error(" وضعیت خطا:", err?.response?.status);
 
       toast.error(err?.response?.data?.message || "خطا در به‌روزرسانی پروفایل");
     } finally {
@@ -249,14 +261,24 @@ const InstructorProfileSettings = () => {
                     <div className="profile-upload-group">
                       <div className="d-flex align-items-center">
                         <div className="avatar flex-shrink-0 avatar-xxxl avatar-rounded border me-3 position-relative">
-                          <ImageWithBasePath
-                            src={
-                              editProfile.avatar ||
-                              "assets/img/user/user-01.jpg"
-                            }
-                            alt="آواتار"
-                            className="img-fluid"
-                          />
+                          {previewUrl || editProfile.avatar ? (
+                            // آدرس کامل است (بلاب محلی یا آدرس سرور) - نباید از ImageWithBasePath عبور کند
+                            <img
+                              src={
+                                previewUrl ||
+                                `${api_base_url}${editProfile.avatar}`
+                              }
+                              alt="آواتار"
+                              className="img-fluid"
+                            />
+                          ) : (
+                            // مسیر نسبی پیش‌فرض - این یکی باید از ImageWithBasePath عبور کند
+                            <ImageWithBasePath
+                              src="assets/img/user/user-01.jpg"
+                              alt="آواتار"
+                              className="img-fluid"
+                            />
+                          )}
                           {uploadingAvatar && (
                             <div className="position-absolute top-50 start-50 translate-middle bg-dark bg-opacity-50 rounded-circle p-3">
                               <div
@@ -298,7 +320,8 @@ const InstructorProfileSettings = () => {
                                 className="btn btn-secondary btn-sm rounded-pill"
                                 onClick={handleDeleteAvatar}
                                 disabled={
-                                  !editProfile.avatar || uploadingAvatar
+                                  (!editProfile.avatar && !previewUrl) ||
+                                  uploadingAvatar
                                 }
                               >
                                 حذف
@@ -420,12 +443,11 @@ const InstructorProfileSettings = () => {
                               }
                               required
                             >
-
                               <option value={5}>مرد</option>
                               <option value={6}>زن</option>
-                            </select >
-                          </div >
-                        </div >
+                            </select>
+                          </div>
+                        </div>
 
                         <div className="col-md-12">
                           <button
@@ -443,15 +465,15 @@ const InstructorProfileSettings = () => {
                             )}
                           </button>
                         </div>
-                      </div >
-                    </div >
-                  </div >
-                </div >
-              </form >
-            </div >
-          </div >
-        </div >
-      </div >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
     </>
   );
 };

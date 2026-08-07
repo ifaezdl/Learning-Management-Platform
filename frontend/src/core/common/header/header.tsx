@@ -6,9 +6,14 @@ import { all_routes } from "../../../feature-module/router/all_routes";
 import { setDataTheme } from "../../redux/themeSettingSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useAuth } from "../../../context/AuthContext";
+import { api_base_url } from "../../../environment";
 
 const Header = () => {
   const { user, logout } = useAuth();
+
+  const avatarUrl = user?.avatar
+    ? `${api_base_url}${user.avatar}`
+    : "assets/img/user/user-02.jpg";
   const header = getHeader(user?.roleId ?? 1);
   const profileMenu = getProfileMenu(user?.roleId ?? 1);
   const navigate = useNavigate();
@@ -333,12 +338,20 @@ const Header = () => {
                   className="d-flex align-items-center"
                   data-bs-toggle="dropdown"
                 >
-                  <span className="avatar">
-                    <ImageWithBasePath
-                      src="assets/img/user/profileavatar.png"
-                      alt="Img"
-                      className="img-fluid rounded-circle"
-                    />
+                  <span className="avatar avatar-xxl avatar-rounded me-3 border border-white border-2 position-relative">
+                    {user?.avatar ? (
+                      <img
+                        src={avatarUrl}
+                        alt={`${user?.firstName || ""} ${user?.lastName || ""}`}
+                        className="img-fluid"
+                      />
+                    ) : (
+                      <img
+                        src="assets/img/user/profileavatar.png"
+                        alt={`${user?.firstName || ""} ${user?.lastName || ""}`}
+                        className="img-fluid"
+                      />
+                    )}
                   </span>
                 </Link>
                 <div className="dropdown-menu dropdown-menu-end">

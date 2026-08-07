@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
+
 // main.ts, near the top, before bootstrap() logic
 (BigInt.prototype as any).toJSON = function () {
   return this.toString();
@@ -15,6 +16,9 @@ async function bootstrap() {
   app.enableCors({
     origin: true,
     credentials: true,
+  });
+  app.useStaticAssets(join(process.cwd(), 'uploads'), {
+    prefix: '/uploads/',
   });
 
   const config = new DocumentBuilder()

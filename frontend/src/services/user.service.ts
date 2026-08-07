@@ -7,7 +7,6 @@ export interface UpdateProfileRequest {
   email?: string;
   mobile?: string;
   sexId?: number;
-  avatar?: string;
 }
 
 export interface ChangePasswordRequest {
@@ -58,6 +57,20 @@ class UserService {
 
   async rejectInstructorRequest(requestId: number) {
     const response = await api.put(`/instructor-requests/${requestId}/reject`);
+    return response.data;
+  }
+  async uploadAvatar(file: File) {
+    const formData = new FormData();
+    formData.append("avatar", file);
+
+    const response = await api.post("/users/profile/avatar", formData, {
+      headers: { "Content-Type": undefined },
+    });
+
+    return response.data;
+  }
+  async deleteAvatar() {
+    const response = await api.delete("/users/profile/avatar");
     return response.data;
   }
 }
