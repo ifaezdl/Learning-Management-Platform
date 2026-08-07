@@ -12,7 +12,7 @@ import { SaveLearningOutcomesDto } from './dto/save-learning-outcomes.dto';
 import { SavePrerequisitesDto } from './dto/save-prerequisites.dto';
 @Injectable()
 export class CoursesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   private generateSlug(title: string): string {
     return title
@@ -202,6 +202,7 @@ export class CoursesService {
       where: { Id: id },
       include: {
         ...this.courseInclude(),
+
         Users: {
           select: {
             Id: true,
@@ -209,11 +210,16 @@ export class CoursesService {
             LastName: true,
           },
         },
+
         CourseSections: {
-          orderBy: { DisplayOrder: 'asc' },
+          orderBy: {
+            DisplayOrder: 'asc',
+          },
           include: {
             Lessons: {
-              orderBy: { SortOrder: 'asc' },
+              orderBy: {
+                SortOrder: 'asc',
+              },
             },
           },
         },

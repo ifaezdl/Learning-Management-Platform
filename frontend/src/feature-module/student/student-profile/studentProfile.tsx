@@ -277,8 +277,8 @@ const StudentProfile = () => {
                       })
                     }
                   >
-                    <option value={1}>Male</option>
-                    <option value={2}>Female</option>
+                    <option value={5}>Male</option>
+                    <option value={6}>Female</option>
                   </select>
                 </div>
               </div>

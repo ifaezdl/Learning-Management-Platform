@@ -377,11 +377,10 @@ const CourseGrid = () => {
 
                     {/* Next */}
                     <li
-                      className={`page-item next ${
-                        page === totalPages || totalPages === 0
+                      className={`page-item next ${page === totalPages || totalPages === 0
                           ? "disabled"
                           : ""
-                      }`}
+                        }`}
                     >
                       <Link
                         className="page-link"

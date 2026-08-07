@@ -113,7 +113,7 @@ const CourseDetails = () => {
                   </div>
                   <div className="w-100 ps-lg-4">
                     <h3 className="mb-2">{course?.Title}</h3>
-                    <p className="fs-14 mb-3">{}</p>
+                    <p className="fs-14 mb-3">{ }</p>
                     <div className="d-flex align-items-center gap-2 gap-sm-3 gap-xl-4 flex-wrap my-3 my-sm-0">
                       <p className="fw-medium d-flex align-items-center mb-0">
                         <ImageWithBasePath
