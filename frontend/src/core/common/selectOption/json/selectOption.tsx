@@ -47,7 +47,6 @@ export const Priority = [
   { label: 'Medium', value: '3' },
 ];
 export const Gender = [
-  { label: 'High', value: '1' },
   { label: 'Male', value: '5' },
   { label: 'Female', value: '6' },
 ];
