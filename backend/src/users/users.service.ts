@@ -37,7 +37,7 @@ export class UsersService {
 
     return user;
   }
-
+  //Sex_Id needed to be adedd on Model
   async findAll() {
     const users = await this.prisma.users.findMany({
       select: {
