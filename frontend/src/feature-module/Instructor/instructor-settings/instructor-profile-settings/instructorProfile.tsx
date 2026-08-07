@@ -420,6 +420,7 @@ const InstructorProfileSettings = () => {
                               }
                               required
                             >
+
                               <option value={5}>مرد</option>
                               <option value={6}>زن</option>
                             </select>
