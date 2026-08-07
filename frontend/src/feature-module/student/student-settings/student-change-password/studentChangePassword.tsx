@@ -90,57 +90,37 @@ const StudentChangePassword = () => {
             className="active mt-2"
             style={{ fontSize: 14, color: "#DC3545", marginTop: "8px" }}
           >
-            <ImageWithBasePath
-              src="assets/img/icon/angry.svg"
-              className="me-2"
-              alt=""
-            />{" "}
-            Weak. Must contain at least 8 characters
+            ضعیف است. رمز عبور باید حداقل ۸ کاراکتر باشد.{" "}
           </span>
         );
       case 3:
         return (
           <span
             id="weak"
-            className="active  mt-2"
+            className="active mt-2"
             style={{ fontSize: 14, color: "#FFC107", marginTop: "8px" }}
           >
-            <ImageWithBasePath
-              src="assets/img/icon/anguish.svg"
-              className="me-2"
-              alt=""
-            />{" "}
-            Average. Must contain at least 1 letter or number
+            متوسط است. رمز عبور باید حداقل شامل یک حرف یا عدد باشد.{" "}
           </span>
         );
       case 4:
         return (
           <span
             id="strong"
-            className="active  mt-2"
+            className="active mt-2"
             style={{ fontSize: 14, color: "#0D6EFD", marginTop: "8px" }}
           >
-            <ImageWithBasePath
-              src="assets/img/icon/smile.svg"
-              className="me-2"
-              alt=""
-            />{" "}
-            Almost. Must contain special symbol
+            تقریباً کامل است. رمز عبور باید شامل یک نماد خاص باشد.{" "}
           </span>
         );
       case 5:
         return (
           <span
             id="heavy"
-            className="active  mt-2"
+            className="active mt-2"
             style={{ fontSize: 14, color: "#4BB543", marginTop: "8px" }}
           >
-            <ImageWithBasePath
-              src="assets/img/icon/smile.svg"
-              className="me-2"
-              alt=""
-            />{" "}
-            Awesome! You have a secure password.
+            عالی است! رمز عبور شما ایمن است.{" "}
           </span>
         );
       default:
@@ -148,17 +128,6 @@ const StudentChangePassword = () => {
     }
   };
 
-  useEffect(() => {
-    if (password) {
-      let strengthValue = strengthIndicator(password);
-      let color = strengthColor(strengthValue);
-      setStrength(color);
-    } else {
-      setStrength("");
-    }
-  }, [password]);
-
-<<<<<<< HEAD
   const strengthIndicator = (value: string): number => {
     let strengths = 0;
     if (value.length >= 8) strengths = 1;
@@ -174,8 +143,16 @@ const StudentChangePassword = () => {
       strengths = 3;
     return strengths;
   };
-=======
->>>>>>> ad31bcd37df4483ed9d9c57afa1c50bb725fd558
+
+  useEffect(() => {
+    if (password) {
+      let strengthValue = strengthIndicator(password);
+      let color = strengthColor(strengthValue);
+      setStrength(color);
+    } else {
+      setStrength("");
+    }
+  }, [password]);
 
   useEffect(() => {
     if (password) {
@@ -200,7 +177,7 @@ const StudentChangePassword = () => {
             {/* sidebar */}
             <div className="col-lg-9">
               <div className="mb-3">
-                <h5>Settings</h5>
+                <h5>تنظیمات</h5>
               </div>
               <SettingsLinks />
               <div className="card mb-0">
@@ -209,19 +186,19 @@ const StudentChangePassword = () => {
                     <div className="row">
                       <div className="col-md-8">
                         <div className="mb-3">
-                          <h5 className="mb-1 fs-18">Change Password</h5>
+                          <h5 className="mb-1 fs-18">تغییر رمز عبور</h5>
                           <p>
-                            Can't remember your current password?&nbsp;
+                            رمز عبور فعلی خود را به خاطر نمی‌آورید؟&nbsp;
                             <Link to="#" className="text-decoration-underline">
-                              Reset your password via email
+                              رمز عبور خود را از طریق ایمیل بازنشانی کنید.
                             </Link>
                           </p>
                         </div>
                         <form onSubmit={onsubmitPasswordChange}>
                           <div className="mb-3 position-relative">
                             <label className="form-label">
-                              Current Password{" "}
-                              <span className="text-danger"> *</span>
+                              <span className="text-danger"> * </span>
+                              رمز عبور فعلی{" "}
                             </label>
                             <div className="position-relative">
                               <input
@@ -237,26 +214,19 @@ const StudentChangePassword = () => {
                                 onClick={togglePasswordVisibility}
                               >
                                 <i
-<<<<<<< HEAD
                                   className={`isax ${
                                     isPasswordVisible
                                       ? "isax-eye"
                                       : "isax-eye-slash"
                                   }`}
-=======
-                                  className={`isax ${isPasswordVisible
-                                    ? "isax-eye"
-                                    : "isax-eye-slash"
-                                    }`}
->>>>>>> ad31bcd37df4483ed9d9c57afa1c50bb725fd558
                                 ></i>
                               </span>
                             </div>
                           </div>
                           <div className="mb-3 position-relative">
                             <label className="form-label">
-                              New Password{" "}
-                              <span className="text-danger"> *</span>
+                              <span className="text-danger"> * </span>
+                              رمز عبور جدید{" "}
                             </label>
                             <div
                               className="position-relative"
@@ -277,7 +247,6 @@ const StudentChangePassword = () => {
                             <div
                               id="passwordStrength"
                               style={{ display: "flex" }}
-<<<<<<< HEAD
                               className={`password-strength ${
                                 strength === "poor"
                                   ? "poor-active"
@@ -289,18 +258,6 @@ const StudentChangePassword = () => {
                                         ? "heavy-active"
                                         : ""
                               }`}
-=======
-                              className={`password-strength ${strength === "poor"
-                                ? "poor-active"
-                                : strength === "weak"
-                                  ? "avg-active"
-                                  : strength === "strong"
-                                    ? "strong-active"
-                                    : strength === "heavy"
-                                      ? "heavy-active"
-                                      : ""
-                                }`}
->>>>>>> ad31bcd37df4483ed9d9c57afa1c50bb725fd558
                             >
                               <span id="poor" className="active"></span>
                               <span id="weak" className="active"></span>
@@ -309,187 +266,13 @@ const StudentChangePassword = () => {
                             </div>
                             <div id="passwordInfo">{messages()}</div>
                           </div>
-                          <div className="mb-3 position-relative">
-                            <label className="form-label">
-                              Confirm Password{" "}
-                              <span className="text-danger"> *</span>
-                            </label>
-                            <div className="position-relative">
-                              <input
-                                type={eyeConfirmPassword ? "password" : "text"}
-                                className="pass-inputa form-control form-control-lg"
-                                value={confirmPassword}
-                                onChange={(e) =>
-                                  setConfirmPassword(e.target.value)
-                                }
-                              />
-                              <span
-<<<<<<< HEAD
-                                className={`isax toggle-passworda ${
-                                  eyeConfirmPassword
-                                    ? "isax-eye-slash"
-                                    : "isax-eye"
-                                } text-gray-7 fs-14`}
-=======
-                                className={`isax toggle-passworda ${eyeConfirmPassword
-                                  ? "isax-eye-slash"
-                                  : "isax-eye"
-                                  } text-gray-7 fs-14`}
->>>>>>> ad31bcd37df4483ed9d9c57afa1c50bb725fd558
-                                onClick={() =>
-                                  setEyeConfirmPassword((prev) => !prev)
-                                }
-                                style={{
-                                  cursor: "pointer",
-                                  position: "absolute",
-                                  right: "10px",
-                                  top: "50%",
-                                  transform: "translateY(-50%)",
-                                }}
-                              />
-                            </div>
-                          </div>
                           <div>
                             <button className="btn btn-secondary" type="submit">
-                              Change Password
+                              تغییر رمز عبور
                             </button>
                           </div>
                         </form>
                       </div>
-                      <form onSubmit={onsubmitPasswordChange}>
-                        <div className="mb-3 position-relative">
-                          <label className="form-label">
-                            Current Password{" "}
-                            <span className="text-danger"> *</span>
-                          </label>
-                          <div className="position-relative">
-                            <input
-                              value={currentPassword}
-                              type={isPasswordVisible ? "text" : "password"}
-                              className="form-control form-control-lg pass-input"
-                              onChange={(e) =>
-                                setCurrentPassword(e.target.value)
-                              }
-                            />
-                            <span
-                              className={`input-icon-addon toggle-password fs-14`}
-                              onClick={togglePasswordVisibility}
-                            >
-                              <i
-<<<<<<< HEAD
-                                className={`isax ${
-                                  isPasswordVisible
-                                    ? "isax-eye"
-                                    : "isax-eye-slash"
-                                }`}
-=======
-                                className={`isax ${isPasswordVisible
-                                  ? "isax-eye"
-                                  : "isax-eye-slash"
-                                  }`}
->>>>>>> ad31bcd37df4483ed9d9c57afa1c50bb725fd558
-                              ></i>
-                            </span>
-                          </div>
-                        </div>
-                        <div className="mb-3 position-relative">
-                          <label className="form-label">
-                            New Password <span className="text-danger"> *</span>
-                          </label>
-                          <div className="position-relative" id="passwordInput">
-                            <input
-                              className="form-control pass-input"
-                              type={eye ? "password" : "text"}
-                              onChange={handlePasswordChange}
-                            />
-                            <span
-                              onClick={onEyeClick}
-                              className={`toggle-passwords text-gray-7 fs-14 isax isax-eye-slash" ${
-                                eye ? "isax-eye-slash" : "isax-eye"
-                              }`}
-                            />
-                          </div>
-                          <div
-                            id="passwordStrength"
-                            style={{ display: "flex" }}
-<<<<<<< HEAD
-                            className={`password-strength ${
-                              strength === "poor"
-                                ? "poor-active"
-                                : strength === "weak"
-                                  ? "avg-active"
-                                  : strength === "strong"
-                                    ? "strong-active"
-                                    : strength === "heavy"
-                                      ? "heavy-active"
-                                      : ""
-                            }`}
-=======
-                            className={`password-strength ${strength === "poor"
-                              ? "poor-active"
-                              : strength === "weak"
-                                ? "avg-active"
-                                : strength === "strong"
-                                  ? "strong-active"
-                                  : strength === "heavy"
-                                    ? "heavy-active"
-                                    : ""
-                              }`}
->>>>>>> ad31bcd37df4483ed9d9c57afa1c50bb725fd558
-                          >
-                            <span id="poor" className="active"></span>
-                            <span id="weak" className="active"></span>
-                            <span id="strong" className="active"></span>
-                            <span id="heavy" className="active"></span>
-                          </div>
-                          <div id="passwordInfo">{messages()}</div>
-                        </div>
-                        <div className="mb-3 position-relative">
-                          <label className="form-label">
-                            Confirm Password{" "}
-                            <span className="text-danger"> *</span>
-                          </label>
-                          <div className="position-relative">
-                            <input
-                              type={eyeConfirmPassword ? "password" : "text"}
-                              className="pass-inputa form-control form-control-lg"
-                              value={confirmPassword}
-                              onChange={(e) =>
-                                setConfirmPassword(e.target.value)
-                              }
-                            />
-                            <span
-<<<<<<< HEAD
-                              className={`isax toggle-passworda ${
-                                eyeConfirmPassword
-                                  ? "isax-eye-slash"
-                                  : "isax-eye"
-                              } text-gray-7 fs-14`}
-=======
-                              className={`isax toggle-passworda ${eyeConfirmPassword
-                                ? "isax-eye-slash"
-                                : "isax-eye"
-                                } text-gray-7 fs-14`}
->>>>>>> ad31bcd37df4483ed9d9c57afa1c50bb725fd558
-                              onClick={() =>
-                                setEyeConfirmPassword((prev) => !prev)
-                              }
-                              style={{
-                                cursor: "pointer",
-                                position: "absolute",
-                                right: "10px",
-                                top: "50%",
-                                transform: "translateY(-50%)",
-                              }}
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <button className="btn btn-secondary" type="submit">
-                            Change Password
-                          </button>
-                        </div>
-                      </form>
                     </div>
                   </div>
                 </div>
