@@ -25,7 +25,10 @@ const CourseCart = () => {
       setError(null);
       const data = await cartService.getCart();
       setCartItems(data);
-    } catch (err) {
+    } catch (err: any) {
+      console.log("Status:", err.response?.status);
+      console.log("Data:", err.response?.data);
+      console.log("Headers:", err.response?.headers);
       console.log(err);
       setError("خطا در دریافت اطلاعات سبد خرید");
     } finally {

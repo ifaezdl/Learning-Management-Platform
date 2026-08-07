@@ -27,7 +27,7 @@ import { EnrollmentGuard } from '../auth/guards/enrollment.guard';
 @ApiTags('Lessons')
 @Controller()
 export class LessonsController {
-  constructor(private readonly lessonsService: LessonsService) {}
+  constructor(private readonly lessonsService: LessonsService) { }
 
   @Post('sections/:sectionId/lessons')
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -85,9 +85,10 @@ export class LessonsController {
   ) {
     return this.lessonsService.remove(id, user.id);
   }
-  @UseGuards(JwtAuthGuard, EnrollmentGuard) // was: @UseGuards(JwtAuthGuard)
-  @Get(':lessonId')
+  @Get('lessons/:lessonId')
+  @UseGuards(JwtAuthGuard, EnrollmentGuard)
   getLessonContent(@Param('lessonId', ParseIntPipe) lessonId: number) {
+    console.log('=== LESSON CONTROLLER ===', lessonId);
     return this.lessonsService.findOne(lessonId);
   }
 }

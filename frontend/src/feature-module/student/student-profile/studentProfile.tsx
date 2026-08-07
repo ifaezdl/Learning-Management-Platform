@@ -81,7 +81,7 @@ const StudentProfile = () => {
       <div className="content mt-5">
         <div className="container">
           {/* profile box */}
-          <ProfileCard/>
+          <ProfileCard />
           {/* profile box */}
           <div className="row">
             {/* sidebar */}
@@ -279,8 +279,8 @@ const StudentProfile = () => {
                       })
                     }
                   >
-                    <option value={1}>Male</option>
-                    <option value={2}>Female</option>
+                    <option value={5}>Male</option>
+                    <option value={6}>Female</option>
                   </select>
                 </div>
               </div>

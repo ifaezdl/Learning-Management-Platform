@@ -22,13 +22,13 @@ import {
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('JWT-auth')
 export class CartController {
-  constructor(private readonly cartService: CartService) {}
+  constructor(private readonly cartService: CartService) { }
 
   @Get()
   @ApiOperation({ summary: "Get current user's cart" })
   @ApiResponse({ status: 200, description: 'Returns cart items' })
   async getCart(@CurrentUser() user: any) {
-    console.log('controller');
+    console.log('=== CART CONTROLLER ===');
     console.log(user);
     return this.cartService.getCart(user.id);
   }

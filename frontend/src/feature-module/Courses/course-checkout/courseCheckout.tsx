@@ -26,6 +26,7 @@ const CourseCheckout = () => {
       const data = await cartService.getCart();
       setCartItems(data);
     } catch (err: any) {
+
       setError("خطا در دریافت اطلاعات سبد خرید");
     } finally {
       setLoading(false);
@@ -68,7 +69,7 @@ const CourseCheckout = () => {
     } catch (err: any) {
       setError(
         err?.response?.data?.message ||
-          "پرداخت با مشکل مواجه شد. دوباره تلاش کنید.",
+        "پرداخت با مشکل مواجه شد. دوباره تلاش کنید.",
       );
     } finally {
       setPaying(false);
@@ -142,9 +143,8 @@ const CourseCheckout = () => {
                     <div className="checkout-item-3 bg-light p-3 rounded-3 border mb-3">
                       {cartItems.map((item, index) => (
                         <div
-                          className={`row row-gap-2 ${
-                            index !== cartItems.length - 1 ? "mb-3" : ""
-                          }`}
+                          className={`row row-gap-2 ${index !== cartItems.length - 1 ? "mb-3" : ""
+                            }`}
                           key={item.Id}
                         >
                           <div className="col-md-12 d-flex align-items-center">

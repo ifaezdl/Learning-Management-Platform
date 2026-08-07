@@ -48,8 +48,8 @@ export const Priority = [
 ];
 export const Gender = [
   { label: 'High', value: '1' },
-  { label: 'Male', value: '2' },
-  { label: 'Female', value: '3' },
+  { label: 'Male', value: '5' },
+  { label: 'Female', value: '6' },
 ];
 export const Country = [
   { label: 'United states of America', value: '1' },
