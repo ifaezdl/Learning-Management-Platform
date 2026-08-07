@@ -23,6 +23,7 @@ export interface User {
   Email: string;
   Mobile: string;
   Role_Id: number;
+  Sex_Id: number;
   IsActive: boolean;
   RequestStatus?: string;
   RequestId?: number;

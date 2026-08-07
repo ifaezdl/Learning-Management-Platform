@@ -174,88 +174,6 @@ const StudentChangePassword = () => {
     }
   }, [password]);
 
-  const messages = () => {
-    switch (validationError) {
-      case 2:
-        return (
-          <span
-            id="poor"
-            className="active mt-2"
-            style={{ fontSize: 14, color: "#DC3545", marginTop: "8px" }}
-          >
-            <ImageWithBasePath
-              src="assets/img/icon/angry.svg"
-              className="me-2"
-              alt=""
-            />{" "}
-            Weak. Must contain at least 8 characters
-          </span>
-        );
-      case 3:
-        return (
-          <span
-            id="weak"
-            className="active  mt-2"
-            style={{ fontSize: 14, color: "#FFC107", marginTop: "8px" }}
-          >
-            <ImageWithBasePath
-              src="assets/img/icon/anguish.svg"
-              className="me-2"
-              alt=""
-            />{" "}
-            Average. Must contain at least 1 letter or number
-          </span>
-        );
-      case 4:
-        return (
-          <span
-            id="strong"
-            className="active  mt-2"
-            style={{ fontSize: 14, color: "#0D6EFD", marginTop: "8px" }}
-          >
-            <ImageWithBasePath
-              src="assets/img/icon/smile.svg"
-              className="me-2"
-              alt=""
-            />{" "}
-            Almost. Must contain special symbol
-          </span>
-        );
-      case 5:
-        return (
-          <span
-            id="heavy"
-            className="active  mt-2"
-            style={{ fontSize: 14, color: "#4BB543", marginTop: "8px" }}
-          >
-            <ImageWithBasePath
-              src="assets/img/icon/smile.svg"
-              className="me-2"
-              alt=""
-            />{" "}
-            Awesome! You have a secure password.
-          </span>
-        );
-      default:
-        return null;
-    }
-  };
-
-  const strengthIndicator = (value: string): number => {
-    let strengths = 0;
-    if (value.length >= 8) strengths = 1;
-    if (hasNumber(value) && value.length >= 8) strengths = 2;
-    if (hasSpecial(value) && value.length >= 8 && hasNumber(value))
-      strengths = 3;
-    if (
-      hasMixed(value) &&
-      hasSpecial(value) &&
-      value.length >= 8 &&
-      hasNumber(value)
-    )
-      strengths = 3;
-    return strengths;
-  };
 
   useEffect(() => {
     if (password) {
@@ -318,8 +236,8 @@ const StudentChangePassword = () => {
                               >
                                 <i
                                   className={`isax ${isPasswordVisible
-                                      ? "isax-eye"
-                                      : "isax-eye-slash"
+                                    ? "isax-eye"
+                                    : "isax-eye-slash"
                                     }`}
                                 ></i>
                               </span>
@@ -349,14 +267,14 @@ const StudentChangePassword = () => {
                               id="passwordStrength"
                               style={{ display: "flex" }}
                               className={`password-strength ${strength === "poor"
-                                  ? "poor-active"
-                                  : strength === "weak"
-                                    ? "avg-active"
-                                    : strength === "strong"
-                                      ? "strong-active"
-                                      : strength === "heavy"
-                                        ? "heavy-active"
-                                        : ""
+                                ? "poor-active"
+                                : strength === "weak"
+                                  ? "avg-active"
+                                  : strength === "strong"
+                                    ? "strong-active"
+                                    : strength === "heavy"
+                                      ? "heavy-active"
+                                      : ""
                                 }`}
                             >
                               <span id="poor" className="active"></span>
@@ -382,8 +300,8 @@ const StudentChangePassword = () => {
                               />
                               <span
                                 className={`isax toggle-passworda ${eyeConfirmPassword
-                                    ? "isax-eye-slash"
-                                    : "isax-eye"
+                                  ? "isax-eye-slash"
+                                  : "isax-eye"
                                   } text-gray-7 fs-14`}
                                 onClick={() =>
                                   setEyeConfirmPassword((prev) => !prev)
@@ -426,8 +344,8 @@ const StudentChangePassword = () => {
                             >
                               <i
                                 className={`isax ${isPasswordVisible
-                                    ? "isax-eye"
-                                    : "isax-eye-slash"
+                                  ? "isax-eye"
+                                  : "isax-eye-slash"
                                   }`}
                               ></i>
                             </span>
@@ -457,14 +375,14 @@ const StudentChangePassword = () => {
                             id="passwordStrength"
                             style={{ display: "flex" }}
                             className={`password-strength ${strength === "poor"
-                                ? "poor-active"
-                                : strength === "weak"
-                                  ? "avg-active"
-                                  : strength === "strong"
-                                    ? "strong-active"
-                                    : strength === "heavy"
-                                      ? "heavy-active"
-                                      : ""
+                              ? "poor-active"
+                              : strength === "weak"
+                                ? "avg-active"
+                                : strength === "strong"
+                                  ? "strong-active"
+                                  : strength === "heavy"
+                                    ? "heavy-active"
+                                    : ""
                               }`}
                           >
                             <span id="poor" className="active"></span>
@@ -490,8 +408,8 @@ const StudentChangePassword = () => {
                             />
                             <span
                               className={`isax toggle-passworda ${eyeConfirmPassword
-                                  ? "isax-eye-slash"
-                                  : "isax-eye"
+                                ? "isax-eye-slash"
+                                : "isax-eye"
                                 } text-gray-7 fs-14`}
                               onClick={() =>
                                 setEyeConfirmPassword((prev) => !prev)
@@ -520,9 +438,8 @@ const StudentChangePassword = () => {
           </div>
         </div>
       </div>
-    </div >
-  </>
-);
+    </>
+  );
 };
 
 export default StudentChangePassword;

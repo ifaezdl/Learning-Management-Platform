@@ -41,6 +41,7 @@ const InstructorProfileSettings = () => {
         setProfile(data);
 
         if (data) {
+          debugger;
           setEditProfile({
             firstName: data.FirstName || "",
             lastName: data.LastName || "",
