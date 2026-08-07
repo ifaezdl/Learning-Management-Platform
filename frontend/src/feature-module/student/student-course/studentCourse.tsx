@@ -9,6 +9,7 @@ import ProfileCard from "../common/profileCard";
 const StudentCourse = () => {
   const route = all_routes;
 
+  
   const [selectedItems, setSelectedItems] = useState(Array(10).fill(false));
   const handleItemClick = (index: number) => {
     setSelectedItems((prevSelectedItems) => {
