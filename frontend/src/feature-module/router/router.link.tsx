@@ -83,10 +83,13 @@ import InstructorProfileSettings from "../Instructor/instructor-settings/instruc
 import ProtectedRoute from "./protectedRoutes";
 import PublicRoute from "./publicRoute";
 import RoleRoute from "./roleRoutes";
-import AdminPage from "../admin/adminPage";
+import AdminPage from "../admin/admin-requests/adminRequests";
 import PaymentSuccess from "../Courses/course-checkout/paymentSuccess";
 import PaymentFailure from "../Courses/course-checkout/paymentFailure";
 import InstructorEnrolledCourse from "../Instructor/instructor-course/instructorEnrolledCourse";
+import AdminDashboard from "../admin/dashboard/adminDashboard";
+import AdminRequests from "../admin/admin-requests/adminRequests";
+import AdminProfile from "../admin/admin-profile/adminProfile";
 
 const routes = all_routes;
 
@@ -162,7 +165,25 @@ export const publicRoutes = [
     path: routes.adminDashboard,
     element: (
       <RoleRoute roles={[3]}>
-        <AdminPage />
+        <AdminDashboard />
+      </RoleRoute>
+    ),
+    route: Route,
+  },
+  {
+    path: routes.AdminProfile,
+    element: (
+      <RoleRoute roles={[3]}>
+        <AdminProfile />
+      </RoleRoute>
+    ),
+    route: Route,
+  },
+  {
+    path: routes.AdminRequests,
+    element: (
+      <RoleRoute roles={[3]}>
+        <AdminRequests />
       </RoleRoute>
     ),
     route: Route,
