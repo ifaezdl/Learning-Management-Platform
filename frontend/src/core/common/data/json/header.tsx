@@ -135,44 +135,21 @@ export const getHeader = (roleId: number) => {
   if (roleId === 3) {
     return [
       {
-        tittle: "Courses",
-        base: "course",
-        showAsTab: false,
-        separateRoute: false,
-        menu: [
-          {
-            menuValue: "Course",
-            hasSubRoute: true,
-            showSubRoute: true,
-            showAsTab2: false,
-            subMenus: [
-              {
-                menuValue: "Course Grid",
-                route: all_routes.courseGrid,
-                hasSubRoute: false,
-                showSubRoute: false,
-                subMenus: [],
-              },
-              {
-                menuValue: "Course List",
-                route: all_routes.courseList,
-                hasSubRoute: false,
-                showSubRoute: false,
-                subMenus: [],
-              },
-            ],
-          },
-        ],
+        tittle: "دوره ها",
+        route: all_routes.courseGrid,
+        hasSubRoute: false,
+        showSubRoute: false,
+        menu: [],
       },
       {
-        tittle: "Dashboard",
+        tittle: "داشبورد ادمین",
         base: "instructor",
         base2: "student",
         showAsTab: false,
         separateRoute: false,
         menu: [
           {
-            menuValue: "user management",
+            menuValue: "مدیریت کاربران",
             route: all_routes.adminDashboard,
             hasSubRoute: false,
             showSubRoute: false,

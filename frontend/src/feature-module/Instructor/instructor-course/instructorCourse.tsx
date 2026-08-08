@@ -99,7 +99,7 @@ const InstructorCourse = () => {
     {
       title: "هزینه (ریال)",
       dataIndex: "Price",
-      render: (price: number) => `$${price}`,
+      render: (price: number) => `${Number(price).toLocaleString("fa-IR")}`,
     },
     {
       title: "مبلغ با تخفیف",
