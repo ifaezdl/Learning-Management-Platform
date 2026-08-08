@@ -14,6 +14,7 @@ import { LessonFilesModule } from './lesson-files/lesson-files.module';
 import { UploadModule } from './upload/upload.module';
 import { CartModule } from './cart/cart.module';
 import { PaymentModule } from './payment/payment.module';
+import { QuizModule } from './quiz/quiz.module';
 // --- ADD to imports ---
 
 // --- ADD CartModule to the imports array, alongside your existing modules ---
@@ -32,8 +33,9 @@ import { PaymentModule } from './payment/payment.module';
     UploadModule,
     CartModule,
     PaymentModule,
+    QuizModule,   // ← add this
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
