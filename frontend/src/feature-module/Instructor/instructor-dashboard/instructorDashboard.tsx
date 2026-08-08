@@ -114,51 +114,15 @@ const InstructorDashboard = () => {
                   <div className="card">
                     <div className="card-body">
                       <div className="d-flex align-items-center">
-                        <span className="icon-box bg-primary-transparent me-2 me-xxl-3 flex-shrink-0">
+                        <span className="icon-box bg-purple-transparent me-2 me-xxl-3 flex-shrink-0">
                           <ImageWithBasePath
-                            src="assets/img/icon/graduation.svg"
+                            src="assets/img/icon/money-add.svg"
                             alt=""
                           />
                         </span>
                         <div>
-                          <span className="d-block">Enrolled Courses</span>
-                          <h4 className="fs-24 mt-1">12</h4>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-6 col-xl-4">
-                  <div className="card">
-                    <div className="card-body">
-                      <div className="d-flex align-items-center">
-                        <span className="icon-box bg-secondary-transparent me-2 me-xxl-3 flex-shrink-0">
-                          <ImageWithBasePath
-                            src="assets/img/icon/book.svg"
-                            alt=""
-                          />
-                        </span>
-                        <div>
-                          <span className="d-block">Active Courses</span>
-                          <h4 className="fs-24 mt-1">08</h4>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-6 col-xl-4">
-                  <div className="card">
-                    <div className="card-body">
-                      <div className="d-flex align-items-center">
-                        <span className="icon-box bg-success-transparent me-2 me-xxl-3 flex-shrink-0">
-                          <ImageWithBasePath
-                            src="assets/img/icon/bookmark.svg"
-                            alt=""
-                          />
-                        </span>
-                        <div>
-                          <span className="d-block">Completed Courses</span>
-                          <h4 className="fs-24 mt-1">06</h4>
+                          <span className="d-block">مجموع دوره ها</span>
+                          <h4 className="fs-24 mt-1"> 486 ریال</h4>
                         </div>
                       </div>
                     </div>
@@ -175,7 +139,7 @@ const InstructorDashboard = () => {
                           />
                         </span>
                         <div>
-                          <span className="d-block">Total Students</span>
+                          <span className="d-block">دوره های پیش نویس</span>
                           <h4 className="fs-24 mt-1">17</h4>
                         </div>
                       </div>
@@ -193,26 +157,8 @@ const InstructorDashboard = () => {
                           />
                         </span>
                         <div>
-                          <span className="d-block">Total Courses</span>
+                          <span className="d-block">دوه های منتشر شده</span>
                           <h4 className="fs-24 mt-1">11</h4>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-6 col-xl-4">
-                  <div className="card">
-                    <div className="card-body">
-                      <div className="d-flex align-items-center">
-                        <span className="icon-box bg-purple-transparent me-2 me-xxl-3 flex-shrink-0">
-                          <ImageWithBasePath
-                            src="assets/img/icon/money-add.svg"
-                            alt=""
-                          />
-                        </span>
-                        <div>
-                          <span className="d-block">Total Earnings</span>
-                          <h4 className="fs-24 mt-1">$486</h4>
                         </div>
                       </div>
                     </div>
@@ -222,7 +168,7 @@ const InstructorDashboard = () => {
               <div className="card">
                 <div className="card-body">
                   <div className="d-flex align-items-center flex-wrap gap-3 justify-content-between border-bottom mb-2 pb-3">
-                    <h5 className="fw-bold">Earnings by Year</h5>
+                    <h5 className="fw-bold">میزان درآمد سال</h5>
                     <div className="input-icon position-relative input-range-picker">
                       <span className="input-icon-addon">
                         <i className="isax isax-calendar" />
@@ -239,145 +185,6 @@ const InstructorDashboard = () => {
                     height={290}
                   />
                 </div>
-              </div>
-              <h5 className="mb-3 fw-bold">Recently Created Courses</h5>
-              <div className="table-responsive custom-table">
-                <table className="table">
-                  <thead className="thead-light">
-                    <tr>
-                      <th>Courses</th>
-                      <th>Enrolled</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>
-                        <div className="course-title d-flex align-items-center">
-                          <Link
-                            to={all_routes.courseDetails}
-                            className="avatar avatar-xl flex-shrink-0 me-2"
-                          >
-                            <ImageWithBasePath
-                              src="assets/img/instructor/instructor-table-01.jpg"
-                              alt="Img"
-                            />
-                          </Link>
-                          <div>
-                            <p className="fw-medium">
-                              <Link to={all_routes.courseDetails}>
-                                Complete HTML, CSS and Javascript
-                                <br /> Course
-                              </Link>
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td>0</td>
-                      <td>Published</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div className="course-title d-flex align-items-center">
-                          <Link
-                            to={all_routes.courseDetails}
-                            className="avatar avatar-xl flex-shrink-0 me-2"
-                          >
-                            <ImageWithBasePath
-                              src="assets/img/instructor/instructor-table-02.jpg"
-                              alt="Img"
-                            />
-                          </Link>
-                          <div>
-                            <p className="fw-medium">
-                              <Link to={all_routes.courseDetails}>
-                                Complete Course on Fullstack Web
-                                <br /> Developer
-                              </Link>
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td>2</td>
-                      <td>Published</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div className="course-title d-flex align-items-center">
-                          <Link
-                            to={all_routes.courseDetails}
-                            className="avatar avatar-xl flex-shrink-0 me-2"
-                          >
-                            <ImageWithBasePath
-                              src="assets/img/instructor/instructor-table-03.jpg"
-                              alt="Img"
-                            />
-                          </Link>
-                          <div>
-                            <p className="fw-medium">
-                              <Link to={all_routes.courseDetails}>
-                                Data Science Fundamentals and
-                                <br /> Advanced Bootcampr
-                              </Link>
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td>2</td>
-                      <td>Published</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div className="course-title d-flex align-items-center">
-                          <Link
-                            to={all_routes.courseDetails}
-                            className="avatar avatar-xl flex-shrink-0 me-2"
-                          >
-                            <ImageWithBasePath
-                              src="assets/img/instructor/instructor-table-04.jpg"
-                              alt="Img"
-                            />
-                          </Link>
-                          <div>
-                            <p className="fw-medium">
-                              <Link to={all_routes.courseDetails}>
-                                Master Microservices with Spring Boot
-                                <br /> and Spring Cloud
-                              </Link>
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td>1</td>
-                      <td>Published</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div className="course-title d-flex align-items-center">
-                          <Link
-                            to={all_routes.courseDetails}
-                            className="avatar avatar-xl flex-shrink-0 me-2"
-                          >
-                            <ImageWithBasePath
-                              src="assets/img/instructor/instructor-table-05.jpg"
-                              alt="Img"
-                            />
-                          </Link>
-                          <div>
-                            <p className="fw-medium">
-                              <Link to={all_routes.courseDetails}>
-                                Information About UI/UX Design
-                                <br /> Degree
-                              </Link>
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td>0</td>
-                      <td>Published</td>
-                    </tr>
-                  </tbody>
-                </table>
               </div>
             </div>
           </div>
