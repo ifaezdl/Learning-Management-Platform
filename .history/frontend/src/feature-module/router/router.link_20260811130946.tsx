@@ -77,18 +77,16 @@ import StudentChangePassword from "../student/student-settings/student-change-pa
 import StudentSocialProfile from "../student/student-settings/student-social-profile/studentSocialProfile";
 import StudentLinkedAccounts from "../student/student-settings/student-linked-accounts/studentLinkedAccounts";
 import StudentNotification from "../student/student-settings/student-notifications/studentNotification";
+import StudentBillingAddress from "../student/student-settings/student-billing-address/studentBillingAddress";
 import StudentQuizQuestion from "../student/student-quiz-question/studentQuizQuestion";
 import InstructorProfileSettings from "../Instructor/instructor-settings/instructor-profile-settings/instructorProfile";
+import ProtectedRoute from "./protectedRoutes";
 import PublicRoute from "./publicRoute";
 import RoleRoute from "./roleRoutes";
+import AdminPage from "../admin/adminPage";
 import PaymentSuccess from "../Courses/course-checkout/paymentSuccess";
 import PaymentFailure from "../Courses/course-checkout/paymentFailure";
 import InstructorEnrolledCourse from "../Instructor/instructor-course/instructorEnrolledCourse";
-import AdminDashboard from "../admin/dashboard/adminDashboard";
-import AdminRequests from "../admin/admin-requests/adminRequests";
-import AdminProfile from "../admin/admin-profile/adminProfile";
-import AdminProfileSettings from "../admin/admin-setting/adminSetting";
-import AdminChangePassword from "../admin/admin-change-password/adminChangePassword";
 
 const routes = all_routes;
 
@@ -164,44 +162,7 @@ export const publicRoutes = [
     path: routes.adminDashboard,
     element: (
       <RoleRoute roles={[3]}>
-        <AdminDashboard />
-      </RoleRoute>
-    ),
-    route: Route,
-  },
-  {
-    path: routes.AdminChangePassword,
-    element: (
-      <RoleRoute roles={[3]}>
-        <AdminChangePassword />
-      </RoleRoute>
-    ),
-    route: Route,
-  },
-  {
-    path: routes.AdminProfileSettings,
-    element: (
-      <RoleRoute roles={[3]}>
-        <AdminProfileSettings />
-      </RoleRoute>
-    ),
-    route: Route,
-  },
-
-  {
-    path: routes.AdminProfile,
-    element: (
-      <RoleRoute roles={[3]}>
-        <AdminProfile />
-      </RoleRoute>
-    ),
-    route: Route,
-  },
-  {
-    path: routes.AdminRequests,
-    element: (
-      <RoleRoute roles={[3]}>
-        <AdminRequests />
+        <AdminPage />
       </RoleRoute>
     ),
     route: Route,
@@ -525,7 +486,11 @@ export const publicRoutes = [
     element: <StudentsDetails />,
     route: Route,
   },
-
+  {
+    path: routes.instructorQA,
+    element: <InstructorQuizQuestions />,
+    route: Route,
+  },
   {
     path: routes.studentTickets,
     element: <StudentTickets />,

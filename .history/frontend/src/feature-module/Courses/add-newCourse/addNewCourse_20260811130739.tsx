@@ -205,13 +205,7 @@ const AddNewCourse = () => {
           </div>
         );
       case 4:
-        return courseId ? (
-          <InstructorQuizQuestions courseId={courseId} />
-        ) : (
-          <div className="text-center py-4 text-muted">
-            برای ساخت آزمون، ابتدا اطلاعات دوره را تکمیل کنید.
-          </div>
-        );
+        return <InstructorQuizQuestions />;
       case 5:
         return (
           <div className="form-inner wizard-form-card">

@@ -27,7 +27,7 @@ const AddNewCourse = () => {
   const [searchParams] = useSearchParams();
   const editId = searchParams.get("id");
   const [loadingCourse, setLoadingCourse] = useState(!!editId);
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(4);
   const [courseId, setCourseId] = useState<number | null>(null);
   const [courseData, setCourseData] = useState<any>(null);
 

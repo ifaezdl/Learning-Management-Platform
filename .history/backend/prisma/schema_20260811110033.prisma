@@ -31,6 +31,48 @@ model CourseProgress {
   @@index([Student_Id], map: "IX_Progress_Student")
 }
 
+model Quizzes {
+  Id               Int             @id @default(autoincrement())
+  Course_Id        Int
+  Title            String          @db.NVarChar(200)
+  StartAt          DateTime?
+  EndAt            DateTime?
+  DurationMinutes  Int?
+  ScorePerQuestion Decimal         @default(1) @db.Decimal(5, 2)
+  QuestionsToShow  Int             @default(10)
+  IsPublished      Boolean         @default(false)
+  CreatedAt        DateTime        @default(now())
+  UpdatedAt        DateTime?
+  Courses          Courses         @relation(fields: [Course_Id], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Quizzes_Courses")
+  QuizQuestions    QuizQuestions[]
+
+  @@index([Course_Id], map: "IX_Quizzes_CourseId")
+}
+
+model QuizQuestions {
+  Id           Int           @id @default(autoincrement())
+  Quiz_Id      Int
+  QuestionText String        @db.NVarChar(1000)
+  DisplayOrder Int           @default(1)
+  Source       Boolean       @default(false) // false = manual, true = AI-generated
+  CreatedAt    DateTime      @default(now())
+  Quizzes      Quizzes       @relation(fields: [Quiz_Id], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_QuizQuestions_Quizzes")
+  QuizChoices  QuizChoices[]
+
+  @@index([Quiz_Id], map: "IX_QuizQuestions_QuizId")
+}
+
+model QuizChoices {
+  Id            Int           @id @default(autoincrement())
+  Question_Id   Int
+  ChoiceText    String        @db.NVarChar(500)
+  IsCorrect     Boolean       @default(false)
+  DisplayOrder  Int           @default(1)
+  QuizQuestions QuizQuestions @relation(fields: [Question_Id], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_QuizChoices_QuizQuestions")
+
+  @@index([Question_Id], map: "IX_QuizChoices_QuestionId")
+}
+
 model Courses {
   Id                     Int                      @id(map: "PK__Courses__3214EC07B5E41990") @default(autoincrement())
   Title                  String                   @db.NVarChar(200)
@@ -59,12 +101,14 @@ model Courses {
   Enrollments            Enrollments[]
   Lessons                Lessons[]
   Payments               Payments[]
-  Quizzes                Quizzes[]
   Reviews                Reviews[]
-
+  Quizzes                Quizzes[]
   @@index([CategoryId], map: "IX_Courses_CategoryId")
   @@index([Teacher_Id], map: "IX_Courses_TeacherId")
 }
+
+
+
 
 model Enrollments {
   Id             Int       @id(map: "PK__Enrollme__3214EC07C6FA034D") @default(autoincrement())
@@ -271,46 +315,4 @@ model Carts {
 
   @@unique([User_Id, Course_Id], map: "UQ_Carts_User_Course")
   @@index([User_Id], map: "IX_Carts_UserId")
-}
-
-model QuizChoices {
-  Id            Int           @id(map: "PK_QuizChoices") @default(autoincrement())
-  Question_Id   Int
-  ChoiceText    String        @db.NVarChar(500)
-  IsCorrect     Boolean       @default(false, map: "DF_QuizChoices_IsCorrect")
-  DisplayOrder  Int           @default(1, map: "DF_QuizChoices_DisplayOrder")
-  QuizQuestions QuizQuestions @relation(fields: [Question_Id], references: [Id], onUpdate: NoAction, map: "FK_QuizChoices_QuizQuestions")
-
-  @@index([Question_Id], map: "IX_QuizChoices_QuestionId")
-}
-
-model QuizQuestions {
-  Id           Int           @id(map: "PK_QuizQuestions") @default(autoincrement())
-  Quiz_Id      Int
-  QuestionText String
-  DisplayOrder Int           @default(1, map: "DF_QuizQuestions_DisplayOrder")
-  Source       Boolean       @default(false, map: "DF_QuizQuestions_Source")
-  CreatedAt    DateTime      @default(now(), map: "DF_QuizQuestions_CreatedAt") @db.DateTime
-  QuizChoices  QuizChoices[]
-  Quizzes      Quizzes       @relation(fields: [Quiz_Id], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_QuizQuestions_Quizzes")
-
-  @@index([Quiz_Id], map: "IX_QuizQuestions_QuizId")
-}
-
-model Quizzes {
-  Id               Int             @id(map: "PK_Quizzes") @default(autoincrement())
-  Course_Id        Int
-  Title            String          @db.NVarChar(200)
-  StartAt          DateTime?       @db.DateTime
-  EndAt            DateTime?       @db.DateTime
-  DurationMinutes  Int?
-  ScorePerQuestion Decimal         @default(1, map: "DF_Quizzes_ScorePerQuestion") @db.Decimal(5, 2)
-  QuestionsToShow  Int             @default(10, map: "DF_Quizzes_QuestionsToShow")
-  IsPublished      Boolean         @default(false, map: "DF_Quizzes_IsPublished")
-  CreatedAt        DateTime        @default(now(), map: "DF_Quizzes_CreatedAt") @db.DateTime
-  UpdatedAt        DateTime?       @db.DateTime
-  QuizQuestions    QuizQuestions[]
-  Courses          Courses         @relation(fields: [Course_Id], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Quizzes_Courses")
-
-  @@index([Course_Id], map: "IX_Quizzes_CourseId")
 }

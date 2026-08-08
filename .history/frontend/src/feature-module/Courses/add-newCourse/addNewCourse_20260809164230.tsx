@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { all_routes } from "../../router/all_routes";
+import Breadcrumb from "../../../core/common/Breadcrumb/breadcrumb";
 import courseService, {
   Category,
   Level,
@@ -10,14 +11,12 @@ import Stepper from "./components/Stepper";
 import CourseInformation from "./components/CourseInformation";
 import SectionManager from "./components/SectionManager";
 import CourseSummary from "./components/CourseSummary";
-import InstructorQuizQuestions from "../../Instructor/instructor-quiz-question/instructorQuizQuestions";
 
 const STEPS = [
   { label: "اطلاعات دوره", icon: "fas fa-info-circle" },
   { label: "سرفصل ها", icon: "fas fa-layer-group" },
   { label: "دروس", icon: "fas fa-book" },
   { label: "فایل های دروس", icon: "fas fa-paperclip" },
-  { label: "ایجاد آزمون", icon: "fas fa-paperclip" },
   { label: "انتشار", icon: "fas fa-rocket" },
 ];
 
@@ -205,14 +204,6 @@ const AddNewCourse = () => {
           </div>
         );
       case 4:
-        return courseId ? (
-          <InstructorQuizQuestions courseId={courseId} />
-        ) : (
-          <div className="text-center py-4 text-muted">
-            برای ساخت آزمون، ابتدا اطلاعات دوره را تکمیل کنید.
-          </div>
-        );
-      case 5:
         return (
           <div className="form-inner wizard-form-card">
             <div className="title d-flex justify-content-between align-items-center">

@@ -167,7 +167,6 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
   };
 
   const handleGenerateAi = async () => {
-    debugger;
     if (aiCount < 1 || aiCount > 100) {
       toast.error("تعداد سوال باید بین ۱ تا ۱۰۰ باشد.");
       return;
