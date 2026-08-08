@@ -13,7 +13,7 @@ const Faq = () => {
               <div className="position-relative">
                 <ImageWithBasePath
                   className="img-fluid rounded-4"
-                  src="assets/img/about/about-1.jpg"
+                  src="assets/img/faq.png"
                   alt="img"
                 />
                 <div className="bg-warning text-center p-3 rounded-5 position-absolute top-0 end-0 z-index-1 d-none d-sm-block my-3 mx-3">
@@ -28,7 +28,8 @@ const Faq = () => {
                 </span>
                 <h2>سوالات متداول</h2>
                 <p>
-               پاسخ‌های دقیق به رایج‌ترین پرسش‌ها درباره پلتفرم ما را بررسی کنید.
+                  پاسخ‌های دقیق به رایج‌ترین پرسش‌ها درباره پلتفرم ما را بررسی
+                  کنید.
                 </p>
               </div>
               <div className="faq-content">
@@ -46,7 +47,7 @@ const Faq = () => {
                         aria-expanded="true"
                         aria-controls="collapsecustomicon1One"
                       >
-                       Mentorito می‌خواهد چه چیزی به شما ارائه دهد؟{" "}
+                        Mentorito می‌خواهد چه چیزی به شما ارائه دهد؟{" "}
                         <i className="isax isax-add fs-20 fw-semibold ms-1" />
                       </Link>
                     </h2>
@@ -58,7 +59,8 @@ const Faq = () => {
                     >
                       <div className="accordion-body pt-0">
                         <p>
-                         هدف Mentorito ارائه یک پلتفرم یادگیری جامع و بصری است که تجربه آموزشی شما را ارتقا می‌بخشد.
+                          هدف Mentorito ارائه یک پلتفرم یادگیری جامع و بصری است
+                          که تجربه آموزشی شما را ارتقا می‌بخشد.
                         </p>
                       </div>
                     </div>
@@ -89,7 +91,8 @@ const Faq = () => {
                     >
                       <div className="accordion-body pt-0">
                         <p>
-                         هدف DreamLMS ارائه یک پلتفرم یادگیری جامع و بصری است که تجربه آموزشی شما را ارتقا می‌بخشد.
+                          هدف DreamLMS ارائه یک پلتفرم یادگیری جامع و بصری است
+                          که تجربه آموزشی شما را ارتقا می‌بخشد.
                         </p>
                       </div>
                     </div>
@@ -123,7 +126,8 @@ const Faq = () => {
                     >
                       <div className="accordion-body pt-0">
                         <p>
-                         هدف Mentorito ارائه یک پلتفرم یادگیری جامع و بصری است که تجربه آموزشی شما را ارتقا می‌بخشد.
+                          هدف Mentorito ارائه یک پلتفرم یادگیری جامع و بصری است
+                          که تجربه آموزشی شما را ارتقا می‌بخشد.
                         </p>
                       </div>
                     </div>
@@ -145,7 +149,7 @@ const Faq = () => {
                         aria-expanded="false"
                         aria-controls="collapsecustomicon1One"
                       >
-                       آیا طرح ماهانه دارید؟{" "}
+                        آیا طرح ماهانه دارید؟{" "}
                         <i className="isax isax-add fs-20 fw-semibold ms-1" />
                       </Link>
                     </h2>
@@ -157,7 +161,8 @@ const Faq = () => {
                     >
                       <div className="accordion-body pt-0">
                         <p>
-                          هدف Mentorito ارائه یک پلتفرم یادگیری جامع و بصری است که تجربه آموزشی شما را ارتقا می‌بخشد
+                          هدف Mentorito ارائه یک پلتفرم یادگیری جامع و بصری است
+                          که تجربه آموزشی شما را ارتقا می‌بخشد
                         </p>
                       </div>
                     </div>
@@ -191,7 +196,8 @@ const Faq = () => {
                     >
                       <div className="accordion-body pt-0">
                         <p>
-                        هدف Mentorito ارائه یک پلتفرم یادگیری جامع و بصری است که تجربه آموزشی شما را ارتقا می‌بخشد.
+                          هدف Mentorito ارائه یک پلتفرم یادگیری جامع و بصری است
+                          که تجربه آموزشی شما را ارتقا می‌بخشد.
                         </p>
                       </div>
                     </div>

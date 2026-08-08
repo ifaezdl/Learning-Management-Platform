@@ -41,6 +41,7 @@ class QuizService {
   }
 
   async saveQuiz(courseId: number, payload: SaveQuizPayload) {
+    debugger;
     const res = await api.post(`/courses/${courseId}/quiz`, payload);
     return res.data;
   }

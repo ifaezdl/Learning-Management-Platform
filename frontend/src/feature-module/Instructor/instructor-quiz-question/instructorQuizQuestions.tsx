@@ -193,6 +193,7 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
   };
 
   const handleSaveQuiz = async () => {
+    debugger;
     if (questions.length === 0) {
       toast.error("حداقل یک سوال اضافه کنید.");
       return;

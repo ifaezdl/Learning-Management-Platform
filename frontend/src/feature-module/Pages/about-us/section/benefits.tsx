@@ -5,18 +5,22 @@ const Benefits = () => {
   return (
     <>
       {/* benefits */}
+
       <section className="benefit-section">
         <div className="container">
           <div className="section-header text-center">
             <span className="fw-medium text-secondary text-decoration-underline mb-2 d-inline-block">
               مزایای ما
             </span>
-            <h2>Master the Skills to Drive your Career</h2>
+
+            <h2>مهارت‌هایی را یاد بگیرید که مسیر شغلی شما را متحول می‌کنند</h2>
+
             <p>
-              The right course, guided by an expert mentor, can provide
-              invaluable insights, practical skills.
+              یک دوره آموزشی مناسب، با راهنمایی یک مربی متخصص، می‌تواند دانش
+              ارزشمند و مهارت‌های عملی مورد نیاز شما را فراهم کند.
             </p>
           </div>
+
           <div className="row">
             <div className="col-lg-4 col-md-6">
               <div className="card shadow-sm">
@@ -27,17 +31,22 @@ const Benefits = () => {
                       alt="img"
                     />
                   </div>
+
                   <div className="p-4 rounded-pill bg-primary-transparent d-inline-flex">
                     <i className="isax isax-book-1 fs-24" />
                   </div>
-                  <h5 className="mt-3 mb-1">Flexible Learning</h5>
+
+                  <h5 className="mt-3 mb-1">یادگیری انعطاف‌پذیر</h5>
+
                   <p>
-                    We believe that high-quality education should be accessible
-                    to everyone. Our pricing form in models are designed.
+                    ما باور داریم که آموزش باکیفیت باید برای همه در دسترس باشد.
+                    دوره‌های آموزشی ما با هدف فراهم کردن تجربه‌ای مناسب و
+                    مقرون‌به‌صرفه برای یادگیری طراحی شده‌اند.
                   </p>
                 </div>
               </div>
             </div>
+
             <div className="col-lg-4 col-md-6">
               <div className="card shadow-sm">
                 <div className="card-body p-4">
@@ -47,17 +56,22 @@ const Benefits = () => {
                       alt="img"
                     />
                   </div>
+
                   <div className="p-4 rounded-pill bg-secondary-transparent d-inline-flex">
                     <i className="isax isax-bookmark5 fs-24" />
                   </div>
-                  <h5 className="mt-3 mb-1">Lifetime Access</h5>
+
+                  <h5 className="mt-3 mb-1">دسترسی مادام‌العمر</h5>
+
                   <p>
-                    When you enroll in our courses, you’re not just signing up
-                    for a temporary learning to experience you’re making.
+                    با ثبت‌نام در دوره‌های ما، فقط برای یک تجربه آموزشی موقت
+                    ثبت‌نام نمی‌کنید؛ بلکه دسترسی شما به محتوای دوره برای مدت
+                    طولانی در اختیار شما خواهد بود.
                   </p>
                 </div>
               </div>
             </div>
+
             <div className="col-lg-4 col-md-6">
               <div className="card shadow-sm">
                 <div className="card-body p-4">
@@ -67,13 +81,17 @@ const Benefits = () => {
                       alt="img"
                     />
                   </div>
+
                   <div className="p-4 rounded-pill bg-skyblue-transparent d-inline-flex">
                     <i className="isax isax-chart-26 fs-24" />
                   </div>
-                  <h5 className="mt-3 mb-1">Expert Instruction</h5>
+
+                  <h5 className="mt-3 mb-1">آموزش توسط متخصصان</h5>
+
                   <p>
-                    Our instructors are seasoned professionals with years of
-                    experience in their respective fields &amp; Experts advice
+                    مدرسان ما از متخصصان باتجربه‌ای هستند که سال‌ها در حوزه‌های
+                    تخصصی خود فعالیت کرده‌اند و دانش و تجربه عملی خود را در
+                    اختیار شما قرار می‌دهند.
                   </p>
                 </div>
               </div>
@@ -81,6 +99,7 @@ const Benefits = () => {
           </div>
         </div>
       </section>
+
       {/* benefits */}
     </>
   );
