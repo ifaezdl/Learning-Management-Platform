@@ -1,6 +1,3 @@
-import AdminProfile from "../admin/admin-profile/adminProfile";
-import AdminRequests from "../admin/admin-requests/adminRequests";
-
 export const all_routes = {
   //Home Modules
   homeone: "/index",
@@ -56,6 +53,8 @@ export const all_routes = {
   adminDashboard: "/admin/admin-dashboard",
   AdminRequests: "/admin/admin-requests",
   AdminProfile: "/admin/admin-profile",
+  AdminProfileSettings: "/admin/admin-settings",
+  AdminChangePassword: "/admin/admin-change-password",
 
   studentDashboard: "/student/student-dashboard",
   studentProfile: "/student/student-profile",

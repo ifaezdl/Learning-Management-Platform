@@ -43,7 +43,7 @@ const AdminSidebar = () => {
           <ul>
             <li>
               <Link
-                to={all_routes.studentSettings}
+                to={all_routes.AdminProfileSettings}
                 className={`d-inline-flex align-items-center ${location.pathname.includes("settings") ? "active" : ""}`}
               >
                 <i className="isax isax-setting-25 me-2" />
