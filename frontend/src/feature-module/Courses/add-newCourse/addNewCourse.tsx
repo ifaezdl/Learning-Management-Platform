@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { all_routes } from "../../router/all_routes";
 import Breadcrumb from "../../../core/common/Breadcrumb/breadcrumb";
 import courseService, {
@@ -23,7 +23,9 @@ const STEPS = [
 const AddNewCourse = () => {
   const route = all_routes;
   const navigate = useNavigate();
-
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get("id");
+  const [loadingCourse, setLoadingCourse] = useState(!!editId);
   const [currentStep, setCurrentStep] = useState(0);
   const [courseId, setCourseId] = useState<number | null>(null);
   const [courseData, setCourseData] = useState<any>(null);
@@ -46,7 +48,23 @@ const AddNewCourse = () => {
     };
     fetchData();
   }, []);
-
+  useEffect(() => {
+    if (!editId) return;
+    const loadCourse = async () => {
+      try {
+        setLoadingCourse(true);
+        const course = await courseService.getCourse(Number(editId));
+        setCourseData(course);
+        setCourseId(course.Id);
+      } catch {
+        toast.error("بارگذاری اطلاعات دوره با خطا مواجه شد.");
+        navigate(route.instructorCourse);
+      } finally {
+        setLoadingCourse(false);
+      }
+    };
+    loadCourse();
+  }, [editId, navigate, route]);
   const handleCourseCreated = useCallback(async (id: number) => {
     setCourseId(id);
     try {
@@ -221,6 +239,16 @@ const AddNewCourse = () => {
         return null;
     }
   };
+
+  if (loadingCourse) {
+    return (
+      <div className="content mt-5">
+        <div className="container text-center py-5">
+          در حال بارگذاری اطلاعات دوره...
+        </div>
+      </div>
+    );
+  }
   return (
     <>
       <div className="content mt-5">
