@@ -14,20 +14,30 @@ const CourseDetails = () => {
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
+  const [CourseLearningOutcomes, setCourseLearningOutcomes] = useState([]);
+  const [CoursePrequisties, setCoursePrequisties] = useState([]);
   const [showModal, setShowModal] = useState(false);
-
+  const [activeVideoUrl, setActiveVideoUrl] = useState("");
+  const [isEnrolled, setIsEnrolled] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
   const [cartError, setCartError] = useState("");
   const [addedToCart, setAddedToCart] = useState(false);
 
-  const handleOpenModal = () => setShowModal(true);
-  const handleCloseModal = () => setShowModal(false);
+  // opens the modal for a given lesson's video url
+  const handleOpenModal = (videoUrl?: string) => {
+    if (!videoUrl) return;
+    setActiveVideoUrl(`${api_base_url}${videoUrl}`);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setActiveVideoUrl("");
+  };
 
   useEffect(() => {
     loadCourse();
   }, [id]);
-  const isEnrolled = false;
   const totalSections = course?.CourseSections?.length ?? 0;
   const totalLessons =
     course?.CourseSections?.reduce(
@@ -45,12 +55,14 @@ const CourseDetails = () => {
       0,
     ) ?? 0;
   const loadCourse = async () => {
+    debugger;
     try {
       setLoading(true);
-
       const data = await courseService.getCourse(Number(id));
-
       setCourse(data);
+      setIsEnrolled(data.isEnrolled);
+      setCourseLearningOutcomes(data?.CourseLearningOutcomes);
+      setCoursePrequisties(data?.CoursePrequisties);
     } catch {
       setError("Course not found");
     } finally {
@@ -101,7 +113,7 @@ const CourseDetails = () => {
                   </div>
                   <div className="w-100 ps-lg-4">
                     <h3 className="mb-2">{course?.Title}</h3>
-                    <p className="fs-14 mb-3">{}</p>
+                    <p className="fs-14 mb-3">{ }</p>
                     <div className="d-flex align-items-center gap-2 gap-sm-3 gap-xl-4 flex-wrap my-3 my-sm-0">
                       <p className="fw-medium d-flex align-items-center mb-0">
                         <ImageWithBasePath
@@ -159,45 +171,29 @@ const CourseDetails = () => {
           </div>
           <div className="row mt-4">
             <div className="col-lg-8">
-              <div>
-                <ImageWithBasePath
-                  src="assets/img/course/course-details-two-2.jpg"
-                  alt="img"
-                  className="img-fluid mb-4"
-                />
-              </div>
               <div className="course-page-content pt-0">
                 <div className="card mb-4">
                   <div className="card-body">
                     <h6 className="mb-2">توضیحات دوره</h6>
-                    <p>{course?.Description}</p>
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: course?.Description ?? "-",
+                      }}
+                    />
 
-                    <h6 className="mb-2">What you'll learn</h6>
+                    <h6 className="mb-2">
+                      چه چیزهایی در این دوره فرا خواهید گرفت
+                    </h6>
                     <ul className="custom-list mb-3">
-                      <li className="list-item">Become a UX designer</li>
-                      <li className="list-item">
-                        You will be able to add UX designer to your CV
-                      </li>
-                      <li className="list-item">Become a UI designer</li>
-                      <li className="list-item">
-                        Build &amp; test a full website design.
-                      </li>
-                      <li className="list-item">
-                        Build &amp; test a full mobile app.
-                      </li>
+                      {CourseLearningOutcomes?.map((item: any) => (
+                        <li className="list-item">{item?.Title}</li>
+                      ))}
                     </ul>
-                    <h6 className="mb-2">Requirements</h6>
+                    <h6 className="mb-2">پیش نیاز های دوره</h6>
                     <ul className="custom-list mb-0">
-                      <li className="list-item">
-                        You will need a copy of Adobe XD 2019 or above. A free
-                        trial can be downloaded from Adobe.
-                      </li>
-                      <li className="list-item">
-                        No previous design experience is needed.
-                      </li>
-                      <li className="list-item">
-                        No previous Adobe XD skills are needed.
-                      </li>
+                      {CoursePrequisties?.map((item: any) => (
+                        <li className="list-item">{item?.Title}</li>
+                      ))}
                     </ul>
                   </div>
                 </div>
@@ -219,9 +215,7 @@ const CourseDetails = () => {
                     >
                       {course?.CourseSections?.map((section, sectionIndex) => {
                         const lessons = section.Lessons ?? [];
-
                         const lessonCount = lessons.length;
-
                         const duration = lessons.reduce(
                           (sum, lesson) => sum + (lesson.DurationMinutes ?? 0),
                           0,
@@ -234,189 +228,92 @@ const CourseDetails = () => {
                               id={`heading-${section.Id}`}
                             >
                               <button
-                                className={`accordion-button ${
-                                  sectionIndex === 0 ? "" : "collapsed"
-                                }`}
+                                className={`accordion-button ${sectionIndex === 0 ? "" : "collapsed"}`}
                                 type="button"
                                 data-bs-toggle="collapse"
                                 data-bs-target={`#collapse-${section.Id}`}
                               >
                                 <div className="d-flex justify-content-between w-100 me-3">
                                   <span>{section.Title}</span>
-
                                   <small className="text-muted">
                                     {lessonCount} درس • {duration} دقیقه
                                   </small>
                                 </div>
-
                                 <i className="fa-solid fa-chevron-down" />
                               </button>
                             </h2>
 
                             <div
                               id={`collapse-${section.Id}`}
-                              className={`accordion-collapse collapse ${
-                                sectionIndex === 0 ? "show" : ""
-                              }`}
+                              className={`accordion-collapse collapse ${sectionIndex === 0 ? "show" : ""}`}
                               data-bs-parent="#courseAccordion"
                             >
-                              {course?.CourseSections?.map(
-                                (section, sectionIndex) => {
-                                  const lessons = section.Lessons ?? [];
+                              <div className="accordion-body p-0">
+                                {lessons.length === 0 ? (
+                                  <div className="p-4 text-center text-muted">
+                                    درسی برای این فصل ثبت نشده است.
+                                  </div>
+                                ) : (
+                                  <ul>
+                                    {lessons.map((lesson) => (
+                                      <li
+                                        key={lesson.Id}
+                                        className="p-4 px-3 d-flex justify-content-between align-items-center"
+                                      >
+                                        <div>
+                                          <ImageWithBasePath
+                                            className="me-2"
+                                            src="./assets/img/icons/play.svg"
+                                            alt=""
+                                          />
+                                          {lesson.Title}
+                                        </div>
 
-                                  return (
-                                    <div key={section.Id}>
-                                      <div className="accordion-body p-0">
-                                        {lessons.length === 0 ? (
-                                          <div className="p-4 text-center text-muted">
-                                            درسی برای این فصل ثبت نشده است.
-                                          </div>
-                                        ) : (
-                                          <ul>
-                                            {lessons.map((lesson) => (
-                                              <li
-                                                key={lesson.Id}
-                                                className="p-4 px-3 d-flex justify-content-between align-items-center"
-                                              >
-                                                <div>
-                                                  <ImageWithBasePath
-                                                    className="me-2"
-                                                    src="./assets/img/icons/play.svg"
-                                                    alt=""
-                                                  />
-
-                                                  {lesson.Title}
-                                                </div>
-
-                                                <div className="d-flex gap-4 align-items-center">
-                                                  {isEnrolled ? (
-                                                    <Link
-                                                      to={`/learn/${course.Id}/lesson/${lesson.Id}`}
-                                                      className="preview-link"
-                                                    >
-                                                      شروع
-                                                    </Link>
-                                                  ) : lesson.IsFreePreview ? (
-                                                    <Link
-                                                      to={`/preview/${lesson.Id}`}
-                                                      className="preview-link"
-                                                    >
-                                                      پیش نمایش
-                                                    </Link>
-                                                  ) : (
-                                                    <span className="text-muted">
-                                                      <i className="fas fa-lock me-1"></i>
-                                                      قفل
-                                                    </span>
-                                                  )}
-
-                                                  <span>
-                                                    {lesson.DurationMinutes ??
-                                                      0}{" "}
-                                                    دقیقه
-                                                  </span>
-                                                </div>
-                                              </li>
-                                            ))}
-                                          </ul>
-                                        )}
-                                      </div>
-                                    </div>
-                                  );
-                                },
-                              )}
+                                        <div className="d-flex gap-4 align-items-center">
+                                          {isEnrolled ? (
+                                            <button
+                                              type="button"
+                                              className="preview-link btn btn-link p-0"
+                                              onClick={() =>
+                                                handleOpenModal(
+                                                  (lesson as any).VideoUrl,
+                                                )
+                                              }
+                                            >
+                                              شروع
+                                            </button>
+                                          ) : lesson.IsFreePreview ? (
+                                            <button
+                                              type="button"
+                                              className="preview-link btn btn-link p-0"
+                                              onClick={() =>
+                                                handleOpenModal(
+                                                  (lesson as any).VideoUrl,
+                                                )
+                                              }
+                                            >
+                                              پیش نمایش
+                                            </button>
+                                          ) : (
+                                            <span className="text-muted">
+                                              <i className="fas fa-lock me-1"></i>
+                                              قفل
+                                            </span>
+                                          )}
+                                          <span>
+                                            {lesson.DurationMinutes ?? 0} دقیقه
+                                          </span>
+                                        </div>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                )}
+                              </div>
                             </div>
                           </div>
                         );
                       })}
                     </div>
-                  </div>
-                </div>
-                <div className="card mb-4">
-                  <div className="card-body">
-                    <h5 className="subs-title mb-4">About the instructor</h5>
-                    <div className="d-flex align-items-center justify-content-between mt-4 gap-2 flex-wrap">
-                      <div className="d-flex align-items-center">
-                        <div className="avatar avatar-lg">
-                          <ImageWithBasePath
-                            className="rounded-circle"
-                            src="./assets/img/avatar/avatar10.jpg"
-                            alt="img"
-                          />
-                        </div>
-                        <div className="ms-2">
-                          <Link
-                            to={route.instructorDetails}
-                            className="name-link"
-                          >
-                            Nicole Brown
-                          </Link>
-                          <p className="mb-0 fs-14">UX/UI Designer</p>
-                        </div>
-                      </div>
-                      <div className="d-flex align-items-center">
-                        <i className="fa-solid fa-star text-warning me-1" />
-                        <i className="fa-solid fa-star text-warning me-1" />
-                        <i className="fa-solid fa-star text-warning me-1" />
-                        <i className="fa-solid fa-star text-warning me-1" />
-                        <i className="fa-solid fa-star text-warning me-2" />
-                        <p className="mb-0 fs-14">4.5</p>
-                      </div>
-                    </div>
-                    <div className="course-info align-items-center d-flex gap-2 gap-xl-3 mt-3 mb-3 flex-wrap">
-                      <p className="fw-medium d-flex align-items-center fs-14 mb-0">
-                        <ImageWithBasePath
-                          className="me-2"
-                          src="./assets/img/icons/play2.svg"
-                          alt="img"
-                        />
-                        5 Courses
-                      </p>
-                      <p className="fw-medium d-flex align-items-center fs-14 mb-0">
-                        <ImageWithBasePath
-                          className="me-2"
-                          src="./assets/img/icons/book2.svg"
-                          alt="img"
-                        />
-                        12+ Lesson
-                      </p>
-                      <p className="fw-medium d-flex align-items-center fs-14 mb-0">
-                        <ImageWithBasePath
-                          className="me-2"
-                          src="./assets/img/icons/timer-start2.svg"
-                          alt="img"
-                        />
-                        9hr 30min
-                      </p>
-                      <p className="fw-medium d-flex align-items-center fs-14 mb-0">
-                        <ImageWithBasePath
-                          className="me-2"
-                          src="./assets/img/icons/people.svg"
-                          alt="img"
-                        />
-                        270,866 students enrolled
-                      </p>
-                    </div>
-                    <p>
-                      UI/UX Designer, with 7+ Years Experience. Guarantee of
-                      High Quality Work.
-                    </p>
-                    <h6 className="fs-16 mb-2">Skills: </h6>
-                    <p>
-                      Web Design, UI Design, UX/UI Design, Mobile Design, User
-                      Interface Design, Sketch, Photoshop, GUI, Html, Css, Grid
-                      Systems, Typography, Minimal, Template, English,
-                      Bootstrap, Responsive Web Design, Pixel Perfect, Graphic
-                      Design, Corporate, Creative, Flat, Luxury and much more.
-                    </p>
-                    <h6 className="fs-16 mb-2">Available for:</h6>
-                    <ol className="ordered-list">
-                      <li className="list-items">Full Time Office Work</li>
-                      <li className="list-items">Remote Work</li>
-                      <li className="list-items">Freelance</li>
-                      <li className="list-items">Contract</li>
-                      <li className="list-items mb-0">Worldwide</li>
-                    </ol>
                   </div>
                 </div>
               </div>
@@ -425,12 +322,15 @@ const CourseDetails = () => {
               <div className="course-sidebar-sec mt-0">
                 <div className="card mb-4">
                   <div className="card-body">
-                    <div className="d-flex justify-content-between align-items-center mb-4">
-                      <h2 className="text-success fs-30">FREE</h2>
-                      <p className="fs-14 mb-0">
-                        <span className="text-decoration-line-through me-2"></span>
-                        {course?.Price} ریال
-                      </p>
+                    <div className="d-flex justify-content-center align-items-center mb-4">
+                      {course?.Price ? (
+                        <p className="fs-22 mb-0">
+                          <span className="text-decoration-line-through me-2"></span>
+                          {Number(course?.Price).toLocaleString("fa-IR")} ریال
+                        </p>
+                      ) : (
+                        <h2 className="text-success fs-30">رایگان</h2>
+                      )}
                     </div>
                     {cartError && (
                       <div
@@ -440,14 +340,7 @@ const CourseDetails = () => {
                         {cartError}
                       </div>
                     )}
-                    {isEnrolled ? (
-                      <Link
-                        to={`/learn/${course?.Id}`}
-                        className="btn btn-primary w-100 mt-3 btn-enroll"
-                      >
-                        ادامه یادگیری
-                      </Link>
-                    ) : (
+                    {!isEnrolled && (
                       <button
                         type="button"
                         className="btn btn-primary w-100 mt-3 btn-enroll"
@@ -581,6 +474,13 @@ const CourseDetails = () => {
         </div>
       </section>
       {/* /Course detail */}
+
+      {/* Video modal for enrolled / free-preview lessons */}
+      <VideoModal
+        show={showModal}
+        handleClose={handleCloseModal}
+        videoUrl={activeVideoUrl}
+      />
     </>
   );
 };

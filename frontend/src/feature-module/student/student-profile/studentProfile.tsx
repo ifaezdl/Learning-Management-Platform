@@ -81,7 +81,7 @@ const StudentProfile = () => {
       <div className="content mt-5">
         <div className="container">
           {/* profile box */}
-          <ProfileCard/>
+          <ProfileCard />
           {/* profile box */}
           <div className="row">
             {/* sidebar */}
@@ -90,7 +90,7 @@ const StudentProfile = () => {
             <div className="col-lg-9">
               <div className="page-title d-flex align-items-center justify-content-between">
                 <h5 className="fw-bold">پروفایل من</h5>
-                <button
+                {/* <button
                   type="button"
                   className="edit-profile-icon border-0 bg-transparent"
                   onClick={() => {
@@ -110,47 +110,45 @@ const StudentProfile = () => {
                   }}
                 >
                   <i className="isax isax-edit-2" />
-                </button>
+                </button> */}
               </div>
               <div className="card mb-0">
                 <div className="card-body">
-                  <h6 className="fs-18 page-title fw-bold">
-                    Basic Information
-                  </h6>
+                  <h6 className="fs-18 page-title fw-bold">اطلاعات شخصی</h6>
                   <div className="row">
                     <div className="col-md-4">
                       <div className="mb-3">
-                        <h6>First Name</h6>
+                        <h6>نام</h6>
                         <span>{profile?.FirstName}</span>
                       </div>
                     </div>
                     <div className="col-md-4">
                       <div className="mb-3">
-                        <h6>Last Name</h6>
+                        <h6>نام خانوادگی</h6>
                         <span>{profile?.LastName}</span>
                       </div>
                     </div>
                     <div className="col-md-4">
                       <div className="mb-3">
-                        <h6>User Name</h6>
+                        <h6>نام کاربری</h6>
                         <span>{profile?.UserName} </span>
                       </div>
                     </div>
                     <div className="col-md-4">
                       <div className="mb-3">
-                        <h6>Phone Number</h6>
+                        <h6>تلفن همراه</h6>
                         <span>{profile?.Mobile}</span>
                       </div>
                     </div>
                     <div className="col-md-4">
                       <div className="mb-3">
-                        <h6>Email</h6>
+                        <h6>ایمیل</h6>
                         <span>{profile?.Email}</span>
                       </div>
                     </div>
                     <div className="col-md-4">
                       <div className="mb-3">
-                        <h6>Gender</h6>
+                        <h6>جنسیت</h6>
                         <span>{profile?.Sex_Id === 5 ? "Male" : "Female"}</span>
                       </div>
                     </div>
@@ -279,8 +277,8 @@ const StudentProfile = () => {
                       })
                     }
                   >
-                    <option value={1}>Male</option>
-                    <option value={2}>Female</option>
+                    <option value={5}>Male</option>
+                    <option value={6}>Female</option>
                   </select>
                 </div>
               </div>

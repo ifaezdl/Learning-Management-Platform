@@ -272,38 +272,25 @@ const CourseGrid = () => {
                               alt={course.Title}
                               className="img-fluid"
                             />
-                            <div className="position-absolute start-0 top-0 d-flex align-items-start w-100 z-index-2 p-3">
-                              <Link
-                                to="#"
-                                className="fav-icon ms-auto rounded-circle bg-white shadow-sm d-flex align-items-center justify-content-center"
-                              >
-                                <i className="isax isax-heart" />
-                              </Link>
-                            </div>
                           </div>
 
                           <div className="course-content p-3">
                             <div className="d-flex justify-content-between align-items-start mb-3">
                               <div className="d-flex align-items-center">
-                                <Link
-                                  to={all_routes.instructorDetails}
-                                  className="avatar avatar-sm border"
-                                >
-                                  <ImageWithBasePath
-                                    src="assets/img/user/user-36.jpg"
-                                    alt="img"
-                                    className="img-fluid avatar avatar-sm rounded-circle"
-                                  />
-                                </Link>
+                                <ImageWithBasePath
+                                  src="assets/img/user/user-36.jpg"
+                                  alt="img"
+                                  className="img-fluid avatar avatar-sm rounded-circle"
+                                />
+
                                 <div className="ms-2">
-                                  <Link
-                                    to={all_routes.instructorDetails}
-                                    className="link-default fs-14 fw-medium text-truncate d-block"
+                                  <span
+                                    className="fs-14 fw-medium d-block"
                                     style={{ maxWidth: "120px" }}
                                   >
                                     {course?.Users?.FirstName}{" "}
                                     {course?.Users?.LastName}
-                                  </Link>
+                                  </span>
                                 </div>
                               </div>
                               <div className="d-flex flex-column align-items-end gap-1">
@@ -327,7 +314,8 @@ const CourseGrid = () => {
 
                             <div className="d-flex align-items-center justify-content-between pt-2 border-top">
                               <h5 className="text-secondary fw-bold mb-0">
-                                {course.Price}
+                                {Number(course.Price).toLocaleString("fa-IR")}{" "}
+                                ریال
                               </h5>
                               <Link
                                 to={`${all_routes.courseDetails}/${course.Id}`}
@@ -389,11 +377,10 @@ const CourseGrid = () => {
 
                     {/* Next */}
                     <li
-                      className={`page-item next ${
-                        page === totalPages || totalPages === 0
+                      className={`page-item next ${page === totalPages || totalPages === 0
                           ? "disabled"
                           : ""
-                      }`}
+                        }`}
                     >
                       <Link
                         className="page-link"

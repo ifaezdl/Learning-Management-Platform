@@ -14,6 +14,8 @@ export const all_routes = {
   courseWatch: "/course/course-watch",
   courseCart: "/course/cart",
   courseCheckout: "/course/checkout",
+  paymentSuccess: "/payment/success",
+  paymentFailure: "/payment/failure",
   addNewCourse: "/course/add-course",
 
   //Instructor Modules

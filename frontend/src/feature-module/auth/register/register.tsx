@@ -183,24 +183,24 @@ const Register: React.FC = () => {
           <div className="row">
             <div className="col-md-6 login-bg d-none d-lg-flex">
               <Slider {...loginSLider} className="login-carousel">
-       
                 <div>
                   <div className="login-carousel-section mb-3">
                     <div className="login-banner">
                       <ImageWithBasePath
-                        src="assets/img/auth/auth-1.svg"
+                        src="assets/img/logo-side.png"
                         className="img-fluid"
                         alt="Logo"
                       />
                     </div>
                     <div className="mentor-course text-center">
-                     <h3 className="mb-2">
-                        خوش آمدید به  <br />
-                       <span className="text-secondary"> منتوریتو</span>{" "}
-                        دوره های
+                      <h3 className="mb-2">
+                        به <span className="text-secondary"> منتوریتو </span>خوش
+                        آمدید
                       </h3>
                       <p>
-                      پلتفرمی که برای کمک به سازمان‌ها، مربیان و فراگیران در مدیریت، ارائه و پیگیری فعالیت‌های یادگیری و آموزشی طراحی شده است.
+                        پلتفرمی که برای کمک به سازمان‌ها، مربیان و فراگیران در
+                        مدیریت، ارائه و پیگیری فعالیت‌های یادگیری و آموزشی طراحی
+                        شده است.
                       </p>
                     </div>
                   </div>
@@ -216,12 +216,13 @@ const Register: React.FC = () => {
                     </div>
                     <div className="mentor-course text-center">
                       <h3 className="mb-2">
-                        خوش آمدید به  <br />
-                       <span className="text-secondary"> منتوریتو</span>{" "}
-                        دوره های
+                        با <span className="text-secondary"> منتوریتو</span>{" "}
+                        همراه باشید
                       </h3>
                       <p>
-                      پلتفرمی که برای کمک به سازمان‌ها، مربیان و فراگیران در مدیریت، ارائه و پیگیری فعالیت‌های یادگیری و آموزشی طراحی شده است.
+                        پلتفرمی که برای کمک به سازمان‌ها، مربیان و فراگیران در
+                        مدیریت، ارائه و پیگیری فعالیت‌های یادگیری و آموزشی طراحی
+                        شده است.
                       </p>
                     </div>
                   </div>
@@ -232,17 +233,17 @@ const Register: React.FC = () => {
               <div className="login-wrapper">
                 <div className="loginbox">
                   <div className="w-100">
-                    <div className="d-flex align-items-center justify-content-between login-header">
-                      <ImageWithBasePath
-                        src="assets/img/logo.svg"
-                        className="img-fluid"
-                        alt="Logo"
-                      />
-                      <Link to={route.homeone} className="link-1">
-                        بازگشت به خانه 
-                      </Link>
+                    <div className="d-flex align-items-center  flex-column">
+                      <div>
+                        <h1 className="fs-32 fw-bold">ثبت نام</h1>
+                      </div>
+                      <div>
+                        <Link to={route.homeone} className="link-1">
+                          بازگشت به خانه
+                        </Link>
+                      </div>
                     </div>
-                    <h1 className="fs-32 fw-bold topic">ثبت نام</h1>
+
                     {error && (
                       <div className="alert alert-danger" role="alert">
                         {error}
@@ -376,38 +377,19 @@ const Register: React.FC = () => {
                         </div>
                         <div id="passwordInfo">{messages()}</div>
                       </div>
-                      <div className="d-flex align-items-center justify-content-between mb-4">
-                        <div className="remember-me d-flex align-items-center">
-                          <input
-                            className="form-check-input"
-                            type="checkbox"
-                            id="flexCheckDefault"
-                          />
-                   
-                        </div>
-                      </div>
+
                       <div className="d-grid">
                         <button
                           className="btn btn-secondary btn-lg"
                           type="submit"
                         >
-                          ثبت نام <i className="isax isax-arrow-right-3 ms-1" />
+                          ثبت نام
                         </button>
                       </div>
                     </form>
-              
-                    <div className="d-flex align-items-center justify-content-center mb-3">
-                      <Link to="#" className="btn btn-light me-2">
-                        <ImageWithBasePath
-                          src="assets/img/icons/google.svg"
-                          alt="img"
-                          className="me-2"
-                        />
-                        Google
-                      </Link>          
-                    </div>
+
                     <div className="fs-14 fw-normal d-flex align-items-center justify-content-center">
-                          حساب کاربری دارید ؟
+                      حساب کاربری دارید ؟
                       <Link to={route.login} className="link-2 ms-1">
                         {" "}
                         ورود

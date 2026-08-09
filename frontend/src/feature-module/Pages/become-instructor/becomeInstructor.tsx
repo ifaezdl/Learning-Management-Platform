@@ -4,9 +4,11 @@ import { Link } from "react-router-dom";
 import CountUp from "react-countup";
 import toast from "react-hot-toast";
 import instructorRequestService from "../../../services/instructor-requests.service";
+
 const BecomeInstructor = () => {
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     debugger;
     e.preventDefault();
@@ -21,15 +23,16 @@ const BecomeInstructor = () => {
 
       setDescription("");
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Something went wrong.");
+      toast.error(err.response?.data?.message || "مشکلی پیش آمد.");
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <>
       <>
-        {/* share your knowledge */}
+        {/* اشتراک‌گذاری دانش */}
         <div className="share-your-knowledge">
           <div className="container">
             <div className="row">
@@ -37,14 +40,17 @@ const BecomeInstructor = () => {
                 <div className="share-knowledge-content">
                   <div className="section-header">
                     <span className="fw-medium text-secondary text-decoration-underline mb-2 d-inline-block">
-                      Share Knowledge
+                      اشتراک‌گذاری دانش
                     </span>
-                    <h2>Share Your Knowledge. Inspire the Future.</h2>
+                    <h2>
+                      دانش خود را به اشتراک بگذارید. آینده را الهام بخشید.
+                    </h2>
                     <p>
-                      Share your knowledge, inspire learners worldwide, and earn
-                      while doing what you love. Join a community of experts
-                      transforming education through engaging and accessible
-                      content.
+                      دانش خود را به اشتراک بگذارید، به زبان‌آموزان در سراسر
+                      جهان الهام بخشید و در حالی که کاری را که دوست دارید انجام
+                      می‌دهید، درآمد کسب کنید. به جامعه‌ای از متخصصان بپیوندید
+                      که از طریق محتوای جذاب و قابل دسترس، آموزش را متحول
+                      می‌کنند.
                     </p>
                   </div>
                   <div className="row">
@@ -61,9 +67,9 @@ const BecomeInstructor = () => {
                               </span>
                             </div>
                             <div>
-                              <h6 className="mb-1">Flexible Work</h6>
+                              <h6 className="mb-1">کار انعطاف‌پذیر</h6>
                               <p className="text-truncate line-clamb-1">
-                                Teach at your own pace.
+                                با سرعت خودتان تدریس کنید.
                               </p>
                             </div>
                           </div>
@@ -83,9 +89,9 @@ const BecomeInstructor = () => {
                               </span>
                             </div>
                             <div>
-                              <h6 className="mb-1">Earning Potential</h6>
+                              <h6 className="mb-1">پتانسیل درآمدزایی</h6>
                               <p className="text-truncate line-clamb-1">
-                                Monetize your expertise.
+                                از تخصص خود درآمدزایی کنید.
                               </p>
                             </div>
                           </div>
@@ -105,9 +111,9 @@ const BecomeInstructor = () => {
                               </span>
                             </div>
                             <div>
-                              <h6 className="mb-1">Impact</h6>
+                              <h6 className="mb-1">تأثیرگذاری</h6>
                               <p className="text-truncate line-clamb-1">
-                                Reach and educate{" "}
+                                دسترسی و آموزش
                               </p>
                             </div>
                           </div>
@@ -127,9 +133,9 @@ const BecomeInstructor = () => {
                               </span>
                             </div>
                             <div>
-                              <h6 className="mb-1">Support</h6>
+                              <h6 className="mb-1">پشتیبانی</h6>
                               <p className="text-truncate line-clamb-1">
-                                Access to dedicated support
+                                دسترسی به پشتیبانی اختصاصی
                               </p>
                             </div>
                           </div>
@@ -137,12 +143,6 @@ const BecomeInstructor = () => {
                       </div>
                     </div>
                   </div>
-                  <Link
-                    to="#"
-                    className="btn register-btn-1 d-inline-flex align-items-center"
-                  >
-                    Register Now <i className="isax isax-arrow-right-3 ms-1" />
-                  </Link>
                 </div>
               </div>
               <div className="col-lg-5">
@@ -182,16 +182,16 @@ const BecomeInstructor = () => {
             </div>
           </div>
         </div>
-        {/* share your knowledge */}
-        {/* how it works */}
+        {/* اشتراک‌گذاری دانش */}
+        {/* نحوه عملکرد */}
         <div className="how-it-works-sec bg-light-900">
           <div className="container">
             <div className="section-header">
               <span className="fw-medium text-secondary text-decoration-underline mb-2 d-inline-block">
-                Our Workflow
+                فرآیند کاری ما
               </span>
-              <h2>How It Works</h2>
-              <p>Turn Your Expertise into Impact in Just 3 Simple Steps!</p>
+              <h2>نحوه عملکرد</h2>
+              <p>تخصص خود را در تنها ۳ مرحله ساده به تأثیرگذاری تبدیل کنید!</p>
             </div>
             <div className="row row-gap-4">
               <div className="col-lg-4">
@@ -200,10 +200,9 @@ const BecomeInstructor = () => {
                     src="./assets/img/icons/how-it-works-1.svg"
                     alt="img"
                   />
-                  <h5 className="mt-3 mb-2">Apply &amp; Get Approved</h5>
+                  <h5 className="mt-3 mb-2">درخواست و تأیید</h5>
                   <p className="text-truncate line-clamb-2">
-                    Submit your application and get approved to access the
-                    platform
+                    درخواست خود را ارسال کنید و برای دسترسی به پلتفرم تأیید شوید
                   </p>
                 </div>
               </div>
@@ -213,10 +212,10 @@ const BecomeInstructor = () => {
                     src="./assets/img/icons/how-it-works-2.svg"
                     alt="img"
                   />
-                  <h5 className="mt-3 mb-2">Create &amp; Upload Content</h5>
+                  <h5 className="mt-3 mb-2">ایجاد و آپلود محتوا</h5>
                   <p className="text-truncate line-clamb-2">
-                    Develop and upload your courses, including videos, lessons,
-                    quizzes, and assignments.
+                    دوره‌های خود را شامل ویدئوها، درس‌ها، آزمون‌ها و تکالیف
+                    توسعه و آپلود کنید.
                   </p>
                 </div>
               </div>
@@ -226,18 +225,18 @@ const BecomeInstructor = () => {
                     src="./assets/img/icons/how-it-works-3.svg"
                     alt="img"
                   />
-                  <h5 className="mt-3 mb-2">Teach &amp; Earn</h5>
+                  <h5 className="mt-3 mb-2">تدریس و درآمدزایی</h5>
                   <p className="text-truncate line-clamb-2">
-                    Reach learners worldwide, teach, and start earning while
-                    making an impact.
+                    به زبان‌آموزان در سراسر جهان دسترسی پیدا کنید، تدریس کنید و
+                    در حالی که تأثیر می‌گذارید، درآمد کسب کنید.
                   </p>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        {/* how it works */}
-        {/* counter */}
+        {/* نحوه عملکرد */}
+        {/* شمارنده */}
         <div className="counter-sec">
           <div className="container">
             <div className="row row-gap-4">
@@ -255,9 +254,9 @@ const BecomeInstructor = () => {
                         <span className="count-digit">
                           <CountUp end={10} />
                         </span>
-                        K
+                        هزار
                       </h4>
-                      <p className="fw-medium text-truncate">Online Courses</p>
+                      <p className="fw-medium text-truncate">دوره آنلاین</p>
                     </div>
                   </div>
                 </div>
@@ -278,7 +277,7 @@ const BecomeInstructor = () => {
                         </span>
                         +
                       </h4>
-                      <p className="fw-medium text-truncate">Expert Tutors</p>
+                      <p className="fw-medium text-truncate">مدرس متخصص</p>
                     </div>
                   </div>
                 </div>
@@ -297,11 +296,9 @@ const BecomeInstructor = () => {
                         <span className="count-digit">
                           <CountUp end={6} />
                         </span>
-                        K+
+                        هزار+
                       </h4>
-                      <p className="fw-medium text-truncate">
-                        Certified Courses
-                      </p>
+                      <p className="fw-medium text-truncate">دوره گواهی‌دار</p>
                     </div>
                   </div>
                 </div>
@@ -320,9 +317,9 @@ const BecomeInstructor = () => {
                         <span className="count-digit">
                           <CountUp end={60} />
                         </span>
-                        K+
+                        هزار+
                       </h4>
-                      <p className="fw-medium text-truncate">Online Students</p>
+                      <p className="fw-medium text-truncate">دانشجوی آنلاین</p>
                     </div>
                   </div>
                 </div>
@@ -330,8 +327,8 @@ const BecomeInstructor = () => {
             </div>
           </div>
         </div>
-        {/* counter */}
-        {/* register */}
+        {/* شمارنده */}
+        {/* ثبت‌نام */}
         <div className="register-sec">
           <div className="container">
             <div className="row align-items-center">
@@ -346,8 +343,8 @@ const BecomeInstructor = () => {
               </div>
               <div className="col-lg-6">
                 <div className="register-section p-4 p-sm-5 p-md-6">
-                  <h5 className="mb-2">Register</h5>
-                  <p>it's time to be an instructure of mentorito</p>
+                  <h5 className="mb-2">ثبت‌نام</h5>
+                  <p>زمان آن رسیده که در منتوریتو مدرس شوید</p>
                   <form onSubmit={handleSubmit}>
                     <div className="row">
                       <div className="col-lg-12">
@@ -356,7 +353,7 @@ const BecomeInstructor = () => {
                           rows={5}
                           value={description}
                           onChange={(e) => setDescription(e.target.value)}
-                          placeholder="Tell us why you want to become an instructor..."
+                          placeholder="به ما بگویید چرا می‌خواهید مدرس شوید..."
                         />
                       </div>
                       <div className="col-lg-12">
@@ -365,7 +362,7 @@ const BecomeInstructor = () => {
                           className="btn btn-primary mt-2"
                           disabled={loading}
                         >
-                          {loading ? "Submitting..." : "Submit Request"}
+                          {loading ? "در حال ارسال..." : "ارسال درخواست"}
                         </button>
                       </div>
                     </div>
@@ -386,13 +383,11 @@ const BecomeInstructor = () => {
               />
               <div className="row align-items-center">
                 <div className="col-lg-8">
-                  <h3 className="text-white mb-2 mblg-3">
-                    Become an Instructor
-                  </h3>
+                  <h3 className="text-white mb-2 mblg-3">مدرس شوید</h3>
                   <p className="text-light">
-                    Turn your expertise into impactful courses and inspire
-                    learners worldwide. Join our community of instructors and
-                    start your journey today!
+                    تخصص خود را به دوره‌های تأثیرگذار تبدیل کنید و به
+                    زبان‌آموزان در سراسر جهان الهام بخشید. به جامعه مدرسان ما
+                    بپیوندید و امروز سفر خود را آغاز کنید!
                   </p>
                 </div>
                 <div className="col-lg-4 d-flex justify-content-lg-end justify-content-center">
@@ -400,14 +395,14 @@ const BecomeInstructor = () => {
                     to="#"
                     className="btn btn-secondary btn-lg mt-3 mt-lg-0"
                   >
-                    Start Teaching Today
+                    امروز تدریس را شروع کنید
                   </Link>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        {/* register */}
+        {/* ثبت‌نام */}
       </>
     </>
   );

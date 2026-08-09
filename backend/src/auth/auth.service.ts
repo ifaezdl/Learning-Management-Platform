@@ -42,7 +42,7 @@ export class AuthService {
     });
 
     return {
-      message: 'User registered successfully.',
+      message: 'حساب کاربری با موفقیت ایجاد شد',
       user: {
         id: user.Id,
         firstName: user.FirstName,

@@ -19,6 +19,8 @@ import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { SaveLearningOutcomesDto } from './dto/save-learning-outcomes.dto';
 import { SavePrerequisitesDto } from './dto/save-prerequisites.dto';
+import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
+
 import {
   ApiTags,
   ApiOperation,
@@ -31,7 +33,7 @@ import { BrowseCoursesDto } from './dto/browsw-course.dto';
 @ApiTags('Courses')
 @Controller('courses')
 export class CoursesController {
-  constructor(private readonly coursesService: CoursesService) {}
+  constructor(private readonly coursesService: CoursesService) { }
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -83,11 +85,15 @@ export class CoursesController {
   }
 
   @Get(':id')
+  @UseGuards(OptionalJwtAuthGuard)
   @ApiOperation({ summary: 'Get a course by ID' })
   @ApiResponse({ status: 200, description: 'Returns the course' })
   @ApiResponse({ status: 404, description: 'Course not found' })
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.coursesService.findOne(id);
+  async findOne(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: any,
+  ) {
+    return this.coursesService.findOne(id, user?.id);
   }
 
   @Put(':id')

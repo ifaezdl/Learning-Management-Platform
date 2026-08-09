@@ -56,7 +56,7 @@ const Login = () => {
       if (isAuthenticated) {
         navigate(route.homeone, { replace: true });
       }
-      toast.success("login successfull !");
+      toast.success("با موفقیت وارد حساب کاربری خود شدید");
     } catch (err: any) {
       debugger;
       toast.error(
@@ -78,19 +78,20 @@ const Login = () => {
                   <div className="login-carousel-section mb-3">
                     <div className="login-banner">
                       <ImageWithBasePath
-                        src="assets/img/auth/auth-1.svg"
+                        src="assets/img/logo-side.png"
                         className="img-fluid"
                         alt="Logo"
                       />
                     </div>
                     <div className="mentor-course text-center">
                       <h3 className="mb-2">
-                        خوش آمدید به  <br />
-                       <span className="text-secondary"> منتوریتو</span>{" "}
-                        دوره های
+                        به <span className="text-secondary"> منتوریتو </span>خوش
+                        آمدید
                       </h3>
                       <p>
-                       پلتفرمی که برای کمک به سازمان‌ها، مربیان و فراگیران جهت مدیریت، ارائه و پیگیری فعالیت‌های یادگیری و آموزشی طراحی شده است.
+                        پلتفرمی که برای کمک به سازمان‌ها، مربیان و فراگیران در
+                        مدیریت، ارائه و پیگیری فعالیت‌های یادگیری و آموزشی طراحی
+                        شده است.
                       </p>
                     </div>
                   </div>
@@ -105,13 +106,14 @@ const Login = () => {
                       />
                     </div>
                     <div className="mentor-course text-center">
-                        <h3 className="mb-2">
-                        خوش آمدید به  <br />
-                       <span className="text-secondary"> منتوریتو</span>{" "}
-                        دوره های
+                      <h3 className="mb-2">
+                        با <span className="text-secondary"> منتوریتو</span>{" "}
+                        همراه باشید
                       </h3>
                       <p>
-                        پلتفرمی که برای کمک به سازمان‌ها، مربیان و فراگیران جهت مدیریت، ارائه و پیگیری فعالیت‌های یادگیری و آموزشی طراحی شده است.
+                        پلتفرمی که برای کمک به سازمان‌ها، مربیان و فراگیران در
+                        مدیریت، ارائه و پیگیری فعالیت‌های یادگیری و آموزشی طراحی
+                        شده است.
                       </p>
                     </div>
                   </div>
@@ -122,25 +124,24 @@ const Login = () => {
               <div className="login-wrapper">
                 <div className="loginbox">
                   <div className="w-100">
-                    <div className="d-flex align-items-center justify-content-between login-header">
-                      <ImageWithBasePath
-                        width={300}
-                        src="assets/img/logo.png"
-                        className="img-fluid"
-                        alt="Logo"
-                      />
-                      <Link to={route.homeone} className="link-1">
-                        بازگشت به خانه
-                      </Link>
+                    <div className="d-flex align-items-center  flex-column">
+                      <div>
+                        <h1 className="fs-32 fw-bold">
+                          {" "}
+                          به حساب کاربری خود وارد شوید
+                        </h1>
+                      </div>
+                      <div>
+                        <Link to={route.homeone} className="link-1">
+                          بازگشت به خانه
+                        </Link>
+                      </div>
                     </div>
-                    <h1 className="fs-32 fw-bold topic">
-                     به حساب کاربری خود وارد شوید
-                    </h1>
 
                     <form onSubmit={handleSubmit} className="mb-3 pb-3">
                       <div className="mb-3 position-relative">
                         <label className="form-label">
-                           <span className="text-danger ms-1">*</span> نام کاربری    
+                          <span className="text-danger ms-1">*</span> نام کاربری
                         </label>
                         <div className="position-relative">
                           <input
@@ -157,7 +158,7 @@ const Login = () => {
                       </div>
                       <div className="mb-3 position-relative">
                         <label className="form-label">
-                         <span className="text-danger ms-1">* </span> رمز عبور 
+                          <span className="text-danger ms-1">* </span> رمز عبور
                         </label>
                         <div className="position-relative" id="passwordInput">
                           <input
@@ -195,7 +196,7 @@ const Login = () => {
                         </div> */}
                         <div className="">
                           <Link to={route.forgotpassword} className="link-2">
-                           فراموشی رمز ؟
+                            فراموشی رمز ؟
                           </Link>
                         </div>
                       </div>
@@ -223,10 +224,9 @@ const Login = () => {
                       </Link>
                     </div>
                     <div className="fs-14 fw-normal d-flex align-items-center justify-content-center">
-                     آیا حساب کاربری ندارید؟
+                      آیا حساب کاربری ندارید؟
                       <Link to={route.register} className="link-2 ms-1">
                         {" "}
-                        
                         ثبت نام
                       </Link>
                     </div>

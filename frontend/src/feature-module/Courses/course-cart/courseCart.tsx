@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { all_routes } from "../../router/all_routes";
 import ImageWithBasePath from "../../../core/common/imageWithBasePath";
 import cartService, { CartItem } from "../../../services/cart.service";
+import { api_base_url } from "../../../environment";
 
 const CourseCart = () => {
   const route = all_routes;
@@ -96,7 +97,7 @@ const CourseCart = () => {
                     {cartItems.length > 0 && (
                       <button
                         type="button"
-                        className="btn btn-sm btn-danger-ghost mb-0"
+                        className="btn btn-sm btn-outline-danger mb-0"
                         onClick={handleClearCart}
                         disabled={clearing}
                       >
@@ -133,9 +134,9 @@ const CourseCart = () => {
                                         String(item.Course_Id),
                                       )}
                                     >
-                                      <ImageWithBasePath
+                                      <img
                                         src={
-                                          item.Courses.Thumbnail ||
+                                          `${api_base_url}${item.Courses.Thumbnail}` ||
                                           "assets/img/course/course-01.jpg"
                                         }
                                         alt="img"
@@ -168,8 +169,12 @@ const CourseCart = () => {
                                     <div className="col-md-3">
                                       <div className="d-flex align-items-center justify-content-end gap-4 cart-trash">
                                         <h5 className="text-secondary">
-                                          ${Number(getPrice(item)).toFixed(2)}
+                                          {Number(
+                                            getPrice(item),
+                                          ).toLocaleString("fa-IR")}{" "}
+                                          ریال
                                         </h5>
+
                                         <button
                                           type="button"
                                           className="trash-btn btn p-0 border-0 bg-transparent"
@@ -196,17 +201,14 @@ const CourseCart = () => {
                       <div className="bg-light border rounded-2 p-3 mb-4">
                         <div className="row align-items-center justify-content-between row-gap-3">
                           <div className="col-md-6">
-                            <h6 className="mb-1">جمع جزء</h6>
+                            <h6 className="mb-1">جمع کل</h6>
                             <p className="mb-0">
-                              تمام دوره‌ها شامل{" "}
-                              <span className="text-gray-9 fw-medium mx-1">
-                                ۳۰ روز
-                              </span>
-                              ضمانت بازگشت وجه هستند
+                              بلافاصله پس از خریداری دوره دسترسی به محتوای دوره
+                              فعال میشود.{" "}
                             </p>
                           </div>
                           <div className="col-md-6 text-end">
-                            <h5>${subTotal.toFixed(2)}</h5>
+                            <h5> {subTotal.toLocaleString("fa-IR")} ریال</h5>
                           </div>
                         </div>
                       </div>

@@ -7,6 +7,8 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { unlink } from 'fs/promises';
+import { join } from 'path';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -24,6 +26,7 @@ export class UsersService {
         Email: true,
         Mobile: true,
         Role_Id: true,
+        Sex_Id: true,
         IsActive: true,
         Avatar: true,
         CreatedAt: true,
@@ -36,7 +39,7 @@ export class UsersService {
 
     return user;
   }
-
+  //Sex_Id needed to be adedd on Model
   async findAll() {
     const users = await this.prisma.users.findMany({
       select: {
@@ -68,8 +71,12 @@ export class UsersService {
       Role_Id: user.Role_Id,
       IsActive: user.IsActive,
       CreatedAt: user.CreatedAt,
-      RequestId: user.InstructorRequests_InstructorRequests_User_IdToUsers[0]?.Id ?? null,
-      RequestStatus: user.InstructorRequests_InstructorRequests_User_IdToUsers[0]?.Status ?? null,
+      RequestId:
+        user.InstructorRequests_InstructorRequests_User_IdToUsers[0]?.Id ??
+        null,
+      RequestStatus:
+        user.InstructorRequests_InstructorRequests_User_IdToUsers[0]?.Status ??
+        null,
     }));
   }
 
@@ -181,6 +188,87 @@ export class UsersService {
 
     return {
       message: 'Password changed successfully.',
+    };
+  }
+  async updateAvatar(userId: number, file: Express.Multer.File) {
+    if (!file) {
+      throw new NotFoundException('Avatar file not provided');
+    }
+
+    const avatarPath = `/uploads/profile/${userId}/${file.filename}`;
+
+    const updatedUser = await this.prisma.users.update({
+      where: {
+        Id: userId,
+      },
+      data: {
+        Avatar: avatarPath,
+        UpdatedAt: new Date(),
+      },
+      select: {
+        Id: true,
+        FirstName: true,
+        LastName: true,
+        UserName: true,
+        Email: true,
+        Mobile: true,
+        Avatar: true,
+        Sex_Id: true,
+        Role_Id: true,
+      },
+    });
+
+    return {
+      message: 'Avatar uploaded successfully.',
+      user: updatedUser,
+    };
+  }
+
+  async deleteAvatar(userId: number) {
+    const user = await this.prisma.users.findUnique({
+      where: { Id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!user.Avatar) {
+      throw new NotFoundException('No avatar to delete');
+    }
+
+    // user.Avatar is stored like "/uploads/profile/1026/avatar-....jpg"
+    const filePath = join(process.cwd(), user.Avatar);
+
+    try {
+      await unlink(filePath);
+    } catch (err) {
+      // اگر فایل روی دیسک وجود نداشت، صرفاً ادامه بده و رکورد دیتابیس را پاک کن
+      console.warn(`Could not delete avatar file: ${filePath}`, err.message);
+    }
+
+    const updatedUser = await this.prisma.users.update({
+      where: { Id: userId },
+      data: {
+        Avatar: null,
+        UpdatedAt: new Date(),
+      },
+      select: {
+        Id: true,
+        FirstName: true,
+        LastName: true,
+        UserName: true,
+        Email: true,
+        Mobile: true,
+        Avatar: true,
+        Sex_Id: true,
+        Role_Id: true,
+      },
+    });
+
+    return {
+      message: 'Avatar deleted successfully.',
+      user: updatedUser,
     };
   }
 }

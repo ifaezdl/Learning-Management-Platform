@@ -87,27 +87,6 @@ const StudentProfile = () => {
             <div className="col-lg-9">
               <div className="page-title d-flex align-items-center justify-content-between">
                 <h5 className="fw-bold">پروفایل من</h5>
-                <button
-                  type="button"
-                  className="edit-profile-icon border-0 bg-transparent"
-                  onClick={() => {
-                    if (!profile) return;
-
-                    setEditProfile({
-                      firstName: profile.FirstName,
-                      lastName: profile.LastName,
-                      userName: profile.UserName,
-                      email: profile.Email,
-                      mobile: profile.Mobile,
-                      sexId: profile.Sex_Id,
-                      avatar: profile.Avatar,
-                    });
-
-                    setShowEditModal(true);
-                  }}
-                >
-                  <i className="isax isax-edit-2" />
-                </button>
               </div>
               <div className="card mb-0">
                 <div className="card-body">
@@ -274,8 +253,8 @@ const StudentProfile = () => {
                       })
                     }
                   >
-                    <option value={1}>Male</option>
-                    <option value={2}>Female</option>
+                    <option value={5}>Male</option>
+                    <option value={6}>Female</option>
                   </select>
                 </div>
               </div>
