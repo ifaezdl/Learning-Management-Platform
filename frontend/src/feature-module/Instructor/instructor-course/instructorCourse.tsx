@@ -163,13 +163,25 @@ const InstructorCourse = () => {
 
   const stats = [
     {
-      label: "دوره های منتشر شده",
+      label: "منتشر شده",
       value: publishedCount,
       icon: "isax-tick-circle",
     },
-    { label: "دوره های پیش‌نویس", value: draftCount, icon: "isax-edit-2" },
-    { label: "دوره های رایگان", value: freeCount, icon: "isax-gift" },
-    { label: "دوره های پولی", value: paidCount, icon: "isax-wallet" },
+    {
+      label: "پیش‌نویس",
+      value: draftCount,
+      icon: "isax-edit-2",
+    },
+    {
+      label: "دوره‌های رایگان",
+      value: freeCount,
+      icon: "isax-gift",
+    },
+    {
+      label: "دوره‌های فروشی",
+      value: paidCount,
+      icon: "isax-wallet",
+    },
   ];
 
   return (
@@ -201,10 +213,6 @@ const InstructorCourse = () => {
                     </div>
                   </div>
                 ))}
-              </div>
-
-              <div className="page-title d-flex align-items-center justify-content-between">
-                <h5 className="fw-bold">دوره ها</h5>
               </div>
 
               <div className="row">
