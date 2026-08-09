@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import ProfileCard from "../common/profileCard";
 import InstructorSidebar from "../common/instructorSidebar";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Table from "../../../core/common/dataTable/index";
 import courseService, { MyCourse } from "../../../services/course.service";
 
 const InstructorCourse = () => {
+  const navigate = useNavigate();
   const [data, setData] = useState<MyCourse[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     loadCourses();
@@ -14,6 +18,7 @@ const InstructorCourse = () => {
 
   const loadCourses = async () => {
     try {
+      setLoading(true);
       const courses = await courseService.getMyCourses();
 
       setData(
@@ -24,84 +29,123 @@ const InstructorCourse = () => {
       );
     } catch (err) {
       console.log(err);
+    } finally {
+      setLoading(false);
     }
   };
 
+  const handleDeleteClick = (id: number) => {
+    setSelectedCourseId(id);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (selectedCourseId === null) return;
+    try {
+      setDeleting(true);
+      await courseService.deleteCourse(selectedCourseId);
+      setData((prev) => prev.filter((c) => c.Id !== selectedCourseId));
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setDeleting(false);
+      setSelectedCourseId(null);
+    }
+  };
+
+  // ---- Real stats derived from actual course data ----
+  const publishedCount = data.filter((c) => c.IsPublished).length;
+  const draftCount = data.filter((c) => !c.IsPublished).length;
+  const freeCount = data.filter((c) => Number(c.Price) === 0).length;
+  const paidCount = data.filter((c) => Number(c.Price) > 0).length;
+
   const columns = [
-    {
-      title: "Thumbnail",
-      dataIndex: "Thumbnail",
-      render: (value: string | null) => (
-        <img
-          src={value || "/assets/img/course/course-01.jpg"}
-          width={70}
-          alt=""
-        />
-      ),
-    },
+    // {
+    //   title: "Thumbnail",
+    //   dataIndex: "Thumbnail",
+    //   render: (value: string | null) => (
+    //     <img
+    //       src={value || "/assets/img/course/course-01.jpg"}
+    //       width={70}
+    //       alt=""
+    //     />
+    //   ),
+    // },
 
     {
-      title: "Title",
+      title: "عنوان",
       dataIndex: "Title",
     },
 
     {
-      title: "Category",
-      render: (_: any, record: MyCourse) => record.Category.Title,
+      title: "دسته بندی",
+      render: (_: any, record: MyCourse) => record.Category?.Title ?? "-",
     },
 
     {
-      title: "Level",
+      title: "سطح",
       render: (_: any, record: MyCourse) => record.Level?.LevelName ?? "-",
     },
 
     {
-      title: "Price",
+      title: "هزینه (ریال)",
       dataIndex: "Price",
       render: (price: number) => `$${price}`,
     },
 
     {
-      title: "Discount",
+      title: "مبلغ با تخفیف",
       dataIndex: "DiscountPrice",
       render: (price: number | null) => (price ? `$${price}` : "-"),
     },
 
     {
-      title: "Published",
+      title: "وضعیت انتشار",
       dataIndex: "IsPublished",
       render: (value: boolean) =>
         value ? (
-          <span className="badge bg-success">Published</span>
+          <span className="badge bg-success">منتشر شده</span>
         ) : (
-          <span className="badge bg-warning">Draft</span>
+          <span className="badge bg-warning">پیش نویس</span>
         ),
     },
 
     {
-      title: "Created",
+      title: "تاریخ ایجاد",
       dataIndex: "CreatedAt",
       render: (date: string) => new Date(date).toLocaleDateString(),
     },
 
     {
-      title: "Rating",
-      dataIndex: "AverageRating",
-    },
-
-    {
-      title: "Action",
-      render: () => (
+      title: "عملیات",
+      render: (_: any, record: MyCourse) => (
         <>
-          <button className="btn btn-sm btn-primary me-2">Manage</button>
+          {/* <button
+            className="btn btn-sm btn-primary me-2"
+            onClick={() => navigate(`/instructor/courses/${record.Id}/manage`)}
+          >
+            Manage
+          </button> */}
 
-          <button className="btn btn-sm btn-secondary me-2">Edit</button>
+          <button
+            className="btn btn-sm btn-secondary me-2"
+            onClick={() => navigate(`/instructor/courses/${record.Id}/edit`)}
+          >
+            ویرایش
+          </button>
 
-          <button className="btn btn-sm btn-danger">Delete</button>
+          <button
+            className="btn btn-sm btn-danger"
+            data-bs-toggle="modal"
+            data-bs-target="#delete_modal"
+            onClick={() => handleDeleteClick(record.Id)}
+          >
+            حذف
+          </button>
         </>
       ),
     },
   ];
+
   return (
     <>
       <div className="content mt-5">
@@ -117,9 +161,11 @@ const InstructorCourse = () => {
                   <div className="card bg-success">
                     <div className="card-body">
                       <h6 className="fw-medium mb-1 text-white">
-                        دوره های فعال
+                        دوره های منتشر شده
                       </h6>
-                      <h4 className="fw-bold text-white">45</h4>
+                      <h4 className="fw-bold text-white">
+                        {loading ? "-" : publishedCount}
+                      </h4>
                     </div>
                   </div>
                 </div>
@@ -127,9 +173,11 @@ const InstructorCourse = () => {
                   <div className="card bg-info">
                     <div className="card-body">
                       <h6 className="fw-medium mb-1 text-white">
-                        Draft Courses
+                        دوره های پیش‌نویس
                       </h6>
-                      <h4 className="fw-bold text-white">15</h4>
+                      <h4 className="fw-bold text-white">
+                        {loading ? "-" : draftCount}
+                      </h4>
                     </div>
                   </div>
                 </div>
@@ -137,9 +185,11 @@ const InstructorCourse = () => {
                   <div className="card bg-skyblue">
                     <div className="card-body">
                       <h6 className="fw-medium mb-1 text-white">
-                        Free Courses
+                        دوره های رایگان
                       </h6>
-                      <h4 className="fw-bold text-white">16</h4>
+                      <h4 className="fw-bold text-white">
+                        {loading ? "-" : freeCount}
+                      </h4>
                     </div>
                   </div>
                 </div>
@@ -147,9 +197,11 @@ const InstructorCourse = () => {
                   <div className="card bg-purple">
                     <div className="card-body">
                       <h6 className="fw-medium mb-1 text-white">
-                        Paid Courses
+                        دوره های پولی
                       </h6>
-                      <h4 className="fw-bold text-white">21</h4>
+                      <h4 className="fw-bold text-white">
+                        {loading ? "-" : paidCount}
+                      </h4>
                     </div>
                   </div>
                 </div>
@@ -172,17 +224,13 @@ const InstructorCourse = () => {
                       <ul className="dropdown-menu dropdown-menu-end p-3">
                         <li>
                           <Link to="#" className="dropdown-item rounded-1">
-                            Published
+                            منتشر شده
                           </Link>
                         </li>
+
                         <li>
                           <Link to="#" className="dropdown-item rounded-1">
-                            Pending
-                          </Link>
-                        </li>
-                        <li>
-                          <Link to="#" className="dropdown-item rounded-1">
-                            Draft
+                            پیش نویس
                           </Link>
                         </li>
                       </ul>
@@ -191,7 +239,15 @@ const InstructorCourse = () => {
                 </div>
                 <div className="col-md-4"></div>
               </div>
-              <Table dataSource={data} columns={columns} Search={true} />
+              {loading ? (
+                <div className="text-center py-5">در حال بارگذاری...</div>
+              ) : data.length === 0 ? (
+                <div className="text-center py-5">
+                  هنوز دوره‌ای ایجاد نکرده‌اید.
+                </div>
+              ) : (
+                <Table dataSource={data} columns={columns} Search={true} />
+              )}
             </div>
           </div>
         </div>
@@ -206,25 +262,26 @@ const InstructorCourse = () => {
                   <i className="isax isax-trash fs-24 text-danger" />
                 </span>
                 <div>
-                  <h4 className="mb-2">Delete Course</h4>
-                  <p className="mb-3">
-                    Are you sure you want to delete course?
-                  </p>
+                  <h4 className="mb-2">حذف دوره</h4>
+                  <p className="mb-3">آیا از حذف دوره اطمینان دارید ؟</p>
                   <div className="d-flex align-items-center justify-content-center">
-                    <Link
-                      to="#"
+                    <button
+                      type="button"
                       className="btn bg-gray-100 rounded-pill me-2"
                       data-bs-dismiss="modal"
+                      onClick={() => setSelectedCourseId(null)}
                     >
-                      Cancel
-                    </Link>
-                    <Link
-                      to="#"
+                      لغو
+                    </button>
+                    <button
+                      type="button"
                       className="btn btn-secondary rounded-pill"
                       data-bs-dismiss="modal"
+                      disabled={deleting}
+                      onClick={handleConfirmDelete}
                     >
-                      Yes, Delete
-                    </Link>
+                      {deleting ? "در حال حذف..." : "بله, حذف"}
+                    </button>
                   </div>
                 </div>
               </div>
