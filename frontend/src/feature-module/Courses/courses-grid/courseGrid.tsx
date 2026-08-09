@@ -322,7 +322,7 @@ const CourseGrid = () => {
                                 className="btn btn-primary btn-sm rounded-pill d-inline-flex align-items-center px-3"
                               >
                                 مشاهده دوره
-                                <i className="isax isax-arrow-left-3 ms-1" />
+                                <i className="isax isax-arrow-left-2 ms-1" />
                               </Link>
                             </div>
                           </div>
@@ -377,10 +377,11 @@ const CourseGrid = () => {
 
                     {/* Next */}
                     <li
-                      className={`page-item next ${page === totalPages || totalPages === 0
+                      className={`page-item next ${
+                        page === totalPages || totalPages === 0
                           ? "disabled"
                           : ""
-                        }`}
+                      }`}
                     >
                       <Link
                         className="page-link"

@@ -6,7 +6,6 @@ import { useAuth } from "../../../context/AuthContext";
 import { api_base_url } from "../../../environment";
 
 const ProfileCard = () => {
-  debugger;
   const { user } = useAuth();
 
   const avatarUrl = user?.avatar
