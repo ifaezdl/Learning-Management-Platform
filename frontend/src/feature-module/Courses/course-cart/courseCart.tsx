@@ -32,7 +32,6 @@ const CourseCart = () => {
       setLoading(false);
     }
   };
-
   const handleRemove = async (courseId: number) => {
     try {
       setRemovingId(courseId);
