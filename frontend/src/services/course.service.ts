@@ -89,6 +89,8 @@ export interface Course {
   isEnrolled: boolean;
   CoursePrequisties: [];
   CourseLearningOutcomes: [];
+  enrollmentDate?: string | null;
+  enrollmentStatus?: number | null;
 }
 
 export interface Section {
@@ -300,6 +302,11 @@ class CourseService {
     data: SavePrerequisitesDto,
   ): Promise<void> {
     await api.put(`/courses/${courseId}/prerequisites`, data);
+  }
+  async getEnrolledCourses(): Promise<Course[]> {
+    debugger;
+    const response = await api.get("/courses/enrolled");
+    return response.data;
   }
 }
 

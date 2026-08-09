@@ -12,7 +12,7 @@ import { SaveLearningOutcomesDto } from './dto/save-learning-outcomes.dto';
 import { SavePrerequisitesDto } from './dto/save-prerequisites.dto';
 @Injectable()
 export class CoursesService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   private generateSlug(title: string): string {
     return title
@@ -196,7 +196,51 @@ export class CoursesService {
       },
     });
   }
+  async findEnrolledByStudent(studentId: number) {
+    const enrollments = await this.prisma.enrollments.findMany({
+      where: { Student_Id: studentId },
+      select: { Course_Id: true, EnrollmentDate: true, Status: true },
+      orderBy: { EnrollmentDate: 'desc' },
+    });
 
+    if (enrollments.length === 0) {
+      return [];
+    }
+
+    const courseIds = enrollments.map((e) => e.Course_Id);
+
+    const courses = await this.prisma.courses.findMany({
+      where: { Id: { in: courseIds } },
+      include: {
+        ...this.courseInclude(),
+        Users: {
+          select: {
+            Id: true,
+            FirstName: true,
+            LastName: true,
+          },
+        },
+      },
+    });
+
+    const enrollmentMap = new Map(enrollments.map((e) => [e.Course_Id, e]));
+
+    // Preserve enrollment order (most recent first) rather than the
+    // findMany's default ordering, since courses came back keyed by Id.
+    return courseIds
+      .map((id) => {
+        const course = courses.find((c) => c.Id === id);
+        const enrollment = enrollmentMap.get(id);
+        return course
+          ? {
+              ...course,
+              enrollmentDate: enrollment?.EnrollmentDate ?? null,
+              enrollmentStatus: enrollment?.Status ?? null,
+            }
+          : null;
+      })
+      .filter(Boolean);
+  }
   async findOne(id: number, userId?: number) {
     const course = await this.prisma.courses.findUnique({
       where: { Id: id },

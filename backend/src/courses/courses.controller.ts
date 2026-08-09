@@ -33,7 +33,7 @@ import { BrowseCoursesDto } from './dto/browsw-course.dto';
 @ApiTags('Courses')
 @Controller('courses')
 export class CoursesController {
-  constructor(private readonly coursesService: CoursesService) { }
+  constructor(private readonly coursesService: CoursesService) {}
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -82,6 +82,21 @@ export class CoursesController {
   @ApiResponse({ status: 200, description: 'Returns teacher courses' })
   async getMyCourses(@CurrentUser() user: any) {
     return this.coursesService.findByTeacher(user.id);
+  }
+
+  @Get('enrolled')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Get enrolled courses for the current logged-in student',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the enrolled courses for the current user',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async getEnrolledCourses(@CurrentUser() user: any) {
+    return this.coursesService.findEnrolledByStudent(user.id);
   }
 
   @Get(':id')
