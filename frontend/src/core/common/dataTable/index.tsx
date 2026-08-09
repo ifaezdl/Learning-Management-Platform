@@ -75,15 +75,14 @@ const Datatable: React.FC<DatatableProps> = ({
               locale: { items_per_page: "" },
               nextIcon: (
                 <span>
-                  <i className="fas fa-angle-right" />
+                  <i className="fas fa-angle-left " />
                 </span>
               ),
               prevIcon: (
                 <span>
-                  <i className="fas fa-angle-left" />
+                  <i className="fas fa-angle-right" />
                 </span>
               ),
-              showTotal: (total, range) => `Page ${range[0]} of ${total}`,
             }}
           />
         </>
