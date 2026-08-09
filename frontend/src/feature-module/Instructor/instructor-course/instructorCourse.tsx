@@ -1,14 +1,9 @@
-import React, { useEffect, useState } from "react";
-import Breadcrumb from "../../../core/common/Breadcrumb/breadcrumb";
+import { useEffect, useState } from "react";
 import ProfileCard from "../common/profileCard";
 import InstructorSidebar from "../common/instructorSidebar";
 import { Link } from "react-router-dom";
-import ImageWithBasePath from "../../../core/common/imageWithBasePath";
-import { all_routes } from "../../router/all_routes";
-import { courseListData } from "../../../core/common/data/json/courseListData";
 import Table from "../../../core/common/dataTable/index";
 import courseService, { MyCourse } from "../../../services/course.service";
-import toast from "react-hot-toast";
 
 const InstructorCourse = () => {
   const [data, setData] = useState<MyCourse[]>([]);

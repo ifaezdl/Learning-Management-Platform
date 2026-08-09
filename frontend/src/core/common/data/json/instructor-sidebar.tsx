@@ -12,7 +12,12 @@ export const instructorSidebarData = [
     route: all_routes.instructorProfile,
   },
   {
-    title: "درس ها",
+    title: "دوره های خریداری شده",
+    icon: "isax isax-teacher5",
+    route: all_routes.instructorEnrolledCourse,
+  },
+  {
+    title: "دوره‌های ایجادشده توسط من",
     icon: "isax isax-teacher5",
     route: all_routes.instructorCourse,
   },

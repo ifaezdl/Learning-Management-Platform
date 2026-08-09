@@ -86,6 +86,7 @@ import RoleRoute from "./roleRoutes";
 import AdminPage from "../admin/adminPage";
 import PaymentSuccess from "../Courses/course-checkout/paymentSuccess";
 import PaymentFailure from "../Courses/course-checkout/paymentFailure";
+import InstructorEnrolledCourse from "../Instructor/instructor-course/instructorEnrolledCourse";
 
 const routes = all_routes;
 
@@ -397,6 +398,14 @@ export const publicRoutes = [
       </RoleRoute>
     ),
     route: Route,
+  },
+  {
+    path: routes.instructorEnrolledCourse,
+    element: (
+      <RoleRoute roles={[2]}>
+        <InstructorEnrolledCourse />
+      </RoleRoute>
+    ),
   },
   {
     path: routes.studentCertificates,

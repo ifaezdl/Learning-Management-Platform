@@ -22,6 +22,7 @@ export const all_routes = {
   instructorDashboard: "/instructor/instructor-dashboard",
   instructorProfile: "/instructor/instructor-profile",
   instructorCourse: "/instructor/instructor-course",
+  instructorEnrolledCourse: "/instructor/instructor-enrolled-course",
   instructorCourseGrid: "/instructor/instructor-course-grid",
   instructorAnnouncements: "/instructor/instructor-announcements",
   instructorAssignment: "/instructor/instructor-assignment",
