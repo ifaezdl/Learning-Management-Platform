@@ -199,8 +199,10 @@ export class QuizService {
         'تعداد سوالات نمایشی نمی‌تواند از تعداد کل سوالات بانک بیشتر باشد.',
       );
     }
+
     for (const q of dto.questions) {
       const correctCount = q.choices.filter((c) => c.isCorrect).length;
+
       if (correctCount !== 1) {
         throw new BadRequestException(
           `سوال "${q.questionText}" باید دقیقاً یک گزینه صحیح داشته باشد.`,
@@ -210,12 +212,53 @@ export class QuizService {
 
     return this.prisma.$transaction(async (tx) => {
       const existing = await tx.quizzes.findFirst({
-        where: { Course_Id: courseId },
+        where: {
+          Course_Id: courseId,
+        },
       });
+
       if (existing) {
-        await tx.quizzes.delete({ where: { Id: existing.Id } });
+        // 1. پیدا کردن سوالات Quiz قبلی
+        const oldQuestions = await tx.quizQuestions.findMany({
+          where: {
+            Quiz_Id: existing.Id,
+          },
+          select: {
+            Id: true,
+          },
+        });
+
+        const questionIds = oldQuestions.map((q) => q.Id);
+
+        // 2. حذف Choice های سوالات قبلی
+        if (questionIds.length > 0) {
+          await tx.quizChoices.deleteMany({
+            where: {
+              Question_Id: {
+                in: questionIds,
+              },
+            },
+          });
+
+          // 3. حذف Question های قبلی
+          await tx.quizQuestions.deleteMany({
+            where: {
+              Id: {
+                in: questionIds,
+              },
+            },
+          });
+        }
+
+        // 4. حالا خود Quiz را حذف کن
+        await tx.quizzes.delete({
+          where: {
+            Id: existing.Id,
+          },
+        });
       }
 
+      // 5. ساخت Quiz جدید
       const quiz = await tx.quizzes.create({
         data: {
           Course_Id: courseId,
@@ -228,8 +271,10 @@ export class QuizService {
         },
       });
 
+      // 6. ساخت سوالات و گزینه‌ها
       for (let i = 0; i < dto.questions.length; i++) {
         const q = dto.questions[i];
+
         const question = await tx.quizQuestions.create({
           data: {
             Quiz_Id: quiz.Id,
@@ -238,6 +283,7 @@ export class QuizService {
             Source: !!q.isAiGenerated,
           },
         });
+
         await tx.quizChoices.createMany({
           data: q.choices.map((c, ci) => ({
             Question_Id: question.Id,
@@ -249,11 +295,21 @@ export class QuizService {
       }
 
       return tx.quizzes.findUnique({
-        where: { Id: quiz.Id },
+        where: {
+          Id: quiz.Id,
+        },
         include: {
           QuizQuestions: {
-            orderBy: { DisplayOrder: 'asc' },
-            include: { QuizChoices: { orderBy: { DisplayOrder: 'asc' } } },
+            orderBy: {
+              DisplayOrder: 'asc',
+            },
+            include: {
+              QuizChoices: {
+                orderBy: {
+                  DisplayOrder: 'asc',
+                },
+              },
+            },
           },
         },
       });
