@@ -167,7 +167,6 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
   };
 
   const handleGenerateAi = async () => {
-    debugger;
     if (aiCount < 1 || aiCount > 100) {
       toast.error("تعداد سوال باید بین ۱ تا ۱۰۰ باشد.");
       return;
@@ -418,7 +417,7 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
                 }
               />
             </div>
-            <div className="col-md-3">
+            <div className="col-md-4">
               <label className="form-label">نمره هر سوال</label>
               <input
                 type="number"
@@ -434,7 +433,7 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
                 }
               />
             </div>
-            <div className="col-md-3">
+            <div className="col-md-4">
               <label className="form-label">
                 تعداد سوال نمایش داده‌شده به هر کاربر (از بین {questions.length}{" "}
                 سوال)

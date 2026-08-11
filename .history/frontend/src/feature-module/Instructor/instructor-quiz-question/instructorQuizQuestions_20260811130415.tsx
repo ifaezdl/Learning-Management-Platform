@@ -4,6 +4,7 @@ import quizService, {
   QuizQuestionItem,
   QuizChoice,
 } from "../../../services/quiz.service";
+import { useParams } from "react-router-dom";
 
 interface Props {
   courseId: number;
@@ -18,7 +19,8 @@ const emptyChoices = (): QuizChoice[] => [
 
 const makeClientId = () => Math.random().toString(36).slice(2, 10);
 
-const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
+const InstructorQuizQuestions: React.FC<Props> = () => {
+  const { courseId } = useParams<{ courseId: string }>();
   const [questions, setQuestions] = useState<QuizQuestionItem[]>([]);
   const [loadingExisting, setLoadingExisting] = useState(true);
 

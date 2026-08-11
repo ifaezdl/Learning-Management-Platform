@@ -4,6 +4,7 @@ import quizService, {
   QuizQuestionItem,
   QuizChoice,
 } from "../../../services/quiz.service";
+import { useParams } from "react-router-dom";
 
 interface Props {
   courseId: number;
@@ -18,7 +19,8 @@ const emptyChoices = (): QuizChoice[] => [
 
 const makeClientId = () => Math.random().toString(36).slice(2, 10);
 
-const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
+const InstructorQuizQuestions = () => {
+  const { courseId } = useParams<{ courseId: string }>();
   const [questions, setQuestions] = useState<QuizQuestionItem[]>([]);
   const [loadingExisting, setLoadingExisting] = useState(true);
 
@@ -251,7 +253,13 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
   if (loadingExisting) {
     return <div className="text-center py-5">در حال بارگذاری آزمون...</div>;
   }
-
+  if (!courseId) {
+    return (
+      <div className="text-center py-4 text-muted">
+        برای ساخت آزمون، ابتدا اطلاعات دوره را تکمیل کنید.
+      </div>
+    );
+  }
   return (
     <div className="form-inner wizard-form-card">
       <div className="title d-flex justify-content-between align-items-center flex-wrap gap-2">

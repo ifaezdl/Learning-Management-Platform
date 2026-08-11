@@ -486,7 +486,11 @@ export const publicRoutes = [
     element: <StudentsDetails />,
     route: Route,
   },
-
+  {
+    path: routes.instructorQA,
+    element: <InstructorQuizQuestions />,
+    route: Route,
+  },
   {
     path: routes.studentTickets,
     element: <StudentTickets />,

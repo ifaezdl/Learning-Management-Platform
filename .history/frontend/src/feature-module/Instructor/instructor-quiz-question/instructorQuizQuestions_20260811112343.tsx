@@ -167,7 +167,6 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
   };
 
   const handleGenerateAi = async () => {
-    debugger;
     if (aiCount < 1 || aiCount > 100) {
       toast.error("تعداد سوال باید بین ۱ تا ۱۰۰ باشد.");
       return;
@@ -348,7 +347,7 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
         <div className="card-body">
           <h6 className="mb-3">تنظیمات آزمون</h6>
           <div className="row g-3">
-            <div className="col-md-3">
+            <div className="col-md-6">
               <label className="form-label">عنوان آزمون</label>
               <input
                 className="form-control"
@@ -370,6 +369,17 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
               />
             </div>
             <div className="col-md-3">
+              <label className="form-label">ساعت شروع</label>
+              <input
+                type="time"
+                className="form-control"
+                value={settings.startTime}
+                onChange={(e) =>
+                  setSettings({ ...settings, startTime: e.target.value })
+                }
+              />
+            </div>
+            <div className="col-md-3">
               <label className="form-label">تاریخ پایان</label>
               <input
                 type="date"
@@ -381,18 +391,6 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
               />
             </div>
             <div className="col-md-3">
-              <label className="form-label">ساعت شروع</label>
-              <input
-                type="time"
-                className="form-control"
-                value={settings.startTime}
-                onChange={(e) =>
-                  setSettings({ ...settings, startTime: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="col-md-3">
               <label className="form-label">ساعت پایان</label>
               <input
                 type="time"
@@ -403,7 +401,7 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
                 }
               />
             </div>
-            <div className="col-md-3">
+            <div className="col-md-4">
               <label className="form-label">مدت زمان آزمون (دقیقه)</label>
               <input
                 type="number"
@@ -418,7 +416,7 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
                 }
               />
             </div>
-            <div className="col-md-3">
+            <div className="col-md-4">
               <label className="form-label">نمره هر سوال</label>
               <input
                 type="number"
@@ -434,7 +432,7 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
                 }
               />
             </div>
-            <div className="col-md-3">
+            <div className="col-md-4">
               <label className="form-label">
                 تعداد سوال نمایش داده‌شده به هر کاربر (از بین {questions.length}{" "}
                 سوال)

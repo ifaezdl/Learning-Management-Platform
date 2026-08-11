@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { all_routes } from "../../router/all_routes";
+import Breadcrumb from "../../../core/common/Breadcrumb/breadcrumb";
 import courseService, {
   Category,
   Level,
@@ -10,6 +11,7 @@ import Stepper from "./components/Stepper";
 import CourseInformation from "./components/CourseInformation";
 import SectionManager from "./components/SectionManager";
 import CourseSummary from "./components/CourseSummary";
+import InstructorQuiz from "../../Instructor/instructor-quiz/instructorQuiz";
 import InstructorQuizQuestions from "../../Instructor/instructor-quiz-question/instructorQuizQuestions";
 
 const STEPS = [
@@ -27,7 +29,7 @@ const AddNewCourse = () => {
   const [searchParams] = useSearchParams();
   const editId = searchParams.get("id");
   const [loadingCourse, setLoadingCourse] = useState(!!editId);
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(4);
   const [courseId, setCourseId] = useState<number | null>(null);
   const [courseData, setCourseData] = useState<any>(null);
 
@@ -205,13 +207,7 @@ const AddNewCourse = () => {
           </div>
         );
       case 4:
-        return courseId ? (
-          <InstructorQuizQuestions courseId={courseId} />
-        ) : (
-          <div className="text-center py-4 text-muted">
-            برای ساخت آزمون، ابتدا اطلاعات دوره را تکمیل کنید.
-          </div>
-        );
+        return <InstructorQuizQuestions />;
       case 5:
         return (
           <div className="form-inner wizard-form-card">
