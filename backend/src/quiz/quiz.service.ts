@@ -151,6 +151,7 @@ export class QuizService {
             },
           ],
           temperature: 0.7,
+          chat_template_kwargs: { enable_thinking: false },
         }),
       });
     } catch (e) {
