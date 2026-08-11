@@ -19,7 +19,7 @@ export interface AiQuestion {
 
 @Injectable()
 export class QuizService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   private async verifyOwnership(courseId: number, userId: number) {
     const course = await this.prisma.courses.findUnique({
