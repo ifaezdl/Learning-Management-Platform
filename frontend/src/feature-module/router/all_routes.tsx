@@ -50,7 +50,12 @@ export const all_routes = {
   instructorQA: "/instructor/instructor-quiz-questions",
   instructorsettings: "/instructor/instructor-settings",
 
-  adminDashboard: "/admin/adminPage",
+  adminDashboard: "/admin/admin-dashboard",
+  AdminRequests: "/admin/admin-requests",
+  AdminProfile: "/admin/admin-profile",
+  AdminProfileSettings: "/admin/admin-settings",
+  AdminChangePassword: "/admin/admin-change-password",
+
   studentDashboard: "/student/student-dashboard",
   studentProfile: "/student/student-profile",
   studentsGrid: "/instructor/students",
