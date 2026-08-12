@@ -1,5 +1,5 @@
 import React from "react";
-import {  Route, Routes } from "react-router";
+import { Route, Routes } from "react-router";
 import { authRoutes, publicRoutes } from "./router.link";
 import Feature from "../feature";
 import AuthFeature from "../authFeature";

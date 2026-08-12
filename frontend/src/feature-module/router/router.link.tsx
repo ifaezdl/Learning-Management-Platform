@@ -1,3 +1,4 @@
+import React, { useEffect } from "react";
 import { Navigate, Route } from "react-router";
 import { all_routes } from "./all_routes";
 import HomeOne from "../HomePages/home-one/homeone";
@@ -89,7 +90,7 @@ import AdminRequests from "../admin/admin-requests/adminRequests";
 import AdminProfile from "../admin/admin-profile/adminProfile";
 import AdminProfileSettings from "../admin/admin-setting/adminSetting";
 import AdminChangePassword from "../admin/admin-change-password/adminChangePassword";
-
+import GoogleCallback from "../auth/Google/google-callback";
 const routes = all_routes;
 
 export const publicRoutes = [
@@ -97,6 +98,12 @@ export const publicRoutes = [
     path: "/",
     name: "Root",
     element: <Navigate to="/index" />,
+    route: Route,
+  },
+  {
+    path: "/google-callback",
+    name: "GoogleCallback",
+    element: <GoogleCallback />,
     route: Route,
   },
   {
@@ -629,3 +636,4 @@ export const authRoutes = [
     route: Route,
   },
 ];
+
