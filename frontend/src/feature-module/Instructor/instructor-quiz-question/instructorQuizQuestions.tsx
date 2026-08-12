@@ -50,6 +50,8 @@ const InstructorQuizQuestions: React.FC<Props> = ({
     durationMinutes: number;
     passScore: number;
     questionsToShow: number;
+    showAllQuestions: boolean;
+    allowPreviousQuestion: boolean;
   }>({
     title: "آزمون دوره",
     startDateObj: null,
@@ -59,6 +61,8 @@ const InstructorQuizQuestions: React.FC<Props> = ({
     durationMinutes: 30,
     passScore: 0,
     questionsToShow: 10,
+    showAllQuestions: false,
+    allowPreviousQuestion: true,
   });
   const [saving, setSaving] = useState(false);
 
@@ -103,6 +107,8 @@ const InstructorQuizQuestions: React.FC<Props> = ({
             durationMinutes: quiz.DurationMinutes ?? 30,
             passScore: Number(quiz.PassScore) || 0,
             questionsToShow: quiz.QuestionsToShow ?? 10,
+            showAllQuestions: !!quiz.ShowAllQuestions,
+            allowPreviousQuestion: quiz.AllowPreviousQuestion ?? true,
           }));
         }
       } catch {
@@ -283,6 +289,8 @@ const InstructorQuizQuestions: React.FC<Props> = ({
         durationMinutes: settings.durationMinutes,
         passScore: settings.passScore,
         questionsToShow: settings.questionsToShow,
+        showAllQuestions: settings.showAllQuestions,
+        allowPreviousQuestion: settings.allowPreviousQuestion,
         questions: questions.map((q) => ({
           questionText: q.questionText,
           isAiGenerated: q.isAiGenerated,
@@ -521,6 +529,64 @@ const InstructorQuizQuestions: React.FC<Props> = ({
                   })
                 }
               />
+            </div>
+            <div className="col-md-3">
+              <label className="form-label d-block">حالت نمایش سوالات</label>
+              <div className="d-flex gap-3">
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="show-mode"
+                    id="mode-one-by-one"
+                    checked={!settings.showAllQuestions}
+                    onChange={() =>
+                      setSettings({ ...settings, showAllQuestions: false })
+                    }
+                  />
+                  <label className="form-check-label" htmlFor="mode-one-by-one">
+                    یکی‌یکی
+                  </label>
+                </div>
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="show-mode"
+                    id="mode-all"
+                    checked={settings.showAllQuestions}
+                    onChange={() =>
+                      setSettings({ ...settings, showAllQuestions: true })
+                    }
+                  />
+                  <label className="form-check-label" htmlFor="mode-all">
+                    همه با هم
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-3">
+              <label className="form-label d-block">
+                امکان بازگشت به سوال قبلی
+              </label>
+              <div className="form-check form-switch">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  id="allow-prev-switch"
+                  checked={settings.allowPreviousQuestion}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      allowPreviousQuestion: e.target.checked,
+                    })
+                  }
+                />
+                <label className="form-check-label" htmlFor="allow-prev-switch">
+                  {settings.allowPreviousQuestion ? "فعال" : "غیرفعال"}
+                </label>
+              </div>
             </div>
           </div>
         </div>
