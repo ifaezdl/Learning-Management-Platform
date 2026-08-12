@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Navigate, Route } from "react-router";
+import { Navigate, Route, useParams } from "react-router";
 import { all_routes } from "./all_routes";
 import HomeOne from "../HomePages/home-one/homeone";
 import CourseGrid from "../Courses/courses-grid/courseGrid";
@@ -636,4 +636,3 @@ export const authRoutes = [
     route: Route,
   },
 ];
-
