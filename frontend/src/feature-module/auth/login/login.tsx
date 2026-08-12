@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import Slider from "react-slick";
 import { all_routes } from "../../router/all_routes";
 import ImageWithBasePath from "../../../core/common/imageWithBasePath";
@@ -14,12 +14,25 @@ const Login = () => {
   const { login, isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     if (isAuthenticated) {
       navigate(all_routes.homeone);
     }
   }, [isAuthenticated, navigate]);
+
+  // نمایش خطای گوگل (اگه از بک‌اند با پارامتر error ریدایرکت شده باشیم)
+  useEffect(() => {
+    const error = searchParams.get("error");
+    if (error) {
+      toast.error(error);
+
+      // پاک کردن پارامتر از URL که با رفرش دوباره نمایش داده نشه
+      searchParams.delete("error");
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const loginSLider = {
     dots: true,
@@ -171,11 +184,10 @@ const Login = () => {
                             required
                           />
                           <span
-                            className={`isax toggle-passwords fs-14 ${
-                              passwordVisibility.password
-                                ? "isax-eye"
-                                : "isax-eye-slash"
-                            }`}
+                            className={`isax toggle-passwords fs-14 ${passwordVisibility.password
+                              ? "isax-eye"
+                              : "isax-eye-slash"
+                              }`}
                             onClick={() => togglePasswordVisibility("password")}
                           ></span>
                         </div>
@@ -214,14 +226,17 @@ const Login = () => {
                       یا
                     </div> */}
                     <div className="d-flex align-items-center justify-content-center mb-3">
-                      <Link to="#" className="btn btn-light me-2">
+
+                      <a
+                        href="http://localhost:3001/auth/google"
+                        className="btn btn-light me-2">
                         <ImageWithBasePath
                           src="assets/img/icons/google.svg"
-                          alt="img"
+                          alt="Google"
                           className="me-2"
                         />
                         ورود با حساب گوگل
-                      </Link>
+                      </a>
                     </div>
                     <div className="fs-14 fw-normal d-flex align-items-center justify-content-center">
                       آیا حساب کاربری ندارید؟
@@ -236,7 +251,7 @@ const Login = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div >
     </>
   );
 };

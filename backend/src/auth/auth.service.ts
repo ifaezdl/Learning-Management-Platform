@@ -16,7 +16,7 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-  ) {}
+  ) { }
   async register(registerDto: RegisterDto) {
     console.log(registerDto);
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
@@ -161,6 +161,70 @@ export class AuthService {
       },
     };
   }
+
+  async loginWithGoogle(googleUser: {
+    email: string;
+    googleId: string;
+    firstName?: string;
+    lastName?: string;
+    picture?: string;
+  }) {
+    const user = await this.prisma.users.findFirst({
+      where: {
+        Email: googleUser.email,
+      },
+    });
+
+    // فقط کاربران موجود اجازه ورود دارند
+    if (!user) {
+      throw new UnauthorizedException(
+        'این حساب گوگل در سیستم ثبت نشده است.',
+      );
+    }
+
+    // حساب غیرفعال اجازه ورود ندارد
+    if (!user.IsActive) {
+      throw new UnauthorizedException(
+        'حساب کاربری شما غیرفعال است.',
+      );
+    }
+
+    // دقیقاً همان JWT payload ورود معمولی
+    const payload = {
+      sub: user.Id,
+      username: user.UserName,
+      role: user.Role_Id,
+    };
+
+    const accessToken = await this.jwtService.signAsync(payload);
+
+    // دقیقاً همان refresh token سیستم فعلی
+    const refreshToken = randomUUID();
+
+    await this.prisma.refreshTokens.create({
+      data: {
+        User_Id: user.Id,
+        Token: refreshToken,
+        ExpiresAt: new Date(
+          Date.now() + 7 * 24 * 60 * 60 * 1000,
+        ),
+      },
+    });
+
+    return {
+      accessToken,
+      refreshToken,
+      user: {
+        id: user.Id,
+        firstName: user.FirstName,
+        lastName: user.LastName,
+        userName: user.UserName,
+        email: user.Email,
+        roleId: user.Role_Id,
+      },
+    };
+  }
+
   async logout(logoutDto: LogoutDto) {
     const token = await this.prisma.refreshTokens.findFirst({
       where: {

@@ -21,7 +21,7 @@ const LessonManager: React.FC<LessonManagerProps> = ({
   sectionId,
   onLessonsChanged,
 }) => {
-  const getApiUrl = () => "http://localhost:3000";
+  const getApiUrl = () => "http://localhost:3001";
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
