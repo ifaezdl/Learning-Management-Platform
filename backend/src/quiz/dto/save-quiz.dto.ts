@@ -73,4 +73,12 @@ export class SaveQuizDto {
   @ValidateNested({ each: true })
   @Type(() => QuizQuestionDto)
   questions: QuizQuestionDto[];
+
+  @IsOptional()
+  @IsBoolean()
+  showAllQuestions?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  allowPreviousQuestion?: boolean;
 }
