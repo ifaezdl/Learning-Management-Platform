@@ -291,6 +291,7 @@ model QuizQuestions {
   DisplayOrder Int           @default(1, map: "DF_QuizQuestions_DisplayOrder")
   Source       Boolean       @default(false, map: "DF_QuizQuestions_Source")
   CreatedAt    DateTime      @default(now(), map: "DF_QuizQuestions_CreatedAt") @db.DateTime
+  Score        Decimal       @default(1, map: "DF_QuizQuestions_Score") @db.Decimal(5, 2)
   QuizChoices  QuizChoices[]
   Quizzes      Quizzes       @relation(fields: [Quiz_Id], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_QuizQuestions_Quizzes")
 
@@ -309,6 +310,7 @@ model Quizzes {
   IsPublished      Boolean         @default(false, map: "DF_Quizzes_IsPublished")
   CreatedAt        DateTime        @default(now(), map: "DF_Quizzes_CreatedAt") @db.DateTime
   UpdatedAt        DateTime?       @db.DateTime
+  PassScore        Decimal         @default(0, map: "DF_Quizzes_PassScore") @db.Decimal(5, 2)
   QuizQuestions    QuizQuestions[]
   Courses          Courses         @relation(fields: [Course_Id], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Quizzes_Courses")
 
