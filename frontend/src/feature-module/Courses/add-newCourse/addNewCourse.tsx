@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { all_routes } from "../../router/all_routes";
+import Breadcrumb from "../../../core/common/Breadcrumb/breadcrumb";
 import courseService, {
   Category,
   Level,
@@ -17,19 +18,22 @@ const STEPS = [
   { label: "سرفصل ها", icon: "fas fa-layer-group" },
   { label: "دروس", icon: "fas fa-book" },
   { label: "فایل های دروس", icon: "fas fa-paperclip" },
-  { label: "ایجاد آزمون", icon: "fas fa-paperclip" },
+  { label: "آزمون", icon: "fas fa-question-circle" },
   { label: "انتشار", icon: "fas fa-rocket" },
 ];
+
+const stepStorageKey = (courseId: number) => `course_wizard_step_${courseId}`;
 
 const AddNewCourse = () => {
   const route = all_routes;
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const editId = searchParams.get("id");
-  const [loadingCourse, setLoadingCourse] = useState(!!editId);
+
   const [currentStep, setCurrentStep] = useState(0);
   const [courseId, setCourseId] = useState<number | null>(null);
   const [courseData, setCourseData] = useState<any>(null);
+  const [loadingCourse, setLoadingCourse] = useState(!!editId);
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [levels, setLevels] = useState<Level[]>([]);
@@ -49,23 +53,48 @@ const AddNewCourse = () => {
     };
     fetchData();
   }, []);
+
+  // Load the existing course when editing (?id=... in URL)
   useEffect(() => {
     if (!editId) return;
+
+    const id = Number(editId);
+    if (!id || Number.isNaN(id)) return;
+
     const loadCourse = async () => {
+      setLoadingCourse(true);
       try {
-        setLoadingCourse(true);
-        const course = await courseService.getCourse(Number(editId));
+        const course = await courseService.getCourse(id);
+        setCourseId(id);
         setCourseData(course);
-        setCourseId(course.Id);
+
+        // Restore whatever step the user was on before a refresh
+        const savedStep = localStorage.getItem(stepStorageKey(id));
+        if (savedStep !== null) {
+          const parsed = Number(savedStep);
+          if (!Number.isNaN(parsed) && parsed >= 0 && parsed <= 5) {
+            setCurrentStep(parsed);
+          }
+        }
       } catch {
         toast.error("بارگذاری اطلاعات دوره با خطا مواجه شد.");
-        navigate(route.instructorCourse);
       } finally {
         setLoadingCourse(false);
       }
     };
     loadCourse();
-  }, [editId, navigate, route]);
+  }, [editId]);
+
+  const goToStep = useCallback(
+    (step: number) => {
+      setCurrentStep(step);
+      if (courseId) {
+        localStorage.setItem(stepStorageKey(courseId), String(step));
+      }
+    },
+    [courseId],
+  );
+
   const handleCourseCreated = useCallback(async (id: number) => {
     setCourseId(id);
     try {
@@ -73,11 +102,29 @@ const AddNewCourse = () => {
       setCourseData(course);
     } catch {}
     setCurrentStep(1);
+    localStorage.setItem(stepStorageKey(id), "1");
   }, []);
 
   const handlePublished = useCallback(() => {
+    if (courseId) {
+      localStorage.removeItem(stepStorageKey(courseId));
+    }
     navigate(route.instructorCourse);
-  }, [navigate, route]);
+  }, [navigate, route, courseId]);
+
+  if (loadingCourse) {
+    return (
+      <>
+        <div className="content mt-5">
+          <div className="container">
+            <div className="text-center py-5">
+              در حال بارگذاری اطلاعات دوره...
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   const renderStep = () => {
     switch (currentStep) {
@@ -94,11 +141,10 @@ const AddNewCourse = () => {
         return (
           <div className="form-inner wizard-form-card">
             <div className="title d-flex justify-content-between align-items-center">
-              <h5 className="mb-0">سرفصل های دوره</h5>
               <Link
                 to="#"
                 className="btn btn-sm btn-outline-secondary"
-                onClick={() => setCurrentStep(0)}
+                onClick={() => goToStep(0)}
                 title="ویرایش اطلاعات دوره"
               >
                 <i className="fas fa-edit me-1" /> ویرایش دوره
@@ -110,7 +156,7 @@ const AddNewCourse = () => {
                 <Link
                   to="#"
                   className="btn btn-light main-btn prev_btns"
-                  onClick={() => setCurrentStep(0)}
+                  onClick={() => goToStep(0)}
                 >
                   <i className="isax isax-arrow-right-3 me-1" /> قبلی
                 </Link>
@@ -119,7 +165,7 @@ const AddNewCourse = () => {
                 <Link
                   to="#"
                   className="btn btn-secondary main-btn next_btns"
-                  onClick={() => setCurrentStep(2)}
+                  onClick={() => goToStep(2)}
                 >
                   بعدی: دروس <i className="isax isax-arrow-left-2 ms-1" />
                 </Link>
@@ -135,7 +181,7 @@ const AddNewCourse = () => {
               <Link
                 to="#"
                 className="btn btn-sm btn-outline-secondary"
-                onClick={() => setCurrentStep(1)}
+                onClick={() => goToStep(1)}
               >
                 <i className="fas fa-arrow-left me-1" /> بازگشت به سرفصل ها
               </Link>
@@ -146,7 +192,7 @@ const AddNewCourse = () => {
                 <Link
                   to="#"
                   className="btn btn-light main-btn prev_btns"
-                  onClick={() => setCurrentStep(1)}
+                  onClick={() => goToStep(1)}
                 >
                   <i className="isax isax-arrow-right-3 me-1" /> قبلی
                 </Link>
@@ -155,7 +201,7 @@ const AddNewCourse = () => {
                 <Link
                   to="#"
                   className="btn btn-secondary main-btn next_btns"
-                  onClick={() => setCurrentStep(3)}
+                  onClick={() => goToStep(3)}
                 >
                   بعدی: فایل های دروس{" "}
                   <i className="isax isax-arrow-left-2 ms-1" />
@@ -172,7 +218,7 @@ const AddNewCourse = () => {
               <Link
                 to="#"
                 className="btn btn-sm btn-outline-secondary"
-                onClick={() => setCurrentStep(2)}
+                onClick={() => goToStep(2)}
               >
                 <i className="fas fa-arrow-left me-1" /> بازگشت به دروس
               </Link>
@@ -187,7 +233,7 @@ const AddNewCourse = () => {
                 <Link
                   to="#"
                   className="btn btn-light main-btn prev_btns"
-                  onClick={() => setCurrentStep(2)}
+                  onClick={() => goToStep(2)}
                 >
                   <i className="isax isax-arrow-right-3 me-1" /> قبلی
                 </Link>
@@ -196,20 +242,34 @@ const AddNewCourse = () => {
                 <Link
                   to="#"
                   className="btn btn-secondary main-btn next_btns"
-                  onClick={() => setCurrentStep(4)}
+                  onClick={() => goToStep(4)}
                 >
-                  بعدی: انتشار <i className="isax isax-arrow-left-2 ms-1" />
+                  بعدی: آزمون <i className="isax isax-arrow-left-2 ms-1" />
                 </Link>
               </div>
             </div>
           </div>
         );
       case 4:
-        return courseId ? (
-          <InstructorQuizQuestions courseId={courseId} />
-        ) : (
-          <div className="text-center py-4 text-muted">
-            برای ساخت آزمون، ابتدا اطلاعات دوره را تکمیل کنید.
+        return (
+          <div className="form-inner wizard-form-card">
+            <div className="title d-flex justify-content-between align-items-center">
+              <h5 className="mb-0">آزمون دوره</h5>
+              <Link
+                to="#"
+                className="btn btn-sm btn-outline-secondary"
+                onClick={() => goToStep(3)}
+              >
+                <i className="fas fa-arrow-left me-1" /> بازگشت به فایل های دروس
+              </Link>
+            </div>
+            {courseId && (
+              <InstructorQuizQuestions
+                courseId={courseId}
+                onPrev={() => goToStep(3)}
+                onNext={() => goToStep(5)}
+              />
+            )}
           </div>
         );
       case 5:
@@ -220,9 +280,9 @@ const AddNewCourse = () => {
               <Link
                 to="#"
                 className="btn btn-sm btn-outline-secondary"
-                onClick={() => setCurrentStep(3)}
+                onClick={() => goToStep(4)}
               >
-                <i className="fas fa-arrow-left me-1" /> بازگشت به فایل های دروس
+                <i className="fas fa-arrow-left me-1" /> بازگشت به آزمون
               </Link>
             </div>
             {courseId && (
@@ -236,7 +296,7 @@ const AddNewCourse = () => {
                 <Link
                   to="#"
                   className="btn btn-light main-btn prev_btns"
-                  onClick={() => setCurrentStep(3)}
+                  onClick={() => goToStep(4)}
                 >
                   <i className="isax isax-arrow-right-3 me-1" /> قبلی
                 </Link>
@@ -248,26 +308,14 @@ const AddNewCourse = () => {
         return null;
     }
   };
-
-  if (loadingCourse) {
-    return (
-      <div className="content mt-5">
-        <div className="container text-center py-5">
-          در حال بارگذاری اطلاعات دوره...
-        </div>
-      </div>
-    );
-  }
   return (
     <>
       <div className="content mt-5">
         <div className="container">
           <div className="row">
             <div className="col-lg-10 mx-auto">
-              <div className="add-course-item">
-                <Stepper steps={STEPS} currentStep={currentStep} />
-                <div className="initialization-form-set">{renderStep()}</div>
-              </div>
+              <Stepper steps={STEPS} currentStep={currentStep} />
+              <div className="initialization-form-set">{renderStep()}</div>
             </div>
           </div>
         </div>

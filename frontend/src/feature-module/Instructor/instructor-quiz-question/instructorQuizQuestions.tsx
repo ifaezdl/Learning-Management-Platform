@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
+import DatePicker from "react-multi-date-picker";
+import persian from "react-date-object/calendars/persian";
+import persian_fa from "react-date-object/locales/persian_fa";
+import DateObject from "react-date-object";
 import quizService, {
   QuizQuestionItem,
   QuizChoice,
@@ -7,6 +11,8 @@ import quizService, {
 
 interface Props {
   courseId: number;
+  onPrev?: () => void;
+  onNext?: () => void;
 }
 
 const emptyChoices = (): QuizChoice[] => [
@@ -18,7 +24,11 @@ const emptyChoices = (): QuizChoice[] => [
 
 const makeClientId = () => Math.random().toString(36).slice(2, 10);
 
-const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
+const InstructorQuizQuestions: React.FC<Props> = ({
+  courseId,
+  onPrev,
+  onNext,
+}) => {
   const [questions, setQuestions] = useState<QuizQuestionItem[]>([]);
   const [loadingExisting, setLoadingExisting] = useState(true);
 
@@ -29,15 +39,25 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
   const [editingClientId, setEditingClientId] = useState<string | null>(null);
   const [formText, setFormText] = useState("");
   const [formChoices, setFormChoices] = useState<QuizChoice[]>(emptyChoices());
+  const [formScore, setFormScore] = useState(1);
 
-  const [settings, setSettings] = useState({
+  const [settings, setSettings] = useState<{
+    title: string;
+    startDateObj: DateObject | null;
+    startTime: string;
+    endDateObj: DateObject | null;
+    endTime: string;
+    durationMinutes: number;
+    passScore: number;
+    questionsToShow: number;
+  }>({
     title: "آزمون دوره",
-    startDate: "",
+    startDateObj: null,
     startTime: "09:00",
-    endDate: "",
+    endDateObj: null,
     endTime: "23:59",
     durationMinutes: 30,
-    scorePerQuestion: 1,
+    passScore: 0,
     questionsToShow: 10,
   });
   const [saving, setSaving] = useState(false);
@@ -53,6 +73,7 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
               Id: q.Id,
               questionText: q.QuestionText,
               isAiGenerated: q.Source,
+              score: Number(q.Score) || 1,
               choices: q.QuizChoices.map((c: any) => ({
                 Id: c.Id,
                 text: c.ChoiceText,
@@ -63,12 +84,24 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
           setSettings((s) => ({
             ...s,
             title: quiz.Title,
-            startDate: quiz.StartAt ? quiz.StartAt.slice(0, 10) : "",
+            startDateObj: quiz.StartAt
+              ? new DateObject({
+                  date: new Date(quiz.StartAt),
+                  calendar: persian,
+                  locale: persian_fa,
+                })
+              : null,
             startTime: quiz.StartAt ? quiz.StartAt.slice(11, 16) : "09:00",
-            endDate: quiz.EndAt ? quiz.EndAt.slice(0, 10) : "",
+            endDateObj: quiz.EndAt
+              ? new DateObject({
+                  date: new Date(quiz.EndAt),
+                  calendar: persian,
+                  locale: persian_fa,
+                })
+              : null,
             endTime: quiz.EndAt ? quiz.EndAt.slice(11, 16) : "23:59",
             durationMinutes: quiz.DurationMinutes ?? 30,
-            scorePerQuestion: Number(quiz.ScorePerQuestion) ?? 1,
+            passScore: Number(quiz.PassScore) || 0,
             questionsToShow: quiz.QuestionsToShow ?? 10,
           }));
         }
@@ -85,6 +118,7 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
     setEditingClientId(null);
     setFormText("");
     setFormChoices(emptyChoices());
+    setFormScore(1);
     setModalOpen(true);
   };
 
@@ -92,6 +126,7 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
     setEditingClientId(q.clientId);
     setFormText(q.questionText);
     setFormChoices(q.choices.map((c) => ({ ...c })));
+    setFormScore(q.score ?? 1);
     setModalOpen(true);
   };
 
@@ -139,12 +174,16 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
       toast.error("دقیقاً یک گزینه صحیح انتخاب کنید.");
       return;
     }
+    if (!formScore || formScore <= 0) {
+      toast.error("نمره سوال باید بزرگتر از صفر باشد.");
+      return;
+    }
 
     if (editingClientId) {
       setQuestions((prev) =>
         prev.map((q) =>
           q.clientId === editingClientId
-            ? { ...q, questionText: text, choices }
+            ? { ...q, questionText: text, choices, score: formScore }
             : q,
         ),
       );
@@ -155,6 +194,7 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
           clientId: makeClientId(),
           questionText: text,
           choices,
+          score: formScore,
           isAiGenerated: false,
         },
       ]);
@@ -167,7 +207,6 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
   };
 
   const handleGenerateAi = async () => {
-    debugger;
     if (aiCount < 1 || aiCount > 100) {
       toast.error("تعداد سوال باید بین ۱ تا ۱۰۰ باشد.");
       return;
@@ -179,6 +218,7 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
         clientId: makeClientId(),
         questionText: q.questionText,
         choices: q.choices,
+        score: 1,
         isAiGenerated: true,
       }));
       setQuestions((prev) => [...prev, ...mapped]);
@@ -193,12 +233,11 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
   };
 
   const handleSaveQuiz = async () => {
-    debugger;
     if (questions.length === 0) {
       toast.error("حداقل یک سوال اضافه کنید.");
       return;
     }
-    if (!settings.startDate || !settings.endDate) {
+    if (!settings.startDateObj || !settings.endDateObj) {
       toast.error("تاریخ شروع و پایان آزمون را مشخص کنید.");
       return;
     }
@@ -209,12 +248,26 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
       return;
     }
 
-    const startAt = new Date(
-      `${settings.startDate}T${settings.startTime}:00`,
-    ).toISOString();
-    const endAt = new Date(
-      `${settings.endDate}T${settings.endTime}:00`,
-    ).toISOString();
+    const totalMaxScore = questions.reduce((sum, q) => sum + (q.score ?? 1), 0);
+    if (!settings.passScore || settings.passScore <= 0) {
+      toast.error("نمره قبولی را وارد کنید.");
+      return;
+    }
+    if (settings.passScore > totalMaxScore) {
+      toast.error("نمره قبولی نمی‌تواند از مجموع نمرات سوالات بیشتر باشد.");
+      return;
+    }
+
+    const startDateJs = settings.startDateObj.toDate();
+    const [startH, startM] = settings.startTime.split(":").map(Number);
+    startDateJs.setHours(startH, startM, 0, 0);
+
+    const endDateJs = settings.endDateObj.toDate();
+    const [endH, endM] = settings.endTime.split(":").map(Number);
+    endDateJs.setHours(endH, endM, 0, 0);
+
+    const startAt = startDateJs.toISOString();
+    const endAt = endDateJs.toISOString();
 
     if (new Date(endAt) <= new Date(startAt)) {
       toast.error("زمان پایان باید بعد از زمان شروع باشد.");
@@ -228,11 +281,12 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
         startAt,
         endAt,
         durationMinutes: settings.durationMinutes,
-        scorePerQuestion: settings.scorePerQuestion,
+        passScore: settings.passScore,
         questionsToShow: settings.questionsToShow,
         questions: questions.map((q) => ({
           questionText: q.questionText,
           isAiGenerated: q.isAiGenerated,
+          score: q.score ?? 1,
           choices: q.choices.map((c) => ({
             text: c.text,
             isCorrect: c.isCorrect,
@@ -240,6 +294,7 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
         })),
       });
       toast.success("آزمون با موفقیت ذخیره شد.");
+      onNext?.();
     } catch (err: any) {
       toast.error(
         err?.response?.data?.message || "ذخیره آزمون با خطا مواجه شد.",
@@ -299,6 +354,9 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
                 <div className="d-flex align-items-start justify-content-between">
                   <h6 className="mb-2">
                     {idx + 1}. {q.questionText}{" "}
+                    <span className="badge bg-primary-transparent text-primary ms-1">
+                      نمره: {q.score ?? 1}
+                    </span>{" "}
                     {q.isAiGenerated && (
                       <span className="badge bg-secondary-transparent text-secondary ms-1">
                         AI
@@ -361,24 +419,30 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
             </div>
             <div className="col-md-3">
               <label className="form-label">تاریخ شروع</label>
-              <input
-                type="date"
-                className="form-control"
-                value={settings.startDate}
-                onChange={(e) =>
-                  setSettings({ ...settings, startDate: e.target.value })
+              <DatePicker
+                calendar={persian}
+                locale={persian_fa}
+                value={settings.startDateObj}
+                onChange={(val) =>
+                  setSettings({ ...settings, startDateObj: val as DateObject })
                 }
+                inputClass="form-control"
+                calendarPosition="bottom-right"
+                containerStyle={{ width: "100%" }}
               />
             </div>
             <div className="col-md-3">
               <label className="form-label">تاریخ پایان</label>
-              <input
-                type="date"
-                className="form-control"
-                value={settings.endDate}
-                onChange={(e) =>
-                  setSettings({ ...settings, endDate: e.target.value })
+              <DatePicker
+                calendar={persian}
+                locale={persian_fa}
+                value={settings.endDateObj}
+                onChange={(val) =>
+                  setSettings({ ...settings, endDateObj: val as DateObject })
                 }
+                inputClass="form-control"
+                calendarPosition="bottom-right"
+                containerStyle={{ width: "100%" }}
               />
             </div>
             <div className="col-md-3">
@@ -420,20 +484,24 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
               />
             </div>
             <div className="col-md-3">
-              <label className="form-label">نمره هر سوال</label>
+              <label className="form-label">نمره قبولی</label>
               <input
                 type="number"
                 min={0}
                 step={0.25}
                 className="form-control"
-                value={settings.scorePerQuestion}
+                value={settings.passScore}
                 onChange={(e) =>
                   setSettings({
                     ...settings,
-                    scorePerQuestion: Number(e.target.value),
+                    passScore: Number(e.target.value),
                   })
                 }
               />
+              <small className="text-muted">
+                از مجموع {questions.reduce((s, q) => s + (q.score ?? 1), 0)}{" "}
+                نمره
+              </small>
             </div>
             <div className="col-md-3">
               <label className="form-label">
@@ -459,6 +527,15 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
       </div>
 
       <div className="add-form-btn widget-next-btn submit-btn mt-3">
+        <div className="btn-left">
+          <button
+            type="button"
+            className="btn btn-light main-btn prev_btns"
+            onClick={onPrev}
+          >
+            <i className="isax isax-arrow-right-3 me-1" /> قبلی
+          </button>
+        </div>
         <div className="btn-left ms-auto">
           <button
             type="button"
@@ -466,7 +543,7 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
             onClick={handleSaveQuiz}
             disabled={saving}
           >
-            {saving ? "در حال ذخیره..." : "ذخیره آزمون"}
+            {saving ? "در حال ذخیره..." : "ذخیره آزمون و ادامه"}
           </button>
         </div>
       </div>
@@ -497,6 +574,17 @@ const InstructorQuizQuestions: React.FC<Props> = ({ courseId }) => {
                       rows={2}
                       value={formText}
                       onChange={(e) => setFormText(e.target.value)}
+                    />
+                  </div>
+                  <div className="mb-3" style={{ maxWidth: 160 }}>
+                    <label className="form-label">نمره این سوال</label>
+                    <input
+                      type="number"
+                      min={0}
+                      step={0.25}
+                      className="form-control"
+                      value={formScore}
+                      onChange={(e) => setFormScore(Number(e.target.value))}
                     />
                   </div>
                   {formChoices.map((c, i) => (

@@ -19,7 +19,7 @@ export interface AiQuestion {
 
 @Injectable()
 export class QuizService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   private async verifyOwnership(courseId: number, userId: number) {
     const course = await this.prisma.courses.findUnique({
@@ -190,7 +190,6 @@ export class QuizService {
     });
     return quiz;
   }
-
   async saveQuiz(courseId: number, userId: number, dto: SaveQuizDto) {
     await this.verifyOwnership(courseId, userId);
 
@@ -200,6 +199,7 @@ export class QuizService {
       );
     }
 
+    let totalMaxScore = 0;
     for (const q of dto.questions) {
       const correctCount = q.choices.filter((c) => c.isCorrect).length;
 
@@ -208,111 +208,88 @@ export class QuizService {
           `سوال "${q.questionText}" باید دقیقاً یک گزینه صحیح داشته باشد.`,
         );
       }
+      totalMaxScore += q.score ?? 1;
     }
 
-    return this.prisma.$transaction(async (tx) => {
-      const existing = await tx.quizzes.findFirst({
-        where: {
-          Course_Id: courseId,
-        },
-      });
+    if (dto.passScore > totalMaxScore) {
+      throw new BadRequestException(
+        'نمره قبولی نمی‌تواند از مجموع نمرات سوالات بیشتر باشد.',
+      );
+    }
 
-      if (existing) {
-        // 1. پیدا کردن سوالات Quiz قبلی
-        const oldQuestions = await tx.quizQuestions.findMany({
-          where: {
-            Quiz_Id: existing.Id,
-          },
-          select: {
-            Id: true,
+    return this.prisma.$transaction(
+      async (tx) => {
+        const existing = await tx.quizzes.findFirst({
+          where: { Course_Id: courseId },
+        });
+
+        if (existing) {
+          const oldQuestions = await tx.quizQuestions.findMany({
+            where: { Quiz_Id: existing.Id },
+            select: { Id: true },
+          });
+
+          const questionIds = oldQuestions.map((q) => q.Id);
+
+          if (questionIds.length > 0) {
+            await tx.quizChoices.deleteMany({
+              where: { Question_Id: { in: questionIds } },
+            });
+            await tx.quizQuestions.deleteMany({
+              where: { Id: { in: questionIds } },
+            });
+          }
+
+          await tx.quizzes.delete({ where: { Id: existing.Id } });
+        }
+
+        const quiz = await tx.quizzes.create({
+          data: {
+            Course_Id: courseId,
+            Title: dto.title || 'آزمون دوره',
+            StartAt: new Date(dto.startAt),
+            EndAt: new Date(dto.endAt),
+            DurationMinutes: dto.durationMinutes,
+            ScorePerQuestion: dto.scorePerQuestion ?? 1,
+            PassScore: dto.passScore,
+            QuestionsToShow: dto.questionsToShow,
           },
         });
 
-        const questionIds = oldQuestions.map((q) => q.Id);
+        for (let i = 0; i < dto.questions.length; i++) {
+          const q = dto.questions[i];
 
-        // 2. حذف Choice های سوالات قبلی
-        if (questionIds.length > 0) {
-          await tx.quizChoices.deleteMany({
-            where: {
-              Question_Id: {
-                in: questionIds,
-              },
+          const question = await tx.quizQuestions.create({
+            data: {
+              Quiz_Id: quiz.Id,
+              QuestionText: q.questionText,
+              DisplayOrder: i + 1,
+              Source: !!q.isAiGenerated,
+              Score: q.score ?? 1,
             },
           });
 
-          // 3. حذف Question های قبلی
-          await tx.quizQuestions.deleteMany({
-            where: {
-              Id: {
-                in: questionIds,
-              },
-            },
+          await tx.quizChoices.createMany({
+            data: q.choices.map((c, ci) => ({
+              Question_Id: question.Id,
+              ChoiceText: c.text,
+              IsCorrect: c.isCorrect,
+              DisplayOrder: ci + 1,
+            })),
           });
         }
 
-        // 4. حالا خود Quiz را حذف کن
-        await tx.quizzes.delete({
-          where: {
-            Id: existing.Id,
-          },
-        });
-      }
-
-      // 5. ساخت Quiz جدید
-      const quiz = await tx.quizzes.create({
-        data: {
-          Course_Id: courseId,
-          Title: dto.title || 'آزمون دوره',
-          StartAt: new Date(dto.startAt),
-          EndAt: new Date(dto.endAt),
-          DurationMinutes: dto.durationMinutes,
-          ScorePerQuestion: dto.scorePerQuestion,
-          QuestionsToShow: dto.questionsToShow,
-        },
-      });
-
-      // 6. ساخت سوالات و گزینه‌ها
-      for (let i = 0; i < dto.questions.length; i++) {
-        const q = dto.questions[i];
-
-        const question = await tx.quizQuestions.create({
-          data: {
-            Quiz_Id: quiz.Id,
-            QuestionText: q.questionText,
-            DisplayOrder: i + 1,
-            Source: !!q.isAiGenerated,
-          },
-        });
-
-        await tx.quizChoices.createMany({
-          data: q.choices.map((c, ci) => ({
-            Question_Id: question.Id,
-            ChoiceText: c.text,
-            IsCorrect: c.isCorrect,
-            DisplayOrder: ci + 1,
-          })),
-        });
-      }
-
-      return tx.quizzes.findUnique({
-        where: {
-          Id: quiz.Id,
-        },
-        include: {
-          QuizQuestions: {
-            orderBy: {
-              DisplayOrder: 'asc',
-            },
-            include: {
-              QuizChoices: {
-                orderBy: {
-                  DisplayOrder: 'asc',
-                },
-              },
+        return tx.quizzes.findUnique({
+          where: { Id: quiz.Id },
+          include: {
+            QuizQuestions: {
+              orderBy: { DisplayOrder: 'asc' },
+              include: { QuizChoices: { orderBy: { DisplayOrder: 'asc' } } },
             },
           },
-        },
-      });
-    });
+        });
+      },
+      { maxWait: 10000, timeout: 30000 },
+    );
   }
 }

@@ -71,10 +71,6 @@ const Footer = () => {
                       <li>
                         <Link to={all_routes.FAQ}>سوالات متداول</Link>
                       </li>
-
-                      <li>
-                        <Link to={all_routes.pricingPlan}>تعرفه‌ها</Link>
-                      </li>
                     </ul>
                   </div>
                 </div>
@@ -92,7 +88,7 @@ const Footer = () => {
                       </>
                     ) : (
                       <>
-                        {user.Role_Id === 1 && (
+                        {user?.Role_Id === 1 && (
                           <li>
                             <Link to={all_routes.studentDashboard}>
                               پنل دانشجو

@@ -7,6 +7,7 @@ import courseService, {
 } from "../../../../services/course.service";
 import uploadService from "../../../../services/upload.service";
 import { Link } from "react-router-dom";
+import { api_base_url } from "../../../../environment";
 
 interface CourseInformationProps {
   categories: Category[];
@@ -21,7 +22,7 @@ const CourseInformation: React.FC<CourseInformationProps> = ({
   initialData,
   onComplete,
 }) => {
-  const getApiUrl = () => "http://localhost:3000";
+  const getApiUrl = () => "http://localhost:3001";
   const [title, setTitle] = useState(initialData?.Title || "");
   const [shortDescription, setShortDescription] = useState(
     initialData?.ShortDescription || "",
@@ -219,7 +220,8 @@ const CourseInformation: React.FC<CourseInformationProps> = ({
           <div className="col-md-12">
             <div className="input-block">
               <label className="form-label">
-                عنوان دوره<span className="text-danger ms-1">*</span>
+                <span className="text-danger ms-1">*</span>
+                عنوان دوره
               </label>
               <input
                 type="text"
@@ -234,7 +236,8 @@ const CourseInformation: React.FC<CourseInformationProps> = ({
           <div className="col-md-6">
             <div className="input-block">
               <label className="form-label">
-                دسته بندی<span className="text-danger ms-1">*</span>
+                <span className="text-danger ms-1">*</span>
+                دسته بندی
               </label>
               <select
                 className="form-control"
@@ -272,7 +275,8 @@ const CourseInformation: React.FC<CourseInformationProps> = ({
           <div className="col-md-12">
             <div className="input-block">
               <label className="form-label">
-                معرفی دوره<span className="text-danger ms-1">*</span>
+                <span className="text-danger ms-1">*</span>
+                معرفی دوره
               </label>
               <input
                 type="text"
@@ -299,7 +303,8 @@ const CourseInformation: React.FC<CourseInformationProps> = ({
           <div className="col-md-4">
             <div className="input-block">
               <label className="form-label">
-                هزینه (ریال)<span className="text-danger ms-1">*</span>
+                <span className="text-danger ms-1">*</span>
+                هزینه (ریال)
               </label>
               <input
                 type="number"
@@ -345,8 +350,8 @@ const CourseInformation: React.FC<CourseInformationProps> = ({
           <div className="col-md-12">
             <div className="input-block">
               <label className="form-label">
-                تصویر کاور دوره
                 <span className="text-danger ms-1">*</span>
+                تصویر کاور دوره
               </label>
 
               <input

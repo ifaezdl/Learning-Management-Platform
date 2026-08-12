@@ -2,7 +2,7 @@ import AboutSection from "./section/aboutSection";
 import Benefits from "./section/benefits";
 import Institution from "./section/institution";
 import Counter from "./section/counter";
-import Testimonials from "./section/testimonials";
+
 import Faq from "./section/faq";
 
 const AboutUs = () => {
@@ -12,7 +12,7 @@ const AboutUs = () => {
       <Benefits />
       <Institution />
       <Counter />
-      <Testimonials />
+      {/* <Testimonials /> */}
       <Faq />
     </>
   );

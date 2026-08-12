@@ -28,6 +28,11 @@ export class QuizQuestionDto {
   @IsBoolean()
   isAiGenerated?: boolean;
 
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  score?: number;
+
   @IsArray()
   @ArrayMinSize(2)
   @ValidateNested({ each: true })
@@ -50,9 +55,14 @@ export class SaveQuizDto {
   @Min(1)
   durationMinutes: number;
 
+  @IsOptional()
   @IsNumber()
   @Min(0)
-  scorePerQuestion: number;
+  scorePerQuestion?: number;
+
+  @IsNumber()
+  @Min(0)
+  passScore: number;
 
   @IsInt()
   @Min(1)

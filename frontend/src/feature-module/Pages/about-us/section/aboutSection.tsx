@@ -32,7 +32,6 @@ const AboutSection = () => {
                   className="img-fluid img-radius"
                   src="./assets/img/about-us.png"
                   alt="img"
-                  width={500}
                 />
               </div>
             </div>
