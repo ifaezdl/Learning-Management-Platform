@@ -4,10 +4,22 @@ import courseService, {
   Course,
   Section,
 } from "../../../../services/course.service";
+import quizService from "../../../../services/quiz.service";
 
 interface CourseSummaryProps {
   courseId: number;
   onPublished: () => void;
+}
+
+interface QuizSummary {
+  Id: number;
+  Title: string;
+  StartAt: string | null;
+  EndAt: string | null;
+  DurationMinutes: number | null;
+  PassScore: number;
+  QuestionsToShow: number;
+  QuizQuestions: { Id: number; Score: number }[];
 }
 
 const CourseSummary: React.FC<CourseSummaryProps> = ({
@@ -16,18 +28,21 @@ const CourseSummary: React.FC<CourseSummaryProps> = ({
 }) => {
   const [course, setCourse] = useState<Course | null>(null);
   const [sections, setSections] = useState<Section[]>([]);
+  const [quiz, setQuiz] = useState<QuizSummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [publishing, setPublishing] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [courseData, sectionsData] = await Promise.all([
+      const [courseData, sectionsData, quizData] = await Promise.all([
         courseService.getCourse(courseId),
         courseService.getSections(courseId),
+        quizService.getQuiz(courseId).catch(() => null),
       ]);
       setCourse(courseData);
       setSections(sectionsData);
+      setQuiz(quizData);
     } catch (err: any) {
       const msg =
         err?.response?.data?.message ||
@@ -54,6 +69,20 @@ const CourseSummary: React.FC<CourseSummaryProps> = ({
         0),
     0,
   );
+
+  const totalQuizScore =
+    quiz?.QuizQuestions?.reduce((sum, q) => sum + Number(q.Score || 1), 0) || 0;
+
+  const formatDate = (dateStr: string | null) => {
+    if (!dateStr) return "-";
+    const d = new Date(dateStr);
+    const datePart = d.toLocaleDateString("fa-IR");
+    const timePart = d.toLocaleTimeString("fa-IR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    return `${datePart} - ${timePart}`;
+  };
 
   const handlePublish = async () => {
     setPublishing(true);
@@ -174,7 +203,7 @@ const CourseSummary: React.FC<CourseSummaryProps> = ({
 
         {/* Stats */}
         <div className="row g-3 mb-4">
-          <div className="col-md-4">
+          <div className="col-md-3">
             <div className="d-flex align-items-center gap-3 border rounded-3 p-3 h-100">
               <div
                 className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
@@ -193,7 +222,7 @@ const CourseSummary: React.FC<CourseSummaryProps> = ({
               </div>
             </div>
           </div>
-          <div className="col-md-4">
+          <div className="col-md-3">
             <div className="d-flex align-items-center gap-3 border rounded-3 p-3 h-100">
               <div
                 className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
@@ -212,7 +241,7 @@ const CourseSummary: React.FC<CourseSummaryProps> = ({
               </div>
             </div>
           </div>
-          <div className="col-md-4">
+          <div className="col-md-3">
             <div className="d-flex align-items-center gap-3 border rounded-3 p-3 h-100">
               <div
                 className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
@@ -231,6 +260,74 @@ const CourseSummary: React.FC<CourseSummaryProps> = ({
               </div>
             </div>
           </div>
+          <div className="col-md-3">
+            <div className="d-flex align-items-center gap-3 border rounded-3 p-3 h-100">
+              <div
+                className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                style={{
+                  width: 48,
+                  height: 48,
+                  backgroundColor: "#FEF2F2",
+                  color: "#ef4444",
+                }}
+              >
+                <i className="fas fa-question-circle" />
+              </div>
+              <div>
+                <h4 className="mb-0">{quiz?.QuizQuestions?.length || 0}</h4>
+                <small className="text-muted">سوالات آزمون</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quiz detail */}
+        <div className="bg-light rounded-3 p-3 mb-4">
+          <h6
+            className="text-muted text-uppercase mb-3"
+            style={{ fontSize: 12, letterSpacing: 0.5 }}
+          >
+            آزمون دوره
+          </h6>
+          {quiz ? (
+            <>
+              <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <span className="text-muted small">عنوان آزمون</span>
+                <strong>{quiz.Title}</strong>
+              </div>
+              <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <span className="text-muted small">زمان شروع</span>
+                <span>{formatDate(quiz.StartAt)}</span>
+              </div>
+              <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <span className="text-muted small">زمان پایان</span>
+                <span>{formatDate(quiz.EndAt)}</span>
+              </div>
+              <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <span className="text-muted small">مدت زمان آزمون</span>
+                <span>{quiz.DurationMinutes ?? "-"} دقیقه</span>
+              </div>
+              <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <span className="text-muted small">
+                  تعداد سوال نمایش داده‌شده به هر کاربر
+                </span>
+                <span>{quiz.QuestionsToShow}</span>
+              </div>
+              <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <span className="text-muted small">مجموع نمره بانک سوالات</span>
+                <span>{totalQuizScore}</span>
+              </div>
+              <div className="d-flex justify-content-between align-items-center py-2">
+                <span className="text-muted small">نمره قبولی</span>
+                <strong className="text-primary">{quiz.PassScore}</strong>
+              </div>
+            </>
+          ) : (
+            <div className="text-center text-muted py-3">
+              <i className="fas fa-exclamation-circle me-1" />
+              هنوز آزمونی برای این دوره تعریف نشده است.
+            </div>
+          )}
         </div>
 
         {/* Publish section */}
