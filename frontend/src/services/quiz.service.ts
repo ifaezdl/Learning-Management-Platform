@@ -23,6 +23,8 @@ export interface SaveQuizPayload {
   scorePerQuestion?: number;
   passScore: number;
   questionsToShow: number;
+  showAllQuestions: boolean;
+  allowPreviousQuestion: boolean;
   questions: {
     questionText: string;
     isAiGenerated?: boolean;
@@ -30,7 +32,48 @@ export interface SaveQuizPayload {
     choices: { text: string; isCorrect: boolean }[];
   }[];
 }
+export interface StudentQuizListItem {
+  quizId: number;
+  courseId: number;
+  courseTitle: string;
+  title: string;
+  startAt: string | null;
+  endAt: string | null;
+  durationMinutes: number | null;
+  questionsToShow: number;
+  bankSize: number;
+  status: "upcoming" | "available" | "closed";
+  attempted: boolean;
+  attemptResult: { score: number; maxScore: number; isPassed: boolean } | null;
+}
 
+export interface AttemptQuestion {
+  id: number;
+  questionText: string;
+  score: number;
+  choices: { id: number; text: string }[];
+}
+
+export interface StartQuizResponse {
+  attemptId: number;
+  quizId: number;
+  title: string;
+  showAllQuestions: boolean;
+  allowPreviousQuestion: boolean;
+  passScore: number;
+  deadlineAt: string;
+  questions: AttemptQuestion[];
+}
+
+export interface QuizResult {
+  attemptId: number;
+  score: number;
+  maxScore: number;
+  isPassed: boolean;
+  totalQuestions: number;
+  correctCount: number;
+  wrongCount: number;
+}
 class QuizService {
   async getQuiz(courseId: number) {
     const res = await api.get(`/courses/${courseId}/quiz`);
@@ -45,6 +88,30 @@ class QuizService {
   async saveQuiz(courseId: number, payload: SaveQuizPayload) {
     const res = await api.post(`/courses/${courseId}/quiz`, payload);
     return res.data;
+  }
+  async myQuizzes() {
+    const res = await api.get(`/quizzes/my`);
+    return res.data as StudentQuizListItem[];
+  }
+
+  async startQuiz(courseId: number) {
+    const res = await api.post(`/courses/${courseId}/quiz/start`);
+    return res.data as StartQuizResponse;
+  }
+
+  async submitQuiz(
+    attemptId: number,
+    answers: { questionId: number; choiceId?: number }[],
+  ) {
+    const res = await api.post(`/quiz/attempts/${attemptId}/submit`, {
+      answers,
+    });
+    return res.data as QuizResult;
+  }
+
+  async getResult(attemptId: number) {
+    const res = await api.get(`/quiz/attempts/${attemptId}/result`);
+    return res.data as QuizResult;
   }
 }
 
