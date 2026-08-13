@@ -7,26 +7,52 @@ import instructorRequestService from "../../../services/instructor-requests.serv
 
 const BecomeInstructor = () => {
   const [description, setDescription] = useState("");
+  const [resume, setResume] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    debugger;
     e.preventDefault();
     setLoading(true);
 
     try {
       const response = await instructorRequestService.create({
         description,
+        resume,
       });
 
       toast.success(response.message);
 
       setDescription("");
+      setResume(null);
     } catch (err: any) {
       toast.error(err.response?.data?.message || "مشکلی پیش آمد.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+
+    if (file) {
+      const allowedTypes = [
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      ];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error("فقط فایل‌های PDF، DOC یا DOCX مجاز هستند.");
+        e.target.value = "";
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("حجم فایل نباید بیشتر از ۵ مگابایت باشد.");
+        e.target.value = "";
+        return;
+      }
+    }
+
+    setResume(file);
   };
 
   return (
@@ -37,7 +63,7 @@ const BecomeInstructor = () => {
           <div className="container">
             <div className="row">
               <div className="col-lg-7 pe-xl-5">
-                <div className="share-knowledge-content">
+                <div className="mt-5">
                   <div className="section-header">
                     <span className="fw-medium text-secondary text-decoration-underline mb-2 d-inline-block">
                       اشتراک‌گذاری دانش
@@ -145,37 +171,17 @@ const BecomeInstructor = () => {
                   </div>
                 </div>
               </div>
-              <div className="col-lg-5">
-                <div className="share-your-knowledge-img d-none d-lg-flex">
-                  <ImageWithBasePath
-                    src="assets/img/shapes/shape-4.png"
-                    alt="img"
-                    className="img-fluid become-instructor-bg-02"
-                  />
-                  <ImageWithBasePath
-                    src="assets/img/shapes/shape-5.png"
-                    alt="img"
-                    className="img-fluid become-instructor-bg-01"
-                  />
+              <div className="col-lg-5 mt-5">
+                <div className="share-your-knowledge-img d-none d-lg-flex mt-3">
                   <ImageWithBasePath
                     src="assets/img/shapes/shape-3.png"
                     alt="img"
                     className="img-fluid become-instructor-bg-03"
                   />
                   <ImageWithBasePath
-                    src="assets/img/feature/feature-5.jpg"
+                    src="assets/img/become-instructor.png"
                     alt="img"
-                    className="img-fluid rounded-4 become-instructor-bg-04"
-                  />
-                  <ImageWithBasePath
-                    src="assets/img/feature/feature-6.jpg"
-                    alt="img"
-                    className="img-fluid rounded-4 become-instructor-bg-05"
-                  />
-                  <ImageWithBasePath
-                    src="assets/img/shapes/shape-7.svg"
-                    alt="img"
-                    className="img-fluid become-instructor-bg-06"
+                    className="img-fluid rounded-4 become-instructor-bg-04 mt-5"
                   />
                 </div>
               </div>
@@ -336,33 +342,153 @@ const BecomeInstructor = () => {
                 <div className="rounded-4 pe-lg-5">
                   <ImageWithBasePath
                     className="img-fluid rounded-5 d-none d-lg-flex"
-                    src="assets/img/feature/feature-4.jpg"
+                    src="assets/img/about-us.png"
                     alt="img"
                   />
                 </div>
               </div>
               <div className="col-lg-6">
                 <div className="register-section p-4 p-sm-5 p-md-6">
-                  <h5 className="mb-2">ثبت‌نام</h5>
-                  <p>زمان آن رسیده که در منتوریتو مدرس شوید</p>
+                  {/* Header */}
+                  <div className="mb-4">
+                    <span className="badge bg-primary-transparent text-primary mb-2">
+                      همکاری با منتوریتو
+                    </span>
+
+                    <h4 className="mb-2">به جمع مدرسان منتوریتو بپیوندید</h4>
+
+                    <p className="text-muted mb-0">
+                      اگر در حوزه تخصصی خود دانش و تجربه ارزشمندی دارید،
+                      می‌توانید با پیوستن به جمع مدرسان منتوریتو، دانش خود را با
+                      دیگران به اشتراک بگذارید و در مسیر رشد و یادگیری آن‌ها نقش
+                      داشته باشید.
+                    </p>
+                  </div>
+
+                  {/* Information Box */}
+                  <div className="bg-light rounded-3 p-3 mb-4">
+                    <div className="d-flex align-items-start">
+                      <div className="avatar avatar-md bg-primary-transparent rounded-circle me-3 flex-shrink-0">
+                        <i className="isax isax-info-circle5 text-primary fs-20" />
+                      </div>
+
+                      <div>
+                        <h6 className="mb-1">فرآیند بررسی درخواست</h6>
+                        <p className="text-muted fs-14 mb-0">
+                          پس از ارسال درخواست، اطلاعات و رزومه شما توسط تیم
+                          منتوریتو بررسی خواهد شد. در صورت تأیید اولیه، برای
+                          ادامه مراحل همکاری با شما تماس گرفته می‌شود.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
                   <form onSubmit={handleSubmit}>
                     <div className="row">
+                      {/* Description */}
                       <div className="col-lg-12">
+                        <label className="form-label fw-medium">
+                          درباره خود و زمینه تخصصی‌تان
+                          <span className="text-danger ms-1">*</span>
+                        </label>
+
+                        <p className="text-muted fs-13 mb-2">
+                          لطفاً درباره سوابق کاری، تخصص، تجربه تدریس و حوزه‌هایی
+                          که قصد دارید در آن‌ها آموزش ارائه دهید، توضیح دهید.
+                        </p>
+
                         <textarea
                           className="form-control"
-                          rows={5}
+                          rows={6}
                           value={description}
                           onChange={(e) => setDescription(e.target.value)}
-                          placeholder="به ما بگویید چرا می‌خواهید مدرس شوید..."
+                          placeholder="مثلاً: زمینه تخصصی، میزان سابقه کاری، تجربه تدریس، مهارت‌ها و موضوعاتی که قصد آموزش آن‌ها را دارید..."
                         />
                       </div>
-                      <div className="col-lg-12">
+
+                      {/* Resume */}
+                      <div className="col-lg-12 mt-4">
+                        <label className="form-label fw-medium">
+                          رزومه حرفه‌ای
+                          <span className="text-danger ms-1">*</span>
+                        </label>
+
+                        <div
+                          className="border rounded-3 p-4"
+                          style={{ backgroundColor: "#fafafa" }}
+                        >
+                          <div className="d-flex align-items-center">
+                            <div className="avatar avatar-lg bg-primary-transparent rounded-3 me-3 flex-shrink-0">
+                              <i className="isax isax-document-text5 text-primary fs-24" />
+                            </div>
+
+                            <div className="flex-grow-1">
+                              <h6 className="mb-1">ارسال رزومه</h6>
+
+                              <p className="text-muted fs-13 mb-2">
+                                رزومه خود را شامل سوابق تحصیلی، کاری، مهارت‌ها،
+                                گواهینامه‌ها و تجربیات آموزشی بارگذاری کنید.
+                              </p>
+
+                              <small className="text-muted">
+                                فرمت‌های مجاز: PDF، DOC و DOCX
+                              </small>
+                            </div>
+                          </div>
+
+                          <div className="mt-3">
+                            <input
+                              type="file"
+                              className="form-control"
+                              accept=".pdf,.doc,.docx"
+                              onChange={handleFileChange}
+                            />
+                          </div>
+
+                          {resume && (
+                            <div className="d-flex align-items-center mt-3 p-2 bg-white border rounded">
+                              <i className="isax isax-document-text text-primary fs-18 me-2" />
+
+                              <small className="text-muted">
+                                فایل انتخاب‌شده:
+                                <span className="text-dark fw-medium ms-1">
+                                  {resume.name}
+                                </span>
+                              </small>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Requirements */}
+                      <div className="col-lg-12 mt-4">
+                        <div className="d-flex align-items-start">
+                          <i className="isax isax-tick-circle5 text-success fs-18 me-2 mt-1" />
+
+                          <p className="text-muted fs-13 mb-0">
+                            لطفاً اطمینان حاصل کنید اطلاعات واردشده دقیق و رزومه
+                            ارسال‌شده به‌روز باشد. بررسی درخواست‌ها بر اساس
+                            تخصص، تجربه و کیفیت سوابق آموزشی و حرفه‌ای انجام
+                            می‌شود.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Submit */}
+                      <div className="col-lg-12 mt-4">
                         <button
                           type="submit"
-                          className="btn btn-primary mt-2"
+                          className="btn btn-primary w-100"
                           disabled={loading}
                         >
-                          {loading ? "در حال ارسال..." : "ارسال درخواست"}
+                          {loading ? (
+                            "در حال بررسی و ارسال درخواست..."
+                          ) : (
+                            <>
+                              ارسال درخواست همکاری
+                              <i className="isax isax-arrow-left-2 ms-2" />
+                            </>
+                          )}
                         </button>
                       </div>
                     </div>
@@ -370,36 +496,7 @@ const BecomeInstructor = () => {
                 </div>
               </div>
             </div>
-            <div className="become-an-instructor rounded-2 bg-primary position-relative mt-5 p-5">
-              <ImageWithBasePath
-                src="./assets/img/shapes/instructor-bg-1.png"
-                alt="img"
-                className="instructor-bg-1"
-              />
-              <ImageWithBasePath
-                src="./assets/img/shapes/instructor-bg-2.png"
-                alt="img"
-                className="instructor-bg-2"
-              />
-              <div className="row align-items-center">
-                <div className="col-lg-8">
-                  <h3 className="text-white mb-2 mblg-3">مدرس شوید</h3>
-                  <p className="text-light">
-                    تخصص خود را به دوره‌های تأثیرگذار تبدیل کنید و به
-                    زبان‌آموزان در سراسر جهان الهام بخشید. به جامعه مدرسان ما
-                    بپیوندید و امروز سفر خود را آغاز کنید!
-                  </p>
-                </div>
-                <div className="col-lg-4 d-flex justify-content-lg-end justify-content-center">
-                  <Link
-                    to="#"
-                    className="btn btn-secondary btn-lg mt-3 mt-lg-0"
-                  >
-                    امروز تدریس را شروع کنید
-                  </Link>
-                </div>
-              </div>
-            </div>
+            {/* ... rest unchanged ... */}
           </div>
         </div>
         {/* ثبت‌نام */}

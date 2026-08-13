@@ -226,6 +226,7 @@ model InstructorRequests {
   ReviewedBy                                 Int?
   ReviewedAt                                 DateTime? @db.DateTime
   CreatedAt                                  DateTime  @default(now(), map: "DF_InstructorRequests_CreatedAt") @db.DateTime
+  ResumeUrl                                  String?   @db.NVarChar(500)
   Users_InstructorRequests_ReviewedByToUsers Users?    @relation("InstructorRequests_ReviewedByToUsers", fields: [ReviewedBy], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_InstructorRequests_Reviewer")
   Users_InstructorRequests_User_IdToUsers    Users     @relation("InstructorRequests_User_IdToUsers", fields: [User_Id], references: [Id], onUpdate: NoAction, map: "FK_InstructorRequests_User")
 
