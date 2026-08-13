@@ -5,12 +5,12 @@ import {
   ParseIntPipe,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { CertificatesService } from './certificates.service';
+import { JwtAuthGuard } from '../src/auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../src/auth/guards/roles.guard';
+import { Roles } from '../src/auth/decorators/roles.decorator';
+import { CurrentUser } from '../src/auth/decorators/current-user.decorator';
 
 @ApiTags('Certificates')
 @Controller('certificates')
