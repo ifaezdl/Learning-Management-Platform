@@ -17,7 +17,7 @@ export interface DashboardSummary {
 
 class DashboardService {
   async getSummary(): Promise<DashboardSummary> {
-    const res = await api.get("/student/dashboard/summary");
+    const res = await api.get("/api/student/dashboard/summary");
     return res.data;
   }
 }

@@ -9,4 +9,4 @@ import { PrismaModule } from '../src/prisma/prisma.module';
   controllers: [CertificatesController],
   exports: [CertificatesService],
 })
-export class CertificatesModule {}
+export class CertificatesModule { }
