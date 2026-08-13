@@ -8,5 +8,6 @@ import { StudentQuizController } from './student-quiz.controller';
   imports: [PrismaModule],
   controllers: [QuizController, StudentQuizController],
   providers: [QuizService],
+  exports: [QuizService],
 })
-export class QuizModule {}
+export class QuizModule { }
