@@ -10,7 +10,11 @@ import { CreateInstructorRequestDto } from './dto/create-instructor-request.dto'
 export class InstructorRequestsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(userId: number, dto: CreateInstructorRequestDto) {
+  async create(
+    userId: number,
+    dto: CreateInstructorRequestDto,
+    resume?: Express.Multer.File,
+  ) {
     const existingRequest = await this.prisma.instructorRequests.findFirst({
       where: {
         User_Id: userId,
@@ -19,21 +23,25 @@ export class InstructorRequestsService {
     });
 
     if (existingRequest) {
-      throw new BadRequestException('You already have a pending request.');
+      throw new BadRequestException('شما در حال حاضر درخواست فعالی دارید .');
     }
+
+    const resumeUrl = resume
+      ? `/uploads/resumes/${resume.filename}`
+      : (dto.resumeUrl ?? null);
 
     await this.prisma.instructorRequests.create({
       data: {
         User_Id: userId,
         Description: dto.description,
+        ResumeUrl: resumeUrl,
       },
     });
 
     return {
-      message: 'Request submitted successfully.',
+      message: 'درخواست شما با موفقیت ارسال شد .',
     };
   }
-
   async approve(id: number) {
     const request = await this.prisma.instructorRequests.findUnique({
       where: { Id: id },

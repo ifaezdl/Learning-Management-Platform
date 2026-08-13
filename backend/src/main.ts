@@ -17,9 +17,7 @@ async function bootstrap() {
     origin: true,
     credentials: true,
   });
-  app.useStaticAssets(join(process.cwd(), 'uploads'), {
-    prefix: '/uploads/',
-  });
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), { prefix: '/uploads' });
 
   const config = new DocumentBuilder()
     .setTitle('EduCore LMS API')

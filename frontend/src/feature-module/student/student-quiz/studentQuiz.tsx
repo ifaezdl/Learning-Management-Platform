@@ -106,11 +106,11 @@ const StudentQuiz = () => {
                   <div>
                     <button
                       type="button"
-                      className="arrow-next btn btn-link"
+                      className="btn btn-secondary"
                       disabled={starting === q.quizId || q.attempted}
                       onClick={() => handleStart(q)}
                     >
-                      <i className="isax isax-arrow-left" />
+                      شرکت در آزمون
                     </button>
                   </div>
                 </div>
