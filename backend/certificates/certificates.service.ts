@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../src/prisma/prisma.service';
 
 @Injectable()
 export class CertificatesService {
   constructor(private prisma: PrismaService) {}
 
   async myCertificates(studentId: number) {
-    return this.prisma.certificates.findMany({
+    return await this.prisma.certificates.findMany({
       where: { Student_Id: studentId },
       include: { Courses: { select: { Title: true } } },
       orderBy: { IssuedAt: 'desc' },
