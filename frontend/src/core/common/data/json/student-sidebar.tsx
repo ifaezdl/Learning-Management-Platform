@@ -16,6 +16,16 @@ export const studentSidebarData = [
     icon: "isax isax-teacher5",
     route: all_routes.studentCourses,
   },
+  {
+    title: "آزمون های پیش رو",
+    icon: "isax isax-teacher5",
+    route: all_routes.studentQuiz,
+  },
+  {
+    title: "گواهینامه های من",
+    icon: "isax isax-teacher5",
+    route: all_routes.studentCertificates,
+  },
   // {
   //   title: "گواهینمامه ها",
   //   icon: "isax isax-note-215",

@@ -15,6 +15,7 @@ import { UploadModule } from './upload/upload.module';
 import { CartModule } from './cart/cart.module';
 import { PaymentModule } from './payment/payment.module';
 import { QuizModule } from './quiz/quiz.module';
+import { CertificatesModule } from '../certificates/certificates.module';
 // --- ADD to imports ---
 
 // --- ADD CartModule to the imports array, alongside your existing modules ---
@@ -33,9 +34,10 @@ import { QuizModule } from './quiz/quiz.module';
     UploadModule,
     CartModule,
     PaymentModule,
-    QuizModule,   // ← add this
+    QuizModule,
+    CertificatesModule, // ← add this
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

@@ -1,161 +1,125 @@
-import React from "react";
-import Breadcrumb from "../../../core/common/Breadcrumb/breadcrumb";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import { all_routes } from "../../router/all_routes";
 import StudentSidebar from "../common/studentSidebar";
 import ProfileCard from "../common/profileCard";
+import quizService, {
+  StudentQuizListItem,
+} from "../../../services/quiz.service";
+
+const statusLabel: Record<StudentQuizListItem["status"], string> = {
+  upcoming: "هنوز شروع نشده",
+  available: "در حال برگزاری",
+  closed: "پایان یافته",
+};
 
 const StudentQuiz = () => {
   const route = all_routes;
+  const navigate = useNavigate();
+  const [quizzes, setQuizzes] = useState<StudentQuizListItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [starting, setStarting] = useState<number | null>(null);
+
+  useEffect(() => {
+    quizService
+      .myQuizzes()
+      .then(setQuizzes)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleStart = async (q: StudentQuizListItem) => {
+    if (q.status === "upcoming") {
+      toast.error("این آزمون هنوز شروع نشده است.");
+      return;
+    }
+    if (q.status === "closed") {
+      toast.error("مهلت شرکت در این آزمون به پایان رسیده است.");
+      return;
+    }
+    if (q.attempted) {
+      toast.error("شما قبلاً در این آزمون شرکت کرده‌اید.");
+      return;
+    }
+    setStarting(q.quizId);
+    try {
+      const attempt = await quizService.startQuiz(q.courseId);
+      navigate(route.studentQuizQuestion, { state: { attempt } });
+    } catch (err: any) {
+      toast.error(
+        err?.response?.data?.message || "شروع آزمون با خطا مواجه شد.",
+      );
+    } finally {
+      setStarting(null);
+    }
+  };
 
   return (
-    <>
-      <Breadcrumb title="My Quiz Attempts" />
-
-      <div className="content">
-        <div className="container">
-          {/* profile box */}
+    <div className="content mt-5">
+      <div className="container">
         <ProfileCard />
-          {/* profile box */}
-          <div className="row">
-            {/* sidebar */}
-            <StudentSidebar />
-            {/* sidebar */}
-            <div className="col-lg-9">
-              <div className="page-title d-flex align-items-center justify-content-between">
-                <h5>My Quiz Attempts</h5>
-              </div>
-              <div className="d-flex align-items-center justify-content-between border p-3 mb-3 rounded-2">
-                <div>
-                  <h6 className="mb-1">
-                    <Link to={route.studentQuizQuestion}>
-                      Information About UI/UX Design Degree
-                    </Link>
-                  </h6>
-                  <p className="fs-14">Number of Questions : 05</p>
-                </div>
-                <div>
-                  <Link to={route.studentQuizQuestion} className="arrow-next">
-                    <i className="isax isax-arrow-right-1" />
-                  </Link>
-                </div>
-              </div>
-              <div className="d-flex align-items-center justify-content-between border p-3 pb-3 mb-3 rounded-2">
-                <div>
-                  <h6 className="mb-1">
-                    <Link to={route.studentQuizQuestion}>
-                      Learn JavaScript and Express to become a Expert
-                    </Link>
-                  </h6>
-                  <p className="fs-14">Number of Questions : 10</p>
-                </div>
-                <div>
-                  <Link to={route.studentQuizQuestion} className="arrow-next">
-                    <i className="isax isax-arrow-right-1" />
-                  </Link>
-                </div>
-              </div>
-              <div className="d-flex align-items-center justify-content-between border p-3 pb-3 mb-3 rounded-2">
-                <div>
-                  <h6 className="mb-1">
-                    <Link to={route.studentQuizQuestion}>
-                      Introduction to Python Programming
-                    </Link>
-                  </h6>
-                  <p className="fs-14">Number of Questions : 08</p>
-                </div>
-                <div>
-                  <Link to={route.studentQuizQuestion} className="arrow-next">
-                    <i className="isax isax-arrow-right-1" />
-                  </Link>
-                </div>
-              </div>
-              <div className="d-flex align-items-center justify-content-between border p-3 pb-3 mb-3 rounded-2">
-                <div>
-                  <h6 className="mb-1">
-                    <Link to={route.studentQuizQuestion}>
-                      Build Responsive Websites with HTML5 and CSS3
-                    </Link>
-                  </h6>
-                  <p className="fs-14">Number of Questions : 05</p>
-                </div>
-                <div>
-                  <Link to={route.studentQuizQuestion} className="arrow-next">
-                    <i className="isax isax-arrow-right-1" />
-                  </Link>
-                </div>
-              </div>
-              <div className="d-flex align-items-center justify-content-between border p-3 pb-3 mb-3 rounded-2">
-                <div>
-                  <h6 className="mb-1">
-                    <Link to={route.studentQuizQuestion}>
-                      Information About Photoshop Design Degree
-                    </Link>
-                  </h6>
-                  <p className="fs-14">Number of Questions : 10</p>
-                </div>
-                <div>
-                  <Link to={route.studentQuizQuestion} className="arrow-next">
-                    <i className="isax isax-arrow-right-1" />
-                  </Link>
-                </div>
-              </div>
-              <div className="d-flex align-items-center justify-content-between border p-3 rounded-2">
-                <div>
-                  <h6 className="mb-1">
-                    <Link to={route.studentQuizQuestion}>
-                      C# Developers Double Your Coding with Visual Studio
-                    </Link>
-                  </h6>
-                  <p className="fs-14">Number of Questions : 07</p>
-                </div>
-                <div>
-                  <Link to={route.studentQuizQuestion} className="arrow-next">
-                    <i className="isax isax-arrow-right-1" />
-                  </Link>
-                </div>
-              </div>
-              {/* /pagination */}
-              <div className="row align-items-center mt-3">
-                <div className="col-md-2">
-                  <p className="pagination-text">Page 1 of 2</p>
-                </div>
-                <div className="col-md-10">
-                  <ul className="pagination lms-page justify-content-center justify-content-md-end mt-2 mt-md-0">
-                    <li className="page-item prev">
-                      <Link className="page-link" to="#" tabIndex={-1}>
-                        <i className="fas fa-angle-left" />
-                      </Link>
-                    </li>
-                    <li className="page-item first-page active">
-                      <Link className="page-link" to="#">
-                        1
-                      </Link>
-                    </li>
-                    <li className="page-item">
-                      <Link className="page-link" to="#">
-                        2
-                      </Link>
-                    </li>
-                    <li className="page-item">
-                      <Link className="page-link" to="#">
-                        3
-                      </Link>
-                    </li>
-                    <li className="page-item next">
-                      <Link className="page-link" to="#">
-                        <i className="fas fa-angle-right" />
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              {/* /pagination */}
+        <div className="row">
+          <StudentSidebar />
+          <div className="col-lg-9">
+            <div className="page-title d-flex align-items-center justify-content-between">
+              <h5>آزمون های من</h5>
             </div>
+
+            {loading ? (
+              <div className="text-center py-5">در حال بارگذاری...</div>
+            ) : quizzes.length === 0 ? (
+              <div className="text-center text-muted py-5">
+                آزمونی برای دوره‌های شما یافت نشد.
+              </div>
+            ) : (
+              quizzes.map((q) => (
+                <div
+                  key={q.quizId}
+                  className="d-flex align-items-center justify-content-between border p-3 mb-3 rounded-2"
+                >
+                  <div>
+                    <h6 className="mb-1">{q.title}</h6>
+                    <p className="fs-14 mb-1">{q.courseTitle}</p>
+                    <p className="fs-14 mb-0">
+                      تعداد سوالات : {q.questionsToShow} &nbsp;|&nbsp;
+                      <span
+                        className={
+                          q.status === "available"
+                            ? "text-success"
+                            : q.status === "closed"
+                              ? "text-danger"
+                              : "text-warning"
+                        }
+                      >
+                        {" "}
+                        {statusLabel[q.status]}
+                      </span>
+                      {q.attempted && q.attemptResult && (
+                        <span className="ms-2">
+                          (نتیجه: {q.attemptResult.score}/
+                          {q.attemptResult.maxScore} —{" "}
+                          {q.attemptResult.isPassed ? "قبول" : "مردود"})
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  <div>
+                    <button
+                      type="button"
+                      className="arrow-next btn btn-link"
+                      disabled={starting === q.quizId || q.attempted}
+                      onClick={() => handleStart(q)}
+                    >
+                      <i className="isax isax-arrow-left" />
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
