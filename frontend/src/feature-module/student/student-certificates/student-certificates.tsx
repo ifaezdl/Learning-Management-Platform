@@ -32,10 +32,10 @@ const StudentCertificates = () => {
                   <thead className="thead-light">
                     <tr>
                       <th>ردیف</th>
-                      <th>نام گواهینامه</th>
-                      <th>تاریخ</th>
+                      <th>نام دوره</th>
+                      <th>تاریخ اخذ گواهینامه </th>
                       <th>نمره</th>
-                      <th>خروجی</th>
+
                       <th />
                     </tr>
                   </thead>
@@ -52,7 +52,7 @@ const StudentCertificates = () => {
                           {new Date(c.IssuedAt).toLocaleDateString("fa-IR")}
                         </td>
                         <td>{c.Score}</td>
-                        <td>{c.MaxScore}</td>
+
                         <td>
                           <div className="d-flex align-items-center">
                             <Link

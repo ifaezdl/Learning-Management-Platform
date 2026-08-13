@@ -165,7 +165,7 @@ const StudentDashboard = () => {
             </div>
 
             <div className="row">
-              <div className="col-xl-5 offset-xl-7">
+              <div className="col-12">
                 <div className="card mb-0">
                   <div className="card-body">
                     <h5 className="mb-3 fs-18 border-bottom pb-3">
