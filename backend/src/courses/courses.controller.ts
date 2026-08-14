@@ -203,4 +203,18 @@ export class CoursesController {
   ) {
     return this.coursesService.getStudents(id, user.id);
   }
+  @Get('my/enrollments-report')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(2)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Get enrollment counts per course for the current teacher',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns enrollment counts per course',
+  })
+  async getEnrollmentsReport(@CurrentUser() user: any) {
+    return this.coursesService.getEnrollmentsByCourse(user.id);
+  }
 }

@@ -579,4 +579,27 @@ export class CoursesService {
       };
     });
   }
+  async getEnrollmentsByCourse(teacherId: number) {
+    const courses = await this.prisma.courses.findMany({
+      where: { Teacher_Id: teacherId },
+      select: {
+        Id: true,
+        Title: true,
+        _count: {
+          select: { Enrollments: true },
+        },
+      },
+      orderBy: {
+        Enrollments: {
+          _count: 'desc',
+        },
+      },
+    });
+
+    return courses.map((course) => ({
+      courseId: course.Id,
+      title: course.Title,
+      enrollments: course._count.Enrollments,
+    }));
+  }
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import ProfileCard from "../common/profileCard";
 import InstructorSidebar from "../common/instructorSidebar";
 import { Link } from "react-router-dom";
@@ -7,6 +7,9 @@ import PredefinedDateRanges from "../../../core/common/range-picker/datePicker";
 import ReactApexChart from "react-apexcharts";
 import ImageWithBasePath from "../../../core/common/imageWithBasePath";
 import api from "../../../services/api";
+import courseService, {
+  CourseEnrollmentReportItem,
+} from "../../../services/course.service";
 
 interface InstructorStats {
   totalStudents: number;
@@ -14,37 +17,18 @@ interface InstructorStats {
   totalCourses: number;
 }
 
-const InstructorDashboard = () => {
-  const [stats, setStats] = useState<InstructorStats>({
-    totalStudents: 0,
-    publishedCourses: 0,
-    totalCourses: 0,
-  });
-  const [loading, setLoading] = useState(true);
+const TOP_COURSES_LIMIT = 8;
+const BAR_HEIGHT_PX = 40;
+const MIN_CHART_HEIGHT = 300;
+const CONTAINER_MAX_HEIGHT = 420;
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await api.get<InstructorStats>(
-          "/api/instructor/dashboard/summary",
-        );
-        setStats(response.data);
-      } catch (error) {
-        console.error("Failed to fetch instructor stats:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchStats();
-  }, []);
-  const [toursChart] = useState<any>({
+const InstructorDashboard = () => {
+  const earningsChartOptions: any = {
     chart: {
       height: 290,
       type: "bar",
       stacked: true,
-      toolbar: {
-        show: false,
-      },
+      toolbar: { show: false },
     },
     responsive: [
       {
@@ -65,12 +49,6 @@ const InstructorDashboard = () => {
         endingShape: "rounded",
       },
     },
-    series: [
-      {
-        name: "Earnings",
-        data: [80, 100, 70, 110, 80, 90, 85, 85, 110, 30, 100, 90],
-      },
-    ],
     xaxis: {
       categories: [
         "Jan",
@@ -87,46 +65,162 @@ const InstructorDashboard = () => {
         "Dec",
       ],
       labels: {
-        style: {
-          colors: "#4D4D4D",
-          fontSize: "13px",
-        },
+        style: { colors: "#4D4D4D", fontSize: "13px" },
       },
     },
     yaxis: {
       labels: {
         offsetX: -15,
-        style: {
-          colors: "#4D4D4D",
-          fontSize: "13px",
-        },
+        style: { colors: "#4D4D4D", fontSize: "13px" },
       },
     },
-    grid: {
-      borderColor: "#4D4D4D",
-      strokeDashArray: 5,
-    },
-    legend: {
-      show: false,
-    },
-    dataLabels: {
-      enabled: false, // Disable data labels
-    },
+    grid: { borderColor: "#4D4D4D", strokeDashArray: 5 },
+    legend: { show: false },
+    dataLabels: { enabled: false },
     fill: {
       type: "gradient",
       gradient: {
         shade: "dark",
         type: "linear",
         shadeIntensity: 0.35,
-        gradientToColors: ["#392C7D"], // Second gradient color
+        gradientToColors: ["#392C7D"],
         inverseColors: false,
         opacityFrom: 1,
         opacityTo: 1,
         stops: [0, 100],
-        angle: 90, // This sets the gradient direction from top to bottom
+        angle: 90,
       },
     },
+  };
+  const [stats, setStats] = useState<InstructorStats>({
+    totalStudents: 0,
+    publishedCourses: 0,
+    totalCourses: 0,
   });
+  const [loading, setLoading] = useState(true);
+
+  const [enrollmentsReport, setEnrollmentsReport] = useState<
+    CourseEnrollmentReportItem[]
+  >([]);
+  const [loadingEnrollments, setLoadingEnrollments] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await api.get<InstructorStats>(
+          "/api/instructor/dashboard/summary",
+        );
+        setStats(response.data);
+      } catch (error) {
+        console.error("Failed to fetch instructor stats:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  useEffect(() => {
+    const fetchEnrollments = async () => {
+      try {
+        setLoadingEnrollments(true);
+        const data = await courseService.getEnrollmentsReport();
+        setEnrollmentsReport(data);
+      } catch (error) {
+        console.error("Failed to fetch enrollments report:", error);
+      } finally {
+        setLoadingEnrollments(false);
+      }
+    };
+    fetchEnrollments();
+  }, []);
+
+  // Reduce to top N courses + an "Others" bucket, so the chart stays
+  // readable no matter how many courses the instructor has.
+  const chartData = useMemo(() => {
+    const sorted = [...enrollmentsReport].sort(
+      (a, b) => b.enrollments - a.enrollments,
+    );
+
+    if (sorted.length <= TOP_COURSES_LIMIT) {
+      return sorted;
+    }
+
+    const top = sorted.slice(0, TOP_COURSES_LIMIT);
+    const rest = sorted.slice(TOP_COURSES_LIMIT);
+    const othersTotal = rest.reduce((sum, c) => sum + c.enrollments, 0);
+
+    return [
+      ...top,
+      {
+        courseId: -1,
+        title: `سایر دوره‌ها (${rest.length} دوره)`,
+        enrollments: othersTotal,
+      },
+    ];
+  }, [enrollmentsReport]);
+
+  const categories = chartData.map((c) => c.title);
+  const seriesData = chartData.map((c) => c.enrollments);
+
+  const enrollmentsChartOptions: any = {
+    chart: {
+      type: "bar",
+      toolbar: { show: false },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        borderRadius: 5,
+        barHeight: "60%",
+        distributed: true,
+      },
+    },
+    xaxis: {
+      categories,
+      labels: {
+        formatter: (val: number) => Math.round(val).toString(),
+        style: { colors: "#4D4D4D", fontSize: "13px" },
+      },
+      title: { text: "تعداد دانشجوهای ثبت‌نام‌شده" },
+    },
+    yaxis: {
+      labels: {
+        style: { colors: "#4D4D4D", fontSize: "12px" },
+      },
+    },
+    grid: {
+      borderColor: "#eee",
+      strokeDashArray: 5,
+    },
+    dataLabels: {
+      enabled: true,
+      style: { colors: ["#fff"] },
+    },
+    legend: { show: false },
+    tooltip: {
+      y: {
+        formatter: (val: number) => `${val} دانشجو`,
+      },
+    },
+    colors: [
+      "#392C7D",
+      "#5B4FCF",
+      "#7367F0",
+      "#28C76F",
+      "#00CFE8",
+      "#FF9F43",
+      "#EA5455",
+      "#82868B",
+      "#A8AAAE",
+    ],
+  };
+
+  const chartHeight = Math.max(
+    MIN_CHART_HEIGHT,
+    chartData.length * BAR_HEIGHT_PX,
+  );
+
   return (
     <>
       <div className="content mt-5">
@@ -151,7 +245,9 @@ const InstructorDashboard = () => {
                         </span>
                         <div>
                           <span className="d-block">تعداد دانشجویان دوره</span>
-                          <h4 className="fs-24 mt-1">{loading ? "..." : stats.totalStudents}</h4>
+                          <h4 className="fs-24 mt-1">
+                            {loading ? "..." : stats.totalStudents}
+                          </h4>
                         </div>
                       </div>
                     </div>
@@ -168,8 +264,12 @@ const InstructorDashboard = () => {
                           />
                         </span>
                         <div>
-                          <span className="d-block">تعداد دوره‌های منتشر شده</span>
-                          <h4 className="fs-24 mt-1">{loading ? "..." : stats.publishedCourses}</h4>
+                          <span className="d-block">
+                            تعداد دوره‌های منتشر شده
+                          </span>
+                          <h4 className="fs-24 mt-1">
+                            {loading ? "..." : stats.publishedCourses}
+                          </h4>
                         </div>
                       </div>
                     </div>
@@ -187,172 +287,48 @@ const InstructorDashboard = () => {
                         </span>
                         <div>
                           <span className="d-block">تعداد کل دوره‌های من</span>
-                          <h4 className="fs-24 mt-1">{loading ? "..." : stats.totalCourses}</h4>
+                          <h4 className="fs-24 mt-1">
+                            {loading ? "..." : stats.totalCourses}
+                          </h4>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
+
+              {/* Enrollments report */}
               <div className="card">
                 <div className="card-body">
                   <div className="d-flex align-items-center flex-wrap gap-3 justify-content-between border-bottom mb-2 pb-3">
-                    <h5 className="fw-bold">Earnings by Year</h5>
-                    <div className="input-icon position-relative input-range-picker">
-                      <span className="input-icon-addon">
-                        <i className="isax isax-calendar" />
-                      </span>
-                      <PredefinedDateRanges />
-                    </div>
+                    <h5 className="fw-bold">ثبت‌نام دانشجویان به تفکیک دوره</h5>
                   </div>
-                  <div id="earnnings_chart" />
 
-                  <ReactApexChart
-                    options={toursChart}
-                    series={toursChart.series}
-                    type="bar"
-                    height={290}
-                  />
+                  {loadingEnrollments ? (
+                    <div className="text-center py-5">در حال بارگذاری...</div>
+                  ) : chartData.length === 0 ? (
+                    <div className="text-center py-5 text-muted">
+                      هنوز دانشجویی در دوره‌های شما ثبت‌نام نکرده است.
+                    </div>
+                  ) : (
+                    <div
+                      style={{
+                        maxHeight: CONTAINER_MAX_HEIGHT,
+                        overflowY:
+                          chartHeight > CONTAINER_MAX_HEIGHT
+                            ? "auto"
+                            : "visible",
+                      }}
+                    >
+                      <ReactApexChart
+                        options={enrollmentsChartOptions}
+                        series={[{ name: "دانشجو", data: seriesData }]}
+                        type="bar"
+                        height={chartHeight}
+                      />
+                    </div>
+                  )}
                 </div>
-              </div>
-              <h5 className="mb-3 fw-bold">Recently Created Courses</h5>
-              <div className="table-responsive custom-table">
-                <table className="table">
-                  <thead className="thead-light">
-                    <tr>
-                      <th>Courses</th>
-                      <th>Enrolled</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>
-                        <div className="course-title d-flex align-items-center">
-                          <Link
-                            to={all_routes.courseDetails}
-                            className="avatar avatar-xl flex-shrink-0 me-2"
-                          >
-                            <ImageWithBasePath
-                              src="assets/img/instructor/instructor-table-01.jpg"
-                              alt="Img"
-                            />
-                          </Link>
-                          <div>
-                            <p className="fw-medium">
-                              <Link to={all_routes.courseDetails}>
-                                Complete HTML, CSS and Javascript
-                                <br /> Course
-                              </Link>
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td>0</td>
-                      <td>Published</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div className="course-title d-flex align-items-center">
-                          <Link
-                            to={all_routes.courseDetails}
-                            className="avatar avatar-xl flex-shrink-0 me-2"
-                          >
-                            <ImageWithBasePath
-                              src="assets/img/instructor/instructor-table-02.jpg"
-                              alt="Img"
-                            />
-                          </Link>
-                          <div>
-                            <p className="fw-medium">
-                              <Link to={all_routes.courseDetails}>
-                                Complete Course on Fullstack Web
-                                <br /> Developer
-                              </Link>
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td>2</td>
-                      <td>Published</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div className="course-title d-flex align-items-center">
-                          <Link
-                            to={all_routes.courseDetails}
-                            className="avatar avatar-xl flex-shrink-0 me-2"
-                          >
-                            <ImageWithBasePath
-                              src="assets/img/instructor/instructor-table-03.jpg"
-                              alt="Img"
-                            />
-                          </Link>
-                          <div>
-                            <p className="fw-medium">
-                              <Link to={all_routes.courseDetails}>
-                                Data Science Fundamentals and
-                                <br /> Advanced Bootcampr
-                              </Link>
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td>2</td>
-                      <td>Published</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div className="course-title d-flex align-items-center">
-                          <Link
-                            to={all_routes.courseDetails}
-                            className="avatar avatar-xl flex-shrink-0 me-2"
-                          >
-                            <ImageWithBasePath
-                              src="assets/img/instructor/instructor-table-04.jpg"
-                              alt="Img"
-                            />
-                          </Link>
-                          <div>
-                            <p className="fw-medium">
-                              <Link to={all_routes.courseDetails}>
-                                Master Microservices with Spring Boot
-                                <br /> and Spring Cloud
-                              </Link>
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td>1</td>
-                      <td>Published</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div className="course-title d-flex align-items-center">
-                          <Link
-                            to={all_routes.courseDetails}
-                            className="avatar avatar-xl flex-shrink-0 me-2"
-                          >
-                            <ImageWithBasePath
-                              src="assets/img/instructor/instructor-table-05.jpg"
-                              alt="Img"
-                            />
-                          </Link>
-                          <div>
-                            <p className="fw-medium">
-                              <Link to={all_routes.courseDetails}>
-                                Information About UI/UX Design
-                                <br /> Degree
-                              </Link>
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td>0</td>
-                      <td>Published</td>
-                    </tr>
-                  </tbody>
-                </table>
               </div>
             </div>
           </div>

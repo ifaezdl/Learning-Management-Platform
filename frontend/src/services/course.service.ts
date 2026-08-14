@@ -6,6 +6,11 @@ export interface SaveLearningOutcomesDto {
 export interface SavePrerequisitesDto {
   items: string[];
 }
+export interface CourseEnrollmentReportItem {
+  courseId: number;
+  title: string;
+  enrollments: number;
+}
 export interface CourseStudent {
   studentId: number;
   firstName: string | null;
@@ -345,6 +350,10 @@ class CourseService {
   }
   async getCourseStudents(courseId: number): Promise<CourseStudent[]> {
     const response = await api.get(`/courses/${courseId}/students`);
+    return response.data;
+  }
+  async getEnrollmentsReport(): Promise<CourseEnrollmentReportItem[]> {
+    const response = await api.get("/courses/my/enrollments-report");
     return response.data;
   }
 }
