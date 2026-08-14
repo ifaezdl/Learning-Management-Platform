@@ -17,6 +17,7 @@ import { PaymentModule } from './payment/payment.module';
 import { QuizModule } from './quiz/quiz.module';
 import { CertificatesModule } from '../certificates/certificates.module';
 import { StudentDashboardController } from './student-dashboard.controller';
+import { InstructorDashboardController } from './instructor-dashboard.controller';
 // --- ADD to imports ---
 
 // --- ADD CartModule to the imports array, alongside your existing modules ---
@@ -38,7 +39,7 @@ import { StudentDashboardController } from './student-dashboard.controller';
     QuizModule,
     CertificatesModule, // ← add this
   ],
-  controllers: [AppController, StudentDashboardController],
+  controllers: [AppController, StudentDashboardController, InstructorDashboardController],
   providers: [AppService],
 })
 export class AppModule { }
