@@ -27,6 +27,7 @@ model CourseProgress {
   Lessons     Lessons   @relation(fields: [Lesson_Id], references: [Id], onUpdate: NoAction, map: "FK_CourseProgress_Lessons")
   Users       Users     @relation(fields: [Student_Id], references: [Id], onUpdate: NoAction, map: "FK_CourseProgress_Users")
 
+  @@unique([Lesson_Id, Student_Id], map: "UQ_CourseProgress_Lesson_Student")
   @@index([Lesson_Id], map: "IX_Progress_Lesson")
   @@index([Student_Id], map: "IX_Progress_Student")
 }

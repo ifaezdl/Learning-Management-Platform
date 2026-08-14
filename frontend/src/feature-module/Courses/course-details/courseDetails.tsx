@@ -10,6 +10,9 @@ import { api_base_url } from "../../../environment";
 
 const CourseDetails = () => {
   const { id } = useParams();
+  const [completedLessonIds, setCompletedLessonIds] = useState<number[]>([]);
+  const [progressPercent, setProgressPercent] = useState(0);
+  const [togglingLessonId, setTogglingLessonId] = useState<number | null>(null);
   const navigate = useNavigate();
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
@@ -55,18 +58,51 @@ const CourseDetails = () => {
       0,
     ) ?? 0;
   const loadCourse = async () => {
-    debugger;
     try {
+      debugger;
       setLoading(true);
       const data = await courseService.getCourse(Number(id));
       setCourse(data);
       setIsEnrolled(data.isEnrolled);
       setCourseLearningOutcomes(data?.CourseLearningOutcomes);
       setCoursePrequisties(data?.CoursePrequisties);
+      setCompletedLessonIds(data?.completedLessonIds ?? []);
+      setProgressPercent(data?.progressPercent ?? 0);
     } catch {
       setError("Course not found");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleToggleLessonComplete = async (
+    lessonId: number,
+    checked: boolean,
+  ) => {
+    const previous = completedLessonIds;
+    const next = checked
+      ? [...previous, lessonId]
+      : previous.filter((lid) => lid !== lessonId);
+
+    // optimistic update
+    setCompletedLessonIds(next);
+    setProgressPercent(
+      totalLessons > 0 ? Math.round((next.length / totalLessons) * 100) : 0,
+    );
+    setTogglingLessonId(lessonId);
+
+    try {
+      await courseService.updateLessonProgress(lessonId, checked);
+    } catch (err) {
+      // revert on failure
+      setCompletedLessonIds(previous);
+      setProgressPercent(
+        totalLessons > 0
+          ? Math.round((previous.length / totalLessons) * 100)
+          : 0,
+      );
+    } finally {
+      setTogglingLessonId(null);
     }
   };
 
@@ -113,7 +149,7 @@ const CourseDetails = () => {
                   </div>
                   <div className="w-100 ps-lg-4">
                     <h3 className="mb-2">{course?.Title}</h3>
-                    <p className="fs-14 mb-3">{ }</p>
+                    <p className="fs-14 mb-3">{}</p>
                     <div className="d-flex align-items-center gap-2 gap-sm-3 gap-xl-4 flex-wrap my-3 my-sm-0">
                       <p className="fw-medium d-flex align-items-center mb-0">
                         <ImageWithBasePath
@@ -169,6 +205,29 @@ const CourseDetails = () => {
               </div>
             </div>
           </div>
+          {isEnrolled && (
+            <div className="card mb-4">
+              <div className="card-body">
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <h6 className="mb-0">پیشرفت شما در این دوره</h6>
+                  <span className="fw-semibold">{progressPercent}%</span>
+                </div>
+                <div className="progress" style={{ height: "10px" }}>
+                  <div
+                    className="progress-bar bg-success"
+                    role="progressbar"
+                    style={{ width: `${progressPercent}%` }}
+                    aria-valuenow={progressPercent}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                  />
+                </div>
+                <p className="fs-14 text-muted mt-2 mb-0">
+                  {completedLessonIds.length} از {totalLessons} درس تکمیل شده
+                </p>
+              </div>
+            </div>
+          )}
           <div className="row mt-4">
             <div className="col-lg-8">
               <div className="course-page-content pt-0">
@@ -270,6 +329,25 @@ const CourseDetails = () => {
                                         </div>
 
                                         <div className="d-flex gap-4 align-items-center">
+                                          {isEnrolled && (
+                                            <input
+                                              type="checkbox"
+                                              className="form-check-input"
+                                              checked={completedLessonIds.includes(
+                                                lesson.Id,
+                                              )}
+                                              disabled={
+                                                togglingLessonId === lesson.Id
+                                              }
+                                              onChange={(e) =>
+                                                handleToggleLessonComplete(
+                                                  lesson.Id,
+                                                  e.target.checked,
+                                                )
+                                              }
+                                              title="علامت‌گذاری به‌عنوان تکمیل‌شده"
+                                            />
+                                          )}
                                           {isEnrolled ? (
                                             <button
                                               type="button"
@@ -318,6 +396,7 @@ const CourseDetails = () => {
                 </div>
               </div>
             </div>
+
             <div className="col-lg-4">
               <div className="course-sidebar-sec mt-0">
                 <div className="card mb-4">

@@ -246,33 +246,17 @@ export class CoursesService {
       where: { Id: id },
       include: {
         ...this.courseInclude(),
-
         Users: {
-          select: {
-            Id: true,
-            FirstName: true,
-            LastName: true,
-          },
+          select: { Id: true, FirstName: true, LastName: true },
         },
-
         CourseSections: {
-          orderBy: {
-            DisplayOrder: 'asc',
-          },
+          orderBy: { DisplayOrder: 'asc' },
           include: {
-            Lessons: {
-              orderBy: {
-                SortOrder: 'asc',
-              },
-            },
+            Lessons: { orderBy: { SortOrder: 'asc' } },
           },
         },
-        CourseLearningOutcomes: {
-          orderBy: { DisplayOrder: 'asc' },
-        },
-        CoursePrequisties: {
-          orderBy: { DisplayOrder: 'asc' },
-        },
+        CourseLearningOutcomes: { orderBy: { DisplayOrder: 'asc' } },
+        CoursePrequisties: { orderBy: { DisplayOrder: 'asc' } },
       },
     });
 
@@ -281,20 +265,41 @@ export class CoursesService {
     }
 
     let isEnrolled = false;
+    let completedLessonIds: number[] = [];
 
     if (userId) {
       const enrollment = await this.prisma.enrollments.findFirst({
-        where: {
-          Course_Id: id,
-          Student_Id: userId,
-        },
+        where: { Course_Id: id, Student_Id: userId },
       });
       isEnrolled = !!enrollment;
+
+      if (isEnrolled) {
+        const progress = await this.prisma.courseProgress.findMany({
+          where: {
+            Course_Id: id,
+            Student_Id: userId,
+            IsCompleted: true,
+          },
+          select: { Lesson_Id: true },
+        });
+        completedLessonIds = progress.map((p) => p.Lesson_Id);
+      }
     }
+
+    const totalLessons = (course.CourseSections ?? []).reduce(
+      (sum, s) => sum + (s.Lessons?.length ?? 0),
+      0,
+    );
+    const progressPercent =
+      totalLessons > 0
+        ? Math.round((completedLessonIds.length / totalLessons) * 100)
+        : 0;
 
     return {
       ...course,
       isEnrolled,
+      completedLessonIds,
+      progressPercent,
     };
   }
 
