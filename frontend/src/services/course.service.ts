@@ -6,6 +6,21 @@ export interface SaveLearningOutcomesDto {
 export interface SavePrerequisitesDto {
   items: string[];
 }
+export interface CourseStudent {
+  studentId: number;
+  firstName: string | null;
+  lastName: string | null;
+  email: string | null;
+  avatar: string | null;
+  enrollmentDate: string | null;
+  completedLessons: number;
+  totalLessons: number;
+  progressPercent: number;
+  hasParticipatedInExam: boolean;
+  score: number | null;
+  maxScore: number | null;
+  isPassed: boolean | null;
+}
 
 export interface BrowseCoursesParams {
   search?: string;
@@ -326,6 +341,10 @@ class CourseService {
     const response = await api.put(`/lessons/${lessonId}/progress`, {
       isCompleted,
     });
+    return response.data;
+  }
+  async getCourseStudents(courseId: number): Promise<CourseStudent[]> {
+    const response = await api.get(`/courses/${courseId}/students`);
     return response.data;
   }
 }
