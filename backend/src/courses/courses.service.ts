@@ -478,4 +478,105 @@ export class CoursesService {
       totalCourses,
     };
   }
+  async getStudents(courseId: number, teacherId: number) {
+    await this.verifyOwnership(courseId, teacherId);
+
+    const enrollments = await this.prisma.enrollments.findMany({
+      where: { Course_Id: courseId },
+      include: {
+        Users: {
+          select: {
+            Id: true,
+            FirstName: true,
+            LastName: true,
+            Email: true,
+            Avatar: true,
+          },
+        },
+      },
+      orderBy: { EnrollmentDate: 'desc' },
+    });
+
+    if (enrollments.length === 0) {
+      return [];
+    }
+
+    const totalLessons = await this.prisma.lessons.count({
+      where: { Course_Id: courseId },
+    });
+
+    const progressGroups = await this.prisma.courseProgress.groupBy({
+      by: ['Student_Id'],
+      where: { Course_Id: courseId, IsCompleted: true },
+      _count: { Lesson_Id: true },
+    });
+    const progressMap = new Map<number, number>(
+      progressGroups.map((g) => [g.Student_Id, g._count.Lesson_Id]),
+    );
+
+    const quizzes = await this.prisma.quizzes.findMany({
+      where: { Course_Id: courseId },
+      select: { Id: true },
+    });
+    const quizIds = quizzes.map((q) => q.Id);
+
+    const attempts = quizIds.length
+      ? await this.prisma.quizAttempts.findMany({
+          where: { Quiz_Id: { in: quizIds }, SubmittedAt: { not: null } },
+          select: {
+            Student_Id: true,
+            Score: true,
+            MaxScore: true,
+            IsPassed: true,
+            SubmittedAt: true,
+          },
+        })
+      : [];
+
+    const attemptsByStudent = new Map<number, typeof attempts>();
+    for (const a of attempts) {
+      const list = attemptsByStudent.get(a.Student_Id) ?? [];
+      list.push(a);
+      attemptsByStudent.set(a.Student_Id, list);
+    }
+
+    return enrollments.map((enrollment) => {
+      const studentId = enrollment.Student_Id;
+      const completedLessons = progressMap.get(studentId) ?? 0;
+      const progressPercent =
+        totalLessons > 0
+          ? Math.round((completedLessons / totalLessons) * 100)
+          : 0;
+
+      const studentAttempts = attemptsByStudent.get(studentId) ?? [];
+      const hasParticipated = studentAttempts.length > 0;
+      const totalScore = studentAttempts.reduce(
+        (sum, a) => sum + Number(a.Score ?? 0),
+        0,
+      );
+      const totalMaxScore = studentAttempts.reduce(
+        (sum, a) => sum + Number(a.MaxScore ?? 0),
+        0,
+      );
+      const isPassed = hasParticipated
+        ? studentAttempts.every((a) => a.IsPassed)
+        : null;
+
+      return {
+        studentId,
+        firstName: enrollment.Users.FirstName,
+        lastName: enrollment.Users.LastName,
+        email: enrollment.Users.Email,
+        avatar: enrollment.Users.Avatar,
+        enrollmentDate: enrollment.EnrollmentDate,
+        completedLessons,
+        totalLessons,
+        progressPercent,
+        hasParticipatedInExam: hasParticipated,
+        score: hasParticipated ? totalScore : null,
+        maxScore: hasParticipated ? totalMaxScore : null,
+        isPassed,
+      };
+    });
+  }
 }

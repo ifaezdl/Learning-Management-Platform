@@ -186,4 +186,21 @@ export class CoursesController {
   ) {
     return this.coursesService.savePrerequisites(id, dto);
   }
+  @Get(':id/students')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(2)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary:
+      'Get enrolled students with progress and exam results for a course (Teacher owner only)',
+  })
+  @ApiResponse({ status: 200, description: 'Returns the students list' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Not course owner' })
+  @ApiResponse({ status: 404, description: 'Course not found' })
+  async getStudents(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: any,
+  ) {
+    return this.coursesService.getStudents(id, user.id);
+  }
 }
