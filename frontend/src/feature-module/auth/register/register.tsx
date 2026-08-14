@@ -5,7 +5,6 @@ import ImageWithBasePath from "../../../core/common/imageWithBasePath";
 import Slider from "react-slick";
 import { all_routes } from "../../router/all_routes";
 import { useAuth } from "../../../context/AuthContext";
-import authService from "../../../services/auth.service";
 const hasNumber = (value: string): boolean => {
   return /[0-9]/.test(value);
 };

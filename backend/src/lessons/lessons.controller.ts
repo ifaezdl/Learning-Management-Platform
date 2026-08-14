@@ -16,6 +16,8 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { LessonsService } from './lessons.service';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
+import { UpdateLessonProgressDto } from './dto/update-lesson-progress.dto';
+
 import {
   ApiTags,
   ApiOperation,
@@ -27,7 +29,7 @@ import { EnrollmentGuard } from '../auth/guards/enrollment.guard';
 @ApiTags('Lessons')
 @Controller()
 export class LessonsController {
-  constructor(private readonly lessonsService: LessonsService) { }
+  constructor(private readonly lessonsService: LessonsService) {}
 
   @Post('sections/:sectionId/lessons')
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -90,5 +92,21 @@ export class LessonsController {
   getLessonContent(@Param('lessonId', ParseIntPipe) lessonId: number) {
     console.log('=== LESSON CONTROLLER ===', lessonId);
     return this.lessonsService.findOne(lessonId);
+  }
+  @Put('lessons/:lessonId/progress')
+  @UseGuards(JwtAuthGuard, EnrollmentGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Mark a lesson complete/incomplete for the current student',
+  })
+  @ApiResponse({ status: 200, description: 'Progress updated' })
+  @ApiResponse({ status: 403, description: 'Forbidden - not enrolled' })
+  @ApiResponse({ status: 404, description: 'Lesson not found' })
+  async updateProgress(
+    @Param('lessonId', ParseIntPipe) lessonId: number,
+    @Body() dto: UpdateLessonProgressDto,
+    @CurrentUser() user: any,
+  ) {
+    return this.lessonsService.updateProgress(lessonId, user.id, dto);
   }
 }

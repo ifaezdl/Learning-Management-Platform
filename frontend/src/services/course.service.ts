@@ -91,6 +91,8 @@ export interface Course {
   CourseLearningOutcomes: [];
   enrollmentDate?: string | null;
   enrollmentStatus?: number | null;
+  completedLessonIds?: number[];
+  progressPercent?: number;
 }
 
 export interface Section {
@@ -135,6 +137,15 @@ export interface LessonFile {
   DownloadCount: number;
 
   CreatedAt: string;
+}
+
+export interface LessonProgress {
+  Id: number;
+  Course_Id: number;
+  Lesson_Id: number;
+  Student_Id: number;
+  IsCompleted: boolean;
+  CompletedAt: string | null;
 }
 
 class CourseService {
@@ -304,8 +315,17 @@ class CourseService {
     await api.put(`/courses/${courseId}/prerequisites`, data);
   }
   async getEnrolledCourses(): Promise<Course[]> {
-    debugger;
     const response = await api.get("/courses/enrolled");
+    return response.data;
+  }
+
+  async updateLessonProgress(
+    lessonId: number,
+    isCompleted: boolean,
+  ): Promise<LessonProgress> {
+    const response = await api.put(`/lessons/${lessonId}/progress`, {
+      isCompleted,
+    });
     return response.data;
   }
 }

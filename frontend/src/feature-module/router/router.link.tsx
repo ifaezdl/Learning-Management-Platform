@@ -50,7 +50,6 @@ import Faq from "../Pages/faq/faq";
 import TermsCondition from "../Pages/terms-condition/termsCondition";
 import PrivacyPolicy from "../Pages/privacy-policy/privacyPolicy";
 import Login from "../auth/login/login";
-import Register from "../auth/register/register";
 import ForgortPassword from "../auth/forgot-password/forgortPassword";
 import SetPassword from "../auth/set-password/setPassword";
 import Otp from "../auth/otp/otp";
@@ -91,6 +90,7 @@ import AdminProfile from "../admin/admin-profile/adminProfile";
 import AdminProfileSettings from "../admin/admin-setting/adminSetting";
 import AdminChangePassword from "../admin/admin-change-password/adminChangePassword";
 import GoogleCallback from "../auth/Google/google-callback";
+import Register from "../auth/register/register";
 const routes = all_routes;
 
 export const publicRoutes = [

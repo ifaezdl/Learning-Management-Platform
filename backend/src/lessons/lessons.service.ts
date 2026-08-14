@@ -6,6 +6,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
+import { UpdateLessonProgressDto } from './dto/update-lesson-progress.dto';
 
 @Injectable()
 export class LessonsService {
@@ -127,5 +128,37 @@ export class LessonsService {
     }
 
     return lesson;
+  }
+  async updateProgress(
+    lessonId: number,
+    userId: number,
+    dto: UpdateLessonProgressDto,
+  ) {
+    const lesson = await this.prisma.lessons.findUnique({
+      where: { Id: lessonId },
+    });
+    if (!lesson) {
+      throw new NotFoundException('Lesson not found');
+    }
+
+    return this.prisma.courseProgress.upsert({
+      where: {
+        Lesson_Id_Student_Id: {
+          Lesson_Id: lessonId,
+          Student_Id: userId,
+        },
+      },
+      update: {
+        IsCompleted: dto.isCompleted,
+        CompletedAt: dto.isCompleted ? new Date() : null,
+      },
+      create: {
+        Course_Id: lesson.Course_Id,
+        Lesson_Id: lessonId,
+        Student_Id: userId,
+        IsCompleted: dto.isCompleted,
+        CompletedAt: dto.isCompleted ? new Date() : null,
+      },
+    });
   }
 }
