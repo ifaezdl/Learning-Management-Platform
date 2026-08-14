@@ -448,4 +448,29 @@ export class CoursesService {
       },
     });
   }
+
+  async getInstructorStats(teacherId: number) {
+    const [totalCourses, publishedCourses, enrollments] = await Promise.all([
+      this.prisma.courses.count({
+        where: { Teacher_Id: teacherId },
+      }),
+      this.prisma.courses.count({
+        where: { Teacher_Id: teacherId, IsPublished: true },
+      }),
+      this.prisma.enrollments.findMany({
+        where: {
+          Courses: { Teacher_Id: teacherId },
+        },
+        select: { Student_Id: true },
+      }),
+    ]);
+
+    const uniqueStudents = new Set(enrollments.map((e) => e.Student_Id));
+
+    return {
+      totalStudents: uniqueStudents.size,
+      publishedCourses,
+      totalCourses,
+    };
+  }
 }
