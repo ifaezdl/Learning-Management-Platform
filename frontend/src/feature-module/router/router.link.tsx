@@ -86,6 +86,7 @@ import PaymentFailure from "../Courses/course-checkout/paymentFailure";
 import InstructorEnrolledCourse from "../Instructor/instructor-course/instructorEnrolledCourse";
 import AdminDashboard from "../admin/dashboard/adminDashboard";
 import AdminRequests from "../admin/admin-requests/adminRequests";
+import UserManagement from "../admin/user-management/userManagement";
 import AdminProfile from "../admin/admin-profile/adminProfile";
 import AdminProfileSettings from "../admin/admin-setting/adminSetting";
 import AdminChangePassword from "../admin/admin-change-password/adminChangePassword";
@@ -209,6 +210,15 @@ export const publicRoutes = [
     element: (
       <RoleRoute roles={[3]}>
         <AdminRequests />
+      </RoleRoute>
+    ),
+    route: Route,
+  },
+  {
+    path: routes.adminUserManagement,
+    element: (
+      <RoleRoute roles={[3]}>
+        <UserManagement />
       </RoleRoute>
     ),
     route: Route,
