@@ -8,6 +8,30 @@ export interface UpdateProfileRequest {
   mobile?: string;
   sexId?: number;
 }
+export interface InstructorRequestUser {
+  Id: number;
+  FirstName: string;
+  LastName: string;
+  UserName: string;
+  Email: string;
+  Avatar?: string;
+}
+
+export interface InstructorRequestItem {
+  RequestId: number;
+  Status: string;
+  Description?: string;
+  ResumeUrl?: string;
+  CreatedAt: string;
+  User: InstructorRequestUser;
+}
+
+export interface PaginatedInstructorRequests {
+  data: InstructorRequestItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
 
 export interface ChangePasswordRequest {
   currentPassword: string;
@@ -71,6 +95,18 @@ class UserService {
   }
   async deleteAvatar() {
     const response = await api.delete("/users/profile/avatar");
+    return response.data;
+  }
+  async getInstructorRequests(params: {
+    search?: string;
+    status?: string;
+    page?: number;
+    pageSize?: number;
+  }) {
+    const response = await api.get<PaginatedInstructorRequests>(
+      "/instructor-requests",
+      { params },
+    );
     return response.data;
   }
 }
