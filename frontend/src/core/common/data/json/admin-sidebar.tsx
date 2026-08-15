@@ -12,7 +12,12 @@ export const adminSidebarData = [
     route: all_routes.AdminProfile,
   },
   {
-    title: "لیست کاربران",
+    title: "مدیریت کاربران",
+    icon: "isax isax-user-cirlce-add",
+    route: all_routes.adminUserManagement,
+  },
+  {
+    title: "درخواست‌های تدریس",
     icon: "isax isax-teacher5",
     route: all_routes.AdminRequests,
   },

@@ -24,6 +24,8 @@ import {
 } from '@nestjs/swagger';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -71,6 +73,45 @@ export class UsersController {
   @ApiResponse({ status: 403, description: 'Forbidden. Admin role required.' })
   getAllUsers() {
     return this.usersService.findAll();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(3)
+  @Post()
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Create a new user with a role (Admin only)' })
+  @ApiResponse({ status: 201, description: 'User created.' })
+  @ApiResponse({ status: 401, description: 'Authentication required.' })
+  @ApiResponse({ status: 403, description: 'Forbidden. Admin role required.' })
+  createUser(@Body() dto: CreateUserDto) {
+    return this.usersService.createUser(dto);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(3)
+  @Put(':id')
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Update a user (Admin only)' })
+  @ApiResponse({ status: 200, description: 'User updated.' })
+  @ApiResponse({ status: 401, description: 'Authentication required.' })
+  @ApiResponse({ status: 403, description: 'Forbidden. Admin role required.' })
+  updateUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateUserDto,
+  ) {
+    return this.usersService.updateUser(id, dto);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(3)
+  @Delete(':id')
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Delete a user (Admin only)' })
+  @ApiResponse({ status: 200, description: 'User deleted.' })
+  @ApiResponse({ status: 401, description: 'Authentication required.' })
+  @ApiResponse({ status: 403, description: 'Forbidden. Admin role required.' })
+  removeUser(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.removeUser(id);
   }
 
   @UseGuards(JwtAuthGuard)

@@ -1,12 +1,16 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { unlink } from 'fs/promises';
 import { join } from 'path';
 import * as bcrypt from 'bcrypt';
@@ -48,6 +52,7 @@ export class UsersService {
         LastName: true,
         UserName: true,
         Email: true,
+        Mobile: true,
         Role_Id: true,
         IsActive: true,
         CreatedAt: true,
@@ -68,6 +73,7 @@ export class UsersService {
       LastName: user.LastName,
       UserName: user.UserName,
       Email: user.Email,
+      Mobile: user.Mobile,
       Role_Id: user.Role_Id,
       IsActive: user.IsActive,
       CreatedAt: user.CreatedAt,
@@ -78,6 +84,145 @@ export class UsersService {
         user.InstructorRequests_InstructorRequests_User_IdToUsers[0]?.Status ??
         null,
     }));
+  }
+
+  async createUser(dto: CreateUserDto) {
+    const existing = await this.prisma.users.findFirst({
+      where: {
+        OR: [
+          { Email: dto.email },
+          { UserName: dto.userName },
+          { Mobile: dto.mobile },
+        ],
+      },
+    });
+
+    if (existing) {
+      throw new ConflictException(
+        'ایمیل، نام کاربری یا شماره موبایل قبلاً ثبت شده است.',
+      );
+    }
+
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
+
+    const user = await this.prisma.users.create({
+      data: {
+        FirstName: dto.firstName,
+        LastName: dto.lastName,
+        UserName: dto.userName,
+        Email: dto.email,
+        Mobile: dto.mobile,
+        PasswordHash: hashedPassword,
+        Role_Id: dto.roleId,
+      },
+      select: {
+        Id: true,
+        FirstName: true,
+        LastName: true,
+        UserName: true,
+        Email: true,
+        Mobile: true,
+        Role_Id: true,
+        IsActive: true,
+        CreatedAt: true,
+      },
+    });
+
+    return {
+      message: 'کاربر با موفقیت ایجاد شد',
+      user,
+    };
+  }
+
+  async updateUser(id: number, dto: UpdateUserDto) {
+    const user = await this.prisma.users.findUnique({ where: { Id: id } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const duplicate = await this.prisma.users.findFirst({
+      where: {
+        Id: { not: id },
+        OR: [
+          dto.email ? { Email: dto.email } : undefined,
+          dto.userName ? { UserName: dto.userName } : undefined,
+          dto.mobile ? { Mobile: dto.mobile } : undefined,
+        ].filter(Boolean) as any,
+      },
+    });
+
+    if (duplicate) {
+      throw new ConflictException(
+        'ایمیل، نام کاربری یا شماره موبایل قبلاً ثبت شده است.',
+      );
+    }
+
+    const data: Prisma.UsersUpdateInput = {
+      FirstName: dto.firstName,
+      LastName: dto.lastName,
+      UserName: dto.userName,
+      Email: dto.email,
+      Mobile: dto.mobile,
+      Roles: dto.roleId ? { connect: { Id: dto.roleId } } : undefined,
+      IsActive: dto.isActive,
+      UpdatedAt: new Date(),
+    };
+
+    if (dto.password) {
+      data.PasswordHash = await bcrypt.hash(dto.password, 10);
+    }
+
+    const updated = await this.prisma.users.update({
+      where: { Id: id },
+      data,
+      select: {
+        Id: true,
+        FirstName: true,
+        LastName: true,
+        UserName: true,
+        Email: true,
+        Mobile: true,
+        Role_Id: true,
+        IsActive: true,
+        CreatedAt: true,
+      },
+    });
+
+    return {
+      message: 'اطلاعات کاربر با موفقیت به‌روزرسانی شد',
+      user: updated,
+    };
+  }
+
+  async removeUser(id: number) {
+    const user = await this.prisma.users.findUnique({ where: { Id: id } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // پاک‌سازی داده‌های وابسته‌ای که متعلق به خود کاربر است
+    await this.prisma.refreshTokens.deleteMany({ where: { User_Id: id } });
+    await this.prisma.carts.deleteMany({ where: { User_Id: id } });
+
+    try {
+      await this.prisma.users.delete({ where: { Id: id } });
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2003'
+      ) {
+        throw new BadRequestException(
+          'امکان حذف کاربر وجود ندارد؛ این کاربر دارای سوابق آموزشی، خرید یا گواهی است.',
+        );
+      }
+      throw err;
+    }
+
+    return {
+      message: 'کاربر با موفقیت حذف شد',
+    };
   }
 
   async updateProfile(userId: number, dto: UpdateProfileDto) {
