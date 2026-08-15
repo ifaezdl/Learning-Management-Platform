@@ -37,9 +37,9 @@ export class CoursesController {
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(2)
+  @Roles(2, 3)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Create a new course (Teacher only)' })
+  @ApiOperation({ summary: 'Create a new course (Teacher or Admin)' })
   @ApiResponse({ status: 201, description: 'Course created successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({
@@ -99,6 +99,28 @@ export class CoursesController {
     return this.coursesService.findEnrolledByStudent(user.id);
   }
 
+  @Get('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(3)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary:
+      'Get all courses (published & unpublished) with filters and pagination (Admin only)',
+  })
+  @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'categoryId', required: false, type: Number })
+  @ApiQuery({ name: 'levelId', required: false, type: Number })
+  @ApiQuery({ name: 'teacherId', required: false, type: Number })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'pageSize', required: false, type: Number })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns paginated courses',
+  })
+  async browseAdmin(@Query() dto: BrowseCoursesDto) {
+    return this.coursesService.browseAdmin(dto);
+  }
+
   @Get(':id')
   @UseGuards(OptionalJwtAuthGuard)
   @ApiOperation({ summary: 'Get a course by ID' })
@@ -113,9 +135,9 @@ export class CoursesController {
 
   @Put(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(2)
+  @Roles(2, 3)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Update a course (Teacher owner only)' })
+  @ApiOperation({ summary: 'Update a course (Teacher owner or Admin)' })
   @ApiResponse({ status: 200, description: 'Course updated successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - Not course owner' })
   @ApiResponse({ status: 404, description: 'Course not found' })
@@ -124,14 +146,14 @@ export class CoursesController {
     @Body() dto: UpdateCourseDto,
     @CurrentUser() user: any,
   ) {
-    return this.coursesService.update(id, user.id, dto);
+    return this.coursesService.update(id, user, dto);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(2)
+  @Roles(2, 3)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Delete a course (Teacher owner only)' })
+  @ApiOperation({ summary: 'Delete a course (Teacher owner or Admin)' })
   @ApiResponse({ status: 200, description: 'Course deleted successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - Not course owner' })
   @ApiResponse({ status: 404, description: 'Course not found' })
@@ -139,14 +161,14 @@ export class CoursesController {
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: any,
   ) {
-    return this.coursesService.remove(id, user.id);
+    return this.coursesService.remove(id, user);
   }
 
   @Put(':id/publish')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(2)
+  @Roles(2, 3)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Publish a course (Teacher owner only)' })
+  @ApiOperation({ summary: 'Publish a course (Teacher owner or Admin)' })
   @ApiResponse({ status: 200, description: 'Course published successfully' })
   @ApiResponse({
     status: 400,
@@ -158,7 +180,7 @@ export class CoursesController {
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: any,
   ) {
-    return this.coursesService.publish(id, user.id);
+    return this.coursesService.publish(id, user);
   }
 
   @Get(':id/learning-outcomes')

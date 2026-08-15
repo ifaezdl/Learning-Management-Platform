@@ -30,9 +30,9 @@ export class CourseSectionsController {
 
   @Post('courses/:courseId/sections')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(2)
+  @Roles(2, 3)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Create a section in a course (Teacher owner only)' })
+  @ApiOperation({ summary: 'Create a section in a course (Teacher owner or Admin)' })
   @ApiResponse({ status: 201, description: 'Section created successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - Not course owner' })
   @ApiResponse({ status: 404, description: 'Course not found' })
@@ -41,7 +41,7 @@ export class CourseSectionsController {
     @Body() dto: CreateSectionDto,
     @CurrentUser() user: any,
   ) {
-    return this.sectionsService.create(courseId, user.id, dto);
+    return this.sectionsService.create(courseId, user, dto);
   }
 
   @Get('courses/:courseId/sections')
@@ -56,9 +56,9 @@ export class CourseSectionsController {
 
   @Put('sections/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(2)
+  @Roles(2, 3)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Update a section (Teacher owner only)' })
+  @ApiOperation({ summary: 'Update a section (Teacher owner or Admin)' })
   @ApiResponse({ status: 200, description: 'Section updated successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - Not section owner' })
   @ApiResponse({ status: 404, description: 'Section not found' })
@@ -67,14 +67,14 @@ export class CourseSectionsController {
     @Body() dto: UpdateSectionDto,
     @CurrentUser() user: any,
   ) {
-    return this.sectionsService.update(id, user.id, dto);
+    return this.sectionsService.update(id, user, dto);
   }
 
   @Delete('sections/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(2)
+  @Roles(2, 3)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Delete a section (Teacher owner only)' })
+  @ApiOperation({ summary: 'Delete a section (Teacher owner or Admin)' })
   @ApiResponse({ status: 200, description: 'Section deleted successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - Not section owner' })
   @ApiResponse({ status: 404, description: 'Section not found' })
@@ -82,6 +82,6 @@ export class CourseSectionsController {
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: any,
   ) {
-    return this.sectionsService.remove(id, user.id);
+    return this.sectionsService.remove(id, user);
   }
 }

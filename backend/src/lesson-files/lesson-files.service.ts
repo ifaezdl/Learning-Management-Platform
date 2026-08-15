@@ -10,7 +10,7 @@ import { CreateLessonFileDto } from './dto/create-lesson-file.dto';
 export class LessonFilesService {
   constructor(private prisma: PrismaService) {}
 
-  private async verifyLessonOwnership(lessonId: number, userId: number) {
+  private async verifyLessonOwnership(lessonId: number, user: any) {
     const lesson = await this.prisma.lessons.findUnique({
       where: { Id: lessonId },
       include: { Courses: true },
@@ -18,7 +18,7 @@ export class LessonFilesService {
     if (!lesson) {
       throw new NotFoundException('Lesson not found');
     }
-    if (lesson.Courses.Teacher_Id !== userId) {
+    if (user?.roleId !== 3 && lesson.Courses.Teacher_Id !== user?.id) {
       throw new ForbiddenException(
         'You can only manage files for your own lessons',
       );
@@ -26,7 +26,7 @@ export class LessonFilesService {
     return lesson;
   }
 
-  private async verifyFileOwnership(fileId: number, userId: number) {
+  private async verifyFileOwnership(fileId: number, user: any) {
     const file = await this.prisma.lessonFiles.findUnique({
       where: { Id: fileId },
       include: {
@@ -38,7 +38,7 @@ export class LessonFilesService {
     if (!file) {
       throw new NotFoundException('Lesson file not found');
     }
-    if (file.Lessons.Courses.Teacher_Id !== userId) {
+    if (user?.roleId !== 3 && file.Lessons.Courses.Teacher_Id !== user?.id) {
       throw new ForbiddenException(
         'You can only manage files for your own lessons',
       );
@@ -46,8 +46,8 @@ export class LessonFilesService {
     return file;
   }
 
-  async create(lessonId: number, userId: number, dto: CreateLessonFileDto) {
-    await this.verifyLessonOwnership(lessonId, userId);
+  async create(lessonId: number, user: any, dto: CreateLessonFileDto) {
+    await this.verifyLessonOwnership(lessonId, user);
 
     const file = await this.prisma.lessonFiles.create({
       data: {
@@ -81,8 +81,8 @@ export class LessonFilesService {
     });
   }
 
-  async remove(id: number, userId: number) {
-    await this.verifyFileOwnership(id, userId);
+  async remove(id: number, user: any) {
+    await this.verifyFileOwnership(id, user);
 
     await this.prisma.lessonFiles.delete({ where: { Id: id } });
     return { message: 'Lesson file deleted successfully' };

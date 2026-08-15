@@ -31,6 +31,7 @@ export interface BrowseCoursesParams {
   search?: string;
   categoryId?: number;
   levelId?: number;
+  teacherId?: number;
   page?: number;
   pageSize?: number;
   sortBy?: string;
@@ -309,6 +310,17 @@ class CourseService {
     params: BrowseCoursesParams,
   ): Promise<BrowseCoursesResponse> {
     const response = await api.get("/courses/browse", {
+      params,
+    });
+
+    return response.data;
+  }
+
+  // Admin view: all courses (published & unpublished) with filters + pagination
+  async browseAdminCourses(
+    params: BrowseCoursesParams,
+  ): Promise<BrowseCoursesResponse> {
+    const response = await api.get("/courses/admin", {
       params,
     });
 

@@ -87,6 +87,7 @@ import InstructorEnrolledCourse from "../Instructor/instructor-course/instructor
 import AdminDashboard from "../admin/dashboard/adminDashboard";
 import AdminRequests from "../admin/admin-requests/adminRequests";
 import UserManagement from "../admin/user-management/userManagement";
+import CourseManagement from "../admin/course-management/courseManagement";
 import AdminProfile from "../admin/admin-profile/adminProfile";
 import AdminProfileSettings from "../admin/admin-setting/adminSetting";
 import AdminChangePassword from "../admin/admin-change-password/adminChangePassword";
@@ -219,6 +220,15 @@ export const publicRoutes = [
     element: (
       <RoleRoute roles={[3]}>
         <UserManagement />
+      </RoleRoute>
+    ),
+    route: Route,
+  },
+  {
+    path: routes.adminCourseManagement,
+    element: (
+      <RoleRoute roles={[3]}>
+        <CourseManagement />
       </RoleRoute>
     ),
     route: Route,

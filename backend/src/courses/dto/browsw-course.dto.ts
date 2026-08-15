@@ -34,6 +34,15 @@ export class BrowseCoursesDto {
   levelId?: number;
 
   @ApiPropertyOptional({
+    description: 'Teacher (owner) ID',
+    example: 5,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  teacherId?: number;
+
+  @ApiPropertyOptional({
     description: 'Page number',
     example: 1,
     default: 1,

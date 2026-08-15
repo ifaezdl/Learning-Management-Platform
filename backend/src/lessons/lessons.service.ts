@@ -12,7 +12,7 @@ import { UpdateLessonProgressDto } from './dto/update-lesson-progress.dto';
 export class LessonsService {
   constructor(private prisma: PrismaService) {}
 
-  private async verifySectionOwnership(sectionId: number, userId: number) {
+  private async verifySectionOwnership(sectionId: number, user: any) {
     const section = await this.prisma.courseSections.findUnique({
       where: { Id: sectionId },
       include: { Courses: true },
@@ -20,13 +20,13 @@ export class LessonsService {
     if (!section) {
       throw new NotFoundException('Section not found');
     }
-    if (section.Courses.Teacher_Id !== userId) {
+    if (user?.roleId !== 3 && section.Courses.Teacher_Id !== user?.id) {
       throw new ForbiddenException('You can only manage your own lessons');
     }
     return section;
   }
 
-  private async verifyLessonOwnership(lessonId: number, userId: number) {
+  private async verifyLessonOwnership(lessonId: number, user: any) {
     const lesson = await this.prisma.lessons.findUnique({
       where: { Id: lessonId },
       include: { Courses: true },
@@ -34,14 +34,14 @@ export class LessonsService {
     if (!lesson) {
       throw new NotFoundException('Lesson not found');
     }
-    if (lesson.Courses.Teacher_Id !== userId) {
+    if (user?.roleId !== 3 && lesson.Courses.Teacher_Id !== user?.id) {
       throw new ForbiddenException('You can only manage your own lessons');
     }
     return lesson;
   }
 
-  async create(sectionId: number, userId: number, dto: CreateLessonDto) {
-    const section = await this.verifySectionOwnership(sectionId, userId);
+  async create(sectionId: number, user: any, dto: CreateLessonDto) {
+    const section = await this.verifySectionOwnership(sectionId, user);
 
     const maxOrder = await this.prisma.lessons.findFirst({
       where: { Section_Id: sectionId },
@@ -86,8 +86,8 @@ export class LessonsService {
     });
   }
 
-  async update(id: number, userId: number, dto: UpdateLessonDto) {
-    await this.verifyLessonOwnership(id, userId);
+  async update(id: number, user: any, dto: UpdateLessonDto) {
+    await this.verifyLessonOwnership(id, user);
 
     const data: any = {};
 
@@ -109,8 +109,8 @@ export class LessonsService {
     });
   }
 
-  async remove(id: number, userId: number) {
-    await this.verifyLessonOwnership(id, userId);
+  async remove(id: number, user: any) {
+    await this.verifyLessonOwnership(id, user);
 
     await this.prisma.lessons.delete({ where: { Id: id } });
     return { message: 'Lesson deleted successfully' };

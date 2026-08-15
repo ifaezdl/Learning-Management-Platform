@@ -11,20 +11,24 @@ import { UpdateSectionDto } from './dto/update-section.dto';
 export class CourseSectionsService {
   constructor(private prisma: PrismaService) {}
 
-  private async verifyCourseOwnership(courseId: number, userId: number) {
+  private async verifyCourseOwnership(courseId: number, user: any) {
     const course = await this.prisma.courses.findUnique({
       where: { Id: courseId },
     });
     if (!course) {
       throw new NotFoundException('Course not found');
     }
-    if (course.Teacher_Id !== userId) {
+    // Admins (role 3) can manage any course
+    if (user?.roleId === 3) {
+      return course;
+    }
+    if (course.Teacher_Id !== user?.id) {
       throw new ForbiddenException('You can only manage your own courses');
     }
     return course;
   }
 
-  private async verifySectionOwnership(sectionId: number, userId: number) {
+  private async verifySectionOwnership(sectionId: number, user: any) {
     const section = await this.prisma.courseSections.findUnique({
       where: { Id: sectionId },
       include: { Courses: true },
@@ -32,14 +36,14 @@ export class CourseSectionsService {
     if (!section) {
       throw new NotFoundException('Section not found');
     }
-    if (section.Courses.Teacher_Id !== userId) {
+    if (user?.roleId !== 3 && section.Courses.Teacher_Id !== user?.id) {
       throw new ForbiddenException('You can only manage your own sections');
     }
     return section;
   }
 
-  async create(courseId: number, userId: number, dto: CreateSectionDto) {
-    await this.verifyCourseOwnership(courseId, userId);
+  async create(courseId: number, user: any, dto: CreateSectionDto) {
+    await this.verifyCourseOwnership(courseId, user);
 
     const maxOrder = await this.prisma.courseSections.findFirst({
       where: { Course_Id: courseId },
@@ -81,8 +85,8 @@ export class CourseSectionsService {
     });
   }
 
-  async update(id: number, userId: number, dto: UpdateSectionDto) {
-    await this.verifySectionOwnership(id, userId);
+  async update(id: number, user: any, dto: UpdateSectionDto) {
+    await this.verifySectionOwnership(id, user);
 
     const data: any = {};
     if (dto.title !== undefined) data.Title = dto.title;
@@ -97,8 +101,8 @@ export class CourseSectionsService {
     });
   }
 
-  async remove(id: number, userId: number) {
-    await this.verifySectionOwnership(id, userId);
+  async remove(id: number, user: any) {
+    await this.verifySectionOwnership(id, user);
 
     await this.prisma.courseSections.delete({ where: { Id: id } });
     return { message: 'Section deleted successfully' };

@@ -6,6 +6,7 @@ import courseService, {
   Category,
   Level,
 } from "../../../services/course.service";
+import { useAuth } from "../../../context/AuthContext";
 import toast from "react-hot-toast";
 import Stepper from "./components/Stepper";
 import CourseInformation from "./components/CourseInformation";
@@ -27,6 +28,7 @@ const stepStorageKey = (courseId: number) => `course_wizard_step_${courseId}`;
 const AddNewCourse = () => {
   const route = all_routes;
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const editId = searchParams.get("id");
 
@@ -109,8 +111,9 @@ const AddNewCourse = () => {
     if (courseId) {
       localStorage.removeItem(stepStorageKey(courseId));
     }
-    navigate(route.instructorCourse);
-  }, [navigate, route, courseId]);
+    // Admins manage courses from the admin panel; teachers go to their course list
+    navigate(user?.roleId === 3 ? route.adminCourseManagement : route.instructorCourse);
+  }, [navigate, route, courseId, user?.roleId]);
 
   if (loadingCourse) {
     return (

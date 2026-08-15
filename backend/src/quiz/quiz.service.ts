@@ -22,7 +22,7 @@ export interface AiQuestion {
 export class QuizService {
   constructor(private prisma: PrismaService) {}
 
-  private async verifyOwnership(courseId: number, userId: number) {
+  private async verifyOwnership(courseId: number, user: any) {
     const course = await this.prisma.courses.findUnique({
       where: { Id: courseId },
       include: {
@@ -37,7 +37,8 @@ export class QuizService {
       },
     });
     if (!course) throw new NotFoundException('Course not found');
-    if (course.Teacher_Id !== userId) {
+    // Admins (role 3) can manage any course
+    if (user?.roleId !== 3 && course.Teacher_Id !== user?.id) {
       throw new ForbiddenException('You can only manage your own courses');
     }
     return course;
@@ -122,10 +123,10 @@ export class QuizService {
 
   async generateQuestions(
     courseId: number,
-    userId: number,
+    currentUser: any,
     dto: GenerateQuizDto,
   ) {
-    const course = await this.verifyOwnership(courseId, userId);
+    const course = await this.verifyOwnership(courseId, currentUser);
     const { system, user } = this.buildPrompt(course, dto.count);
 
     const apiUrl =
@@ -178,8 +179,8 @@ export class QuizService {
     return questions;
   }
 
-  async getQuiz(courseId: number, userId: number) {
-    await this.verifyOwnership(courseId, userId);
+  async getQuiz(courseId: number, user: any) {
+    await this.verifyOwnership(courseId, user);
     const quiz = await this.prisma.quizzes.findFirst({
       where: { Course_Id: courseId },
       include: {
@@ -191,8 +192,8 @@ export class QuizService {
     });
     return quiz;
   }
-  async saveQuiz(courseId: number, userId: number, dto: SaveQuizDto) {
-    await this.verifyOwnership(courseId, userId);
+  async saveQuiz(courseId: number, user: any, dto: SaveQuizDto) {
+    await this.verifyOwnership(courseId, user);
 
     if (dto.questionsToShow > dto.questions.length) {
       throw new BadRequestException(
