@@ -4,10 +4,13 @@ import { Link } from "react-router-dom";
 import { all_routes } from "../../router/all_routes";
 import ImageWithBasePath from "../../../core/common/imageWithBasePath";
 import cartService, { CartItem } from "../../../services/cart.service";
+import { useDispatch } from "react-redux";
+import { refreshCartCount } from "../../../core/redux/cartSlice";
 import { api_base_url } from "../../../environment";
 
 const CourseCart = () => {
   const route = all_routes;
+  const dispatch = useDispatch();
 
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +43,7 @@ const CourseCart = () => {
       setCartItems((prev) =>
         prev.filter((item) => item.Course_Id !== courseId),
       );
+      dispatch(refreshCartCount() as any);
     } catch {
       setError("خطا در حذف دوره از سبد خرید");
     } finally {
@@ -52,6 +56,7 @@ const CourseCart = () => {
       setClearing(true);
       await cartService.clearCart();
       setCartItems([]);
+      dispatch(refreshCartCount() as any);
     } catch {
       setError("خطا در خالی کردن سبد خرید");
     } finally {

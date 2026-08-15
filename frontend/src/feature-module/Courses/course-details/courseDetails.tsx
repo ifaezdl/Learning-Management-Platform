@@ -6,10 +6,13 @@ import VideoModal from "../../HomePages/home-one/section/videoModal";
 import { all_routes } from "../../router/all_routes";
 import courseService, { Course } from "../../../services/course.service";
 import cartService from "../../../services/cart.service";
+import { useDispatch } from "react-redux";
+import { refreshCartCount } from "../../../core/redux/cartSlice";
 import { api_base_url } from "../../../environment";
 
 const CourseDetails = () => {
   const { id } = useParams();
+  const dispatch = useDispatch();
   const [completedLessonIds, setCompletedLessonIds] = useState<number[]>([]);
   const [progressPercent, setProgressPercent] = useState(0);
   const [togglingLessonId, setTogglingLessonId] = useState<number | null>(null);
@@ -114,6 +117,7 @@ const CourseDetails = () => {
       setCartError("");
       await cartService.addToCart(course.Id);
       setAddedToCart(true);
+      dispatch(refreshCartCount() as any);
       navigate(route.courseCart);
     } catch (err: any) {
       setCartError(

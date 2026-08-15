@@ -5,6 +5,8 @@ import { all_routes } from "../../router/all_routes";
 import ImageWithBasePath from "../../../core/common/imageWithBasePath";
 import cartService, { CartItem } from "../../../services/cart.service";
 import paymentService from "../../../services/payment.service";
+import { useDispatch } from "react-redux";
+import { refreshCartCount } from "../../../core/redux/cartSlice";
 import { api_base_url } from "../../../environment";
 import toast from "react-hot-toast";
 
@@ -33,6 +35,7 @@ const paymentGateways = [
 const CourseCheckout = () => {
   const route = all_routes;
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,6 +68,7 @@ const CourseCheckout = () => {
       setCartItems((prev) =>
         prev.filter((item) => item.Course_Id !== courseId),
       );
+      dispatch(refreshCartCount() as any);
       toast.success("دوره باموفقیت از سبد خرید شما حذف شد.");
     } catch (err) {
       setError("خطا در حذف دوره از سبد خرید");
@@ -90,6 +94,8 @@ const CourseCheckout = () => {
       setPaying(true);
       setError(null);
       const result = await paymentService.checkout();
+      // Checkout clears the cart on the server, so resync the badge.
+      dispatch(refreshCartCount() as any);
       navigate(route.paymentSuccess, { state: { result } });
     } catch (err: any) {
       const message =
