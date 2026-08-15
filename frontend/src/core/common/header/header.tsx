@@ -4,6 +4,7 @@ import { getHeader, getProfileMenu } from "../data/json/header";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { all_routes } from "../../../feature-module/router/all_routes";
 import { setDataTheme } from "../../redux/themeSettingSlice";
+import { refreshCartCount } from "../../redux/cartSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useAuth } from "../../../context/AuthContext";
 import { api_base_url } from "../../../environment";
@@ -27,6 +28,7 @@ const Header = () => {
   const [subsidebar2, setSubsidebar2] = useState("");
 
   const dataTheme = useSelector((state: any) => state.themeSetting.dataTheme);
+  const cartCount = useSelector((state: any) => state.cart.cartCount);
 
   const handleDataThemeChange = (theme: string) => {
     dispatch(setDataTheme(theme));
@@ -67,6 +69,14 @@ const Header = () => {
   useEffect(() => {
     document.documentElement.setAttribute("class", dataTheme);
   }, [dataTheme]);
+
+  // Keep the cart badge in sync with the real cart contents whenever the
+  // header mounts (or the logged-in user changes).
+  useEffect(() => {
+    if (user) {
+      dispatch(refreshCartCount() as any);
+    }
+  }, [user]);
 
   const DarkButton = () => (
     <div className="icon-btn">
@@ -394,9 +404,11 @@ const Header = () => {
             <div className="icon-btn">
               <Link to={all_routes.courseCart} className="position-relative">
                 <i className="isax isax-shopping-cart5" />
-                <span className="count-icon bg-success p-1 rounded-pill text-white fs-10 fw-bold">
-                  1
-                </span>
+                {cartCount > 0 && (
+                  <span className="count-icon bg-success p-1 rounded-pill text-white fs-10 fw-bold">
+                    {cartCount}
+                  </span>
+                )}
               </Link>
             </div>
 
