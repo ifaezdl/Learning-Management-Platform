@@ -33,10 +33,10 @@ export class LessonsController {
 
   @Post('sections/:sectionId/lessons')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(2)
+  @Roles(2, 3)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
-    summary: 'Create a lesson in a section (Teacher owner only)',
+    summary: 'Create a lesson in a section (Teacher owner or Admin)',
   })
   @ApiResponse({ status: 201, description: 'Lesson created successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - Not section owner' })
@@ -46,7 +46,7 @@ export class LessonsController {
     @Body() dto: CreateLessonDto,
     @CurrentUser() user: any,
   ) {
-    return this.lessonsService.create(sectionId, user.id, dto);
+    return this.lessonsService.create(sectionId, user, dto);
   }
 
   @Get('sections/:sectionId/lessons')
@@ -59,9 +59,9 @@ export class LessonsController {
 
   @Put('lessons/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(2)
+  @Roles(2, 3)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Update a lesson (Teacher owner only)' })
+  @ApiOperation({ summary: 'Update a lesson (Teacher owner or Admin)' })
   @ApiResponse({ status: 200, description: 'Lesson updated successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - Not lesson owner' })
   @ApiResponse({ status: 404, description: 'Lesson not found' })
@@ -70,14 +70,14 @@ export class LessonsController {
     @Body() dto: UpdateLessonDto,
     @CurrentUser() user: any,
   ) {
-    return this.lessonsService.update(id, user.id, dto);
+    return this.lessonsService.update(id, user, dto);
   }
 
   @Delete('lessons/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(2)
+  @Roles(2, 3)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Delete a lesson (Teacher owner only)' })
+  @ApiOperation({ summary: 'Delete a lesson (Teacher owner or Admin)' })
   @ApiResponse({ status: 200, description: 'Lesson deleted successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - Not lesson owner' })
   @ApiResponse({ status: 404, description: 'Lesson not found' })
@@ -85,7 +85,7 @@ export class LessonsController {
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: any,
   ) {
-    return this.lessonsService.remove(id, user.id);
+    return this.lessonsService.remove(id, user);
   }
   @Get('lessons/:lessonId')
   @UseGuards(JwtAuthGuard, EnrollmentGuard)

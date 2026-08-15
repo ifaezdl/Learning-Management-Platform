@@ -28,10 +28,10 @@ export class LessonFilesController {
 
   @Post('lessons/:lessonId/files')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(2)
+  @Roles(2, 3)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
-    summary: 'Add a file to a lesson (Teacher owner only)',
+    summary: 'Add a file to a lesson (Teacher owner or Admin)',
   })
   @ApiResponse({ status: 201, description: 'File added successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - Not lesson owner' })
@@ -41,7 +41,7 @@ export class LessonFilesController {
     @Body() dto: CreateLessonFileDto,
     @CurrentUser() user: any,
   ) {
-    return this.lessonFilesService.create(lessonId, user.id, dto);
+    return this.lessonFilesService.create(lessonId, user, dto);
   }
 
   @Get('lessons/:lessonId/files')
@@ -54,10 +54,10 @@ export class LessonFilesController {
 
   @Delete('lesson-files/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(2)
+  @Roles(2, 3)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
-    summary: 'Delete a lesson file (Teacher owner only)',
+    summary: 'Delete a lesson file (Teacher owner or Admin)',
   })
   @ApiResponse({ status: 200, description: 'File deleted successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden - Not file owner' })
@@ -66,6 +66,6 @@ export class LessonFilesController {
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: any,
   ) {
-    return this.lessonFilesService.remove(id, user.id);
+    return this.lessonFilesService.remove(id, user);
   }
 }

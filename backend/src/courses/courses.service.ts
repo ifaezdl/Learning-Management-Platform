@@ -34,14 +34,18 @@ export class CoursesService {
     return slug;
   }
 
-  private async verifyOwnership(courseId: number, userId: number) {
+  private async verifyOwnership(courseId: number, user: any) {
     const course = await this.prisma.courses.findUnique({
       where: { Id: courseId },
     });
     if (!course) {
       throw new NotFoundException('Course not found');
     }
-    if (course.Teacher_Id !== userId) {
+    // Admins (role 3) can manage any course
+    if (user?.roleId === 3) {
+      return course;
+    }
+    if (course.Teacher_Id !== user?.id) {
       throw new ForbiddenException('You can only manage your own courses');
     }
     return course;
@@ -152,6 +156,62 @@ export class CoursesService {
         },
       },
       orderBy, // <-- Don't forget this comma
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    });
+
+    return {
+      data: courses,
+      pagination: {
+        page,
+        pageSize,
+        totalItems,
+        totalPages: Math.ceil(totalItems / pageSize),
+      },
+    };
+  }
+
+  // Admin view: ALL courses (published & unpublished) with filters + pagination
+  async browseAdmin(dto: BrowseCoursesDto) {
+    const page = dto.page ?? 1;
+    const pageSize = dto.pageSize ?? 10;
+
+    const where: any = {};
+
+    if (dto.search) {
+      where.Title = {
+        contains: dto.search,
+      };
+    }
+
+    if (dto.categoryId) {
+      where.CategoryId = dto.categoryId;
+    }
+
+    if (dto.levelId) {
+      where.Level_Id = dto.levelId;
+    }
+
+    if (dto.teacherId) {
+      where.Teacher_Id = dto.teacherId;
+    }
+
+    const totalItems = await this.prisma.courses.count({ where });
+
+    const courses = await this.prisma.courses.findMany({
+      where,
+      include: {
+        ...this.courseInclude(),
+        Users: {
+          select: {
+            Id: true,
+            FirstName: true,
+            LastName: true,
+            Email: true,
+          },
+        },
+      },
+      orderBy: { CreatedAt: 'desc' },
       skip: (page - 1) * pageSize,
       take: pageSize,
     });
@@ -303,8 +363,8 @@ export class CoursesService {
     };
   }
 
-  async update(id: number, userId: number, dto: UpdateCourseDto) {
-    await this.verifyOwnership(id, userId);
+  async update(id: number, user: any, dto: UpdateCourseDto) {
+    await this.verifyOwnership(id, user);
 
     const data: any = { UpdatedAt: new Date() };
     if (dto.title !== undefined) {
@@ -327,17 +387,14 @@ export class CoursesService {
       data,
       include: this.courseInclude(),
     });
-  }
-
-  async remove(id: number, userId: number) {
-    await this.verifyOwnership(id, userId);
+  }  async remove(id: number, user: any) {
+    await this.verifyOwnership(id, user);
 
     await this.prisma.courses.delete({ where: { Id: id } });
     return { message: 'Course deleted successfully' };
   }
-
-  async publish(id: number, userId: number) {
-    const course = await this.verifyOwnership(id, userId);
+  async publish(id: number, user: any) {
+    const course = await this.verifyOwnership(id, user);
 
     if (course.IsPublished) {
       throw new BadRequestException('Course is already published');

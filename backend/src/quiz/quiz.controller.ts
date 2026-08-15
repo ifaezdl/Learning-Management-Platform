@@ -19,7 +19,7 @@ import { SaveQuizDto } from './dto/save-quiz.dto';
 @ApiTags('Quiz')
 @Controller('courses/:courseId/quiz')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(2)
+@Roles(2, 3)
 @ApiBearerAuth('JWT-auth')
 export class QuizController {
   constructor(private readonly quizService: QuizService) {}
@@ -30,7 +30,7 @@ export class QuizController {
     @Param('courseId', ParseIntPipe) courseId: number,
     @CurrentUser() user: any,
   ) {
-    return this.quizService.getQuiz(courseId, user.id);
+    return this.quizService.getQuiz(courseId, user);
   }
 
   @Post('generate')
@@ -40,7 +40,7 @@ export class QuizController {
     @Body() dto: GenerateQuizDto,
     @CurrentUser() user: any,
   ) {
-    return this.quizService.generateQuestions(courseId, user.id, dto);
+    return this.quizService.generateQuestions(courseId, user, dto);
   }
 
   @Post()
@@ -50,6 +50,6 @@ export class QuizController {
     @Body() dto: SaveQuizDto,
     @CurrentUser() user: any,
   ) {
-    return this.quizService.saveQuiz(courseId, user.id, dto);
+    return this.quizService.saveQuiz(courseId, user, dto);
   }
 }
