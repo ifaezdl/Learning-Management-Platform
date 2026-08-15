@@ -64,13 +64,14 @@ const CertificateTemplate = ({
             style={{ width: 150, margin: "0 auto 18px", display: "block" }}
           />
 
+          {/* نکته: از letter-spacing در متن فارسی استفاده نکنید — html2canvas
+              حروف چسبیده فارسی را جدا می‌کند و کلمه بهم می‌ریزد */}
           <h2
             style={{
               margin: "0 0 6px",
               fontSize: 34,
               fontWeight: 800,
               color: "#1a1a1a",
-              letterSpacing: 1,
             }}
           >
             گواهینامه
