@@ -189,6 +189,12 @@ class CourseService {
     return response.data;
   }
 
+  // Returns only published courses (backend filters IsPublished = true).
+  async getAllCourses(): Promise<Course[]> {
+    const response = await api.get("/courses");
+    return response.data;
+  }
+
   async getCourse(id: number): Promise<Course> {
     const response = await api.get(`/courses/${id}`);
     return response.data;
