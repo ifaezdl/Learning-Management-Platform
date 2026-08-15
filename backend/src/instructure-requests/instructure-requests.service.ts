@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateInstructorRequestDto } from './dto/create-instructor-request.dto';
+import { GetInstructorRequestsDto } from './dto/get-instructor-requests.dto';
 
 @Injectable()
 export class InstructorRequestsService {
@@ -94,5 +95,68 @@ export class InstructorRequestsService {
     });
 
     return { message: 'Request rejected.' };
+  }
+  async findAll(query: GetInstructorRequestsDto) {
+    const page = Number(query.page) || 1;
+    const pageSize = Number(query.pageSize) || 10;
+    const status = query.status || 'Pending';
+    const search = query.search?.trim();
+
+    const where: any = {
+      Status: status,
+      ...(search
+        ? {
+            Users_InstructorRequests_User_IdToUsers: {
+              OR: [
+                { FirstName: { contains: search } },
+                { LastName: { contains: search } },
+                { UserName: { contains: search } },
+                { Email: { contains: search } },
+              ],
+            },
+          }
+        : {}),
+    };
+
+    const [items, total] = await Promise.all([
+      this.prisma.instructorRequests.findMany({
+        where,
+        orderBy: { CreatedAt: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        select: {
+          Id: true,
+          Status: true,
+          Description: true,
+          ResumeUrl: true,
+          CreatedAt: true,
+          Users_InstructorRequests_User_IdToUsers: {
+            select: {
+              Id: true,
+              FirstName: true,
+              LastName: true,
+              UserName: true,
+              Email: true,
+              Avatar: true,
+            },
+          },
+        },
+      }),
+      this.prisma.instructorRequests.count({ where }),
+    ]);
+
+    return {
+      data: items.map((item) => ({
+        RequestId: item.Id,
+        Status: item.Status,
+        Description: item.Description,
+        ResumeUrl: item.ResumeUrl,
+        CreatedAt: item.CreatedAt,
+        User: item.Users_InstructorRequests_User_IdToUsers,
+      })),
+      total,
+      page,
+      pageSize,
+    };
   }
 }

@@ -11,24 +11,15 @@ export const instructorSidebarData = [
     icon: "fa-solid fa-user",
     route: all_routes.instructorProfile,
   },
-  {
-    title: "دوره های خریداری شده",
-    icon: "isax isax-teacher5",
-    route: all_routes.instructorEnrolledCourse,
-  },
+
   {
     title: "دوره‌های ایجادشده توسط من",
     icon: "isax isax-teacher5",
     route: all_routes.instructorCourse,
   },
   {
-    title: "دانشجوها",
+    title: "وضعیت دانشجوهای من",
     icon: "isax isax-profile-2user5",
     route: all_routes.studentsList,
-  },
-  {
-    title: "گواهینامه ها",
-    icon: "isax isax-note-215",
-    route: all_routes.instructorCertificate,
   },
 ];

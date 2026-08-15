@@ -9,6 +9,8 @@ import {
   UseInterceptors,
   UploadedFile,
   BadRequestException,
+  Get,
+  Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -19,6 +21,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { CreateInstructorRequestDto } from './dto/create-instructor-request.dto';
+import { GetInstructorRequestsDto } from './dto/get-instructor-requests.dto';
 
 const ALLOWED_MIME_TYPES = [
   'application/pdf',
@@ -77,5 +80,11 @@ export class InstructorRequestsController {
   @Put(':id/reject')
   reject(@Param('id', ParseIntPipe) id: number) {
     return this.instructorRequestsService.reject(id);
+  }
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(3)
+  @Get()
+  findAll(@Query() query: GetInstructorRequestsDto) {
+    return this.instructorRequestsService.findAll(query);
   }
 }
