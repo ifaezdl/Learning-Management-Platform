@@ -121,6 +121,19 @@ export class CoursesController {
     return this.coursesService.browseAdmin(dto);
   }
 
+  @Get('admin/performance-report')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(3)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary:
+      'Performance report: enrollments, quiz participation, pass rate and average score per course (Admin only)',
+  })
+  @ApiResponse({ status: 200, description: 'Returns the report' })
+  async performanceReport() {
+    return this.coursesService.performanceReport();
+  }
+
   @Get(':id')
   @UseGuards(OptionalJwtAuthGuard)
   @ApiOperation({ summary: 'Get a course by ID' })
@@ -210,11 +223,11 @@ export class CoursesController {
   }
   @Get(':id/students')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(2)
+  @Roles(2, 3)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary:
-      'Get enrolled students with progress and exam results for a course (Teacher owner only)',
+      'Get enrolled students with progress and exam results for a course (Teacher owner or Admin)',
   })
   @ApiResponse({ status: 200, description: 'Returns the students list' })
   @ApiResponse({ status: 403, description: 'Forbidden - Not course owner' })
@@ -223,7 +236,7 @@ export class CoursesController {
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: any,
   ) {
-    return this.coursesService.getStudents(id, user.id);
+    return this.coursesService.getStudents(id, user);
   }
   @Get('my/enrollments-report')
   @UseGuards(JwtAuthGuard, RolesGuard)

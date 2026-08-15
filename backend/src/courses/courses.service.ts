@@ -535,8 +535,8 @@ export class CoursesService {
       totalCourses,
     };
   }
-  async getStudents(courseId: number, teacherId: number) {
-    await this.verifyOwnership(courseId, teacherId);
+  async getStudents(courseId: number, user: any) {
+    await this.verifyOwnership(courseId, user);
 
     const enrollments = await this.prisma.enrollments.findMany({
       where: { Course_Id: courseId },
@@ -597,6 +597,22 @@ export class CoursesService {
       attemptsByStudent.set(a.Student_Id, list);
     }
 
+    // گواهی‌نامه‌های صادرشده برای این دوره (برای نمایش به ادمین/مدرس)
+    const certificates = await this.prisma.certificates.findMany({
+      where: { Course_Id: courseId },
+      select: {
+        Id: true,
+        Student_Id: true,
+        CertificateCode: true,
+        Score: true,
+        MaxScore: true,
+        IssuedAt: true,
+      },
+    });
+    const certByStudent = new Map<number, (typeof certificates)[number]>(
+      certificates.map((c) => [c.Student_Id, c]),
+    );
+
     return enrollments.map((enrollment) => {
       const studentId = enrollment.Student_Id;
       const completedLessons = progressMap.get(studentId) ?? 0;
@@ -633,9 +649,99 @@ export class CoursesService {
         score: hasParticipated ? totalScore : null,
         maxScore: hasParticipated ? totalMaxScore : null,
         isPassed,
+        certificate: certByStudent.get(studentId) ?? null,
       };
     });
   }
+  // گزارش عملکرد دوره‌ها برای ادمین: تعداد ثبت‌نام، شرکت در آزمون، نرخ قبولی، میانگین نمره + مدرس
+  async performanceReport() {
+    const courses = await this.prisma.courses.findMany({
+      select: {
+        Id: true,
+        Title: true,
+        Teacher_Id: true,
+        Users: { select: { FirstName: true, LastName: true } },
+      },
+    });
+
+    const enrollmentGroups = await this.prisma.enrollments.groupBy({
+      by: ['Course_Id'],
+      _count: { Id: true },
+    });
+    const enrollmentMap = new Map(
+      enrollmentGroups.map((g) => [g.Course_Id, g._count.Id]),
+    );
+
+    const quizzes = await this.prisma.quizzes.findMany({
+      select: { Id: true, Course_Id: true },
+    });
+    const quizToCourse = new Map(quizzes.map((q) => [q.Id, q.Course_Id]));
+
+    let attempts: any[] = [];
+    if (quizzes.length > 0) {
+      attempts = await this.prisma.quizAttempts.findMany({
+        where: {
+          Quiz_Id: { in: quizzes.map((q) => q.Id) },
+          SubmittedAt: { not: null },
+        },
+        select: {
+          Quiz_Id: true,
+          Score: true,
+          MaxScore: true,
+          IsPassed: true,
+        },
+      });
+    }
+
+    const statsByCourse = new Map<
+      number,
+      { participants: number; passed: number; scoreRatios: number[] }
+    >();
+    for (const a of attempts) {
+      const courseId = quizToCourse.get(a.Quiz_Id);
+      if (!courseId) continue;
+      const st = statsByCourse.get(courseId) ?? {
+        participants: 0,
+        passed: 0,
+        scoreRatios: [],
+      };
+      st.participants += 1;
+      if (a.IsPassed) st.passed += 1;
+      if (Number(a.MaxScore) > 0) {
+        st.scoreRatios.push(Number(a.Score) / Number(a.MaxScore));
+      }
+      statsByCourse.set(courseId, st);
+    }
+
+    return courses
+      .map((course) => {
+        const stats = statsByCourse.get(course.Id);
+        const participants = stats?.participants ?? 0;
+        const passed = stats?.passed ?? 0;
+        const avgScorePercent =
+          stats && stats.scoreRatios.length > 0
+            ? Math.round(
+                (stats.scoreRatios.reduce((s, x) => s + x, 0) /
+                  stats.scoreRatios.length) *
+                  100,
+              )
+            : 0;
+
+        return {
+          courseId: course.Id,
+          title: course.Title,
+          teacherId: course.Teacher_Id,
+          teacherName: `${course.Users?.FirstName ?? ''} ${course.Users?.LastName ?? ''}`.trim(),
+          enrollments: enrollmentMap.get(course.Id) ?? 0,
+          participants,
+          passed,
+          passRate: participants > 0 ? Math.round((passed / participants) * 100) : 0,
+          averageScorePercent: avgScorePercent,
+        };
+      })
+      .sort((a, b) => b.enrollments - a.enrollments);
+  }
+
   async getEnrollmentsByCourse(teacherId: number) {
     const courses = await this.prisma.courses.findMany({
       where: { Teacher_Id: teacherId },

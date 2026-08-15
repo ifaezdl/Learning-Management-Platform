@@ -22,6 +22,11 @@ export const adminSidebarData = [
     route: all_routes.adminCourseManagement,
   },
   {
+    title: "عملکرد دانشجویان",
+    icon: "isax isax-ranking",
+    route: all_routes.adminStudentPerformance,
+  },
+  {
     title: "درخواست‌های تدریس",
     icon: "isax isax-teacher5",
     route: all_routes.AdminRequests,
