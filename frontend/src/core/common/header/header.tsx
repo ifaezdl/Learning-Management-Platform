@@ -4,7 +4,7 @@ import { getHeader, getProfileMenu } from "../data/json/header";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { all_routes } from "../../../feature-module/router/all_routes";
 import { setDataTheme } from "../../redux/themeSettingSlice";
-import { refreshCartCount } from "../../redux/cartSlice";
+import { refreshCartCount, setCartCount } from "../../redux/cartSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useAuth } from "../../../context/AuthContext";
 import { api_base_url } from "../../../environment";
@@ -75,6 +75,8 @@ const Header = () => {
   useEffect(() => {
     if (user) {
       dispatch(refreshCartCount() as any);
+    } else {
+      dispatch(setCartCount(0));
     }
   }, [user]);
 
