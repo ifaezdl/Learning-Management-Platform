@@ -53,6 +53,7 @@ export const all_routes = {
   adminDashboard: "/admin/admin-dashboard",
   adminUserManagement: "/admin/user-management",
   adminCourseManagement: "/admin/course-management",
+  adminStudentPerformance: "/admin/student-performance",
   AdminRequests: "/admin/admin-requests",
   AdminProfile: "/admin/admin-profile",
   AdminProfileSettings: "/admin/admin-settings",

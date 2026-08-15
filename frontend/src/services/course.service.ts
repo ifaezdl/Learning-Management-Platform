@@ -11,6 +11,18 @@ export interface CourseEnrollmentReportItem {
   title: string;
   enrollments: number;
 }
+
+export interface AdminPerformanceReportItem {
+  courseId: number;
+  title: string;
+  teacherId: number;
+  teacherName: string;
+  enrollments: number;
+  participants: number;
+  passed: number;
+  passRate: number;
+  averageScorePercent: number;
+}
 export interface CourseStudent {
   studentId: number;
   firstName: string | null;
@@ -25,6 +37,14 @@ export interface CourseStudent {
   score: number | null;
   maxScore: number | null;
   isPassed: boolean | null;
+  certificate: {
+    Id: number;
+    Student_Id: number;
+    CertificateCode: string;
+    Score: number;
+    MaxScore: number;
+    IssuedAt: string;
+  } | null;
 }
 
 export interface BrowseCoursesParams {
@@ -372,6 +392,11 @@ class CourseService {
   }
   async getEnrollmentsReport(): Promise<CourseEnrollmentReportItem[]> {
     const response = await api.get("/courses/my/enrollments-report");
+    return response.data;
+  }
+
+  async getAdminPerformanceReport(): Promise<AdminPerformanceReportItem[]> {
+    const response = await api.get("/courses/admin/performance-report");
     return response.data;
   }
 }
