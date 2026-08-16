@@ -201,6 +201,7 @@ model Users {
   Reviews                                                 Reviews[]
   ChatMessages                                            ChatMessages[]
   ChatReads                                               ChatReads[]
+  ContactMessages                                         ContactMessages[]
   ChatMessageReactions                                    ChatMessageReactions[]
   ChatPolls                                               ChatPolls[]
   ChatPollVotes                                           ChatPollVotes[]
@@ -466,4 +467,20 @@ model ChatPollVotes {
 
   @@unique([Option_Id, User_Id], map: "UQ_ChatPollVotes_OptionUser")
   @@index([User_Id], map: "IX_ChatPollVotes_User")
+}
+
+model ContactMessages {
+  Id        Int      @id(map: "PK_ContactMessages") @default(autoincrement())
+  FullName  String   @db.NVarChar(100)
+  Email     String   @db.NVarChar(200)
+  Phone     String?  @db.NVarChar(20)
+  Subject   String?  @db.NVarChar(100)
+  Message   String   @db.NVarChar(Max)
+  User_Id   Int?
+  IsRead    Boolean  @default(false, map: "DF_ContactMessages_IsRead")
+  CreatedAt DateTime @default(now(), map: "DF_ContactMessages_CreatedAt") @db.DateTime
+  Users     Users?   @relation(fields: [User_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ContactMessages_User")
+
+  @@index([User_Id], map: "IX_ContactMessages_User")
+  @@index([IsRead], map: "IX_ContactMessages_IsRead")
 }

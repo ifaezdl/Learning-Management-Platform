@@ -1,8 +1,56 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { all_routes } from "../../router/all_routes";
+import toast from "react-hot-toast";
+import contactService from "../../../services/contact.service";
 
 const Contact = () => {
+  const [form, setForm] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: "",
+  });
+  const [sending, setSending] = useState(false);
+
+  const setField = (key: keyof typeof form, value: string) =>
+    setForm((prev) => ({ ...prev, [key]: value }));
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.fullName.trim() || !form.email.trim() || !form.message.trim()) {
+      toast.error("لطفاً نام، ایمیل و پیام خود را وارد کنید.");
+      return;
+    }
+    setSending(true);
+    try {
+      const res = await contactService.sendMessage({
+        fullName: form.fullName.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim() || undefined,
+        subject: form.subject || undefined,
+        message: form.message.trim(),
+      });
+      toast.success(res?.message || "پیام شما با موفقیت ارسال شد.");
+      setForm({
+        fullName: "",
+        email: "",
+        phone: "",
+        subject: "",
+        message: "",
+      });
+    } catch (err: any) {
+      toast.error(
+        err?.response?.data?.message?.[0] ||
+          err?.response?.data?.message ||
+          "ارسال پیام ناموفق بود. لطفاً دوباره تلاش کنید.",
+      );
+    } finally {
+      setSending(false);
+    }
+  };
+
   return (
     <section className="contact-sec mt-5">
       <div className="container">
@@ -183,7 +231,7 @@ const Contact = () => {
                 <div className="card-body p-4 p-sm-5">
                   <h4 className="mb-4">ارسال پیام</h4>
 
-                  <form>
+                  <form onSubmit={handleSubmit}>
                     <div className="row">
                       {/* Name */}
                       <div className="col-sm-6">
@@ -197,6 +245,9 @@ const Contact = () => {
                             type="text"
                             className="form-control form-control-lg"
                             placeholder="نام و نام خانوادگی"
+                            value={form.fullName}
+                            onChange={(e) => setField("fullName", e.target.value)}
+                            required
                           />
                         </div>
                       </div>
@@ -214,6 +265,9 @@ const Contact = () => {
                             className="form-control form-control-lg"
                             placeholder="example@email.com"
                             dir="ltr"
+                            value={form.email}
+                            onChange={(e) => setField("email", e.target.value)}
+                            required
                           />
                         </div>
                       </div>
@@ -230,6 +284,8 @@ const Contact = () => {
                             className="form-control form-control-lg"
                             placeholder="۰۹۱۲۱۲۳۴۵۶۷"
                             dir="ltr"
+                            value={form.phone}
+                            onChange={(e) => setField("phone", e.target.value)}
                           />
                         </div>
                       </div>
@@ -239,7 +295,11 @@ const Contact = () => {
                         <div className="mb-4">
                           <label className="form-label">موضوع</label>
 
-                          <select className="form-select form-select-lg">
+                          <select
+                            className="form-select form-select-lg"
+                            value={form.subject}
+                            onChange={(e) => setField("subject", e.target.value)}
+                          >
                             <option value="">موضوع پیام را انتخاب کنید</option>
                             <option value="course">سوال درباره دوره</option>
                             <option value="account">مشکل حساب کاربری</option>
@@ -263,6 +323,9 @@ const Contact = () => {
                         className="form-control form-control-lg"
                         rows={5}
                         placeholder="پیام خود را وارد کنید..."
+                        value={form.message}
+                        onChange={(e) => setField("message", e.target.value)}
+                        required
                       />
                     </div>
 
@@ -270,9 +333,10 @@ const Contact = () => {
                       <button
                         type="submit"
                         className="btn btn-secondary btn-lg"
+                        disabled={sending}
                       >
                         <i className="isax isax-send-2 me-2" />
-                        ارسال پیام
+                        {sending ? "در حال ارسال..." : "ارسال پیام"}
                       </button>
                     </div>
                   </form>
