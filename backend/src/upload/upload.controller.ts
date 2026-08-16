@@ -152,4 +152,53 @@ export class UploadController {
       path: `/uploads/lesson-files/${file.filename}`,
     };
   }
+
+  @Post('chat')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: (req, file, cb) => {
+          const uploadPath = path.join(process.cwd(), 'uploads', 'chat');
+
+          if (!fs.existsSync(uploadPath)) {
+            fs.mkdirSync(uploadPath, { recursive: true });
+          }
+
+          cb(null, uploadPath);
+        },
+
+        filename: (req, file, cb) => {
+          const ext = path.extname(file.originalname);
+
+          cb(null, `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`);
+        },
+      }),
+
+      limits: {
+        fileSize: 50 * 1024 * 1024, // 50MB
+      },
+    }),
+  )
+  @ApiOperation({ summary: 'Upload chat attachment (any file type)' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  uploadChatAttachment(@UploadedFile() file: Express.Multer.File) {
+    return {
+      fileName: file.filename,
+      originalName: file.originalname,
+      path: `/uploads/chat/${file.filename}`,
+      size: file.size,
+      mimetype: file.mimetype,
+    };
+  }
 }

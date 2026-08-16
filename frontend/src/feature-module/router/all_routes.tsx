@@ -80,6 +80,9 @@ export const all_routes = {
   studentLinkedAccounts: "/student/student-linked-accounts",
   studentNotification: "/student/student-notifications",
 
+  chat: "/chat",
+  chatCourse: "/chat/:courseId",
+
   cart: "/cart",
   login: "/login",
   register: "/register",

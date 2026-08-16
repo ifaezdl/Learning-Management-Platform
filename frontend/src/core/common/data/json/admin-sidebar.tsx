@@ -31,6 +31,11 @@ export const adminSidebarData = [
     icon: "isax isax-teacher5",
     route: all_routes.AdminRequests,
   },
+  {
+    title: "گفتگوهای دوره",
+    icon: "isax isax-message-text-1",
+    route: all_routes.chat,
+  },
   // {
   //   title: "گواهینمامه ها",
   //   icon: "isax isax-note-215",
