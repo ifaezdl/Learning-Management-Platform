@@ -88,6 +88,7 @@ import InstructorEnrolledCourse from "../Instructor/instructor-course/instructor
 import AdminDashboard from "../admin/dashboard/adminDashboard";
 import AdminRequests from "../admin/admin-requests/adminRequests";
 import UserManagement from "../admin/user-management/userManagement";
+import ContactMessages from "../admin/contact-messages/contactMessages";
 import CourseManagement from "../admin/course-management/courseManagement";
 import StudentPerformance from "../admin/student-performance/studentPerformance";
 import AdminProfile from "../admin/admin-profile/adminProfile";
@@ -240,6 +241,15 @@ export const publicRoutes = [
     element: (
       <RoleRoute roles={[3]}>
         <StudentPerformance />
+      </RoleRoute>
+    ),
+    route: Route,
+  },
+  {
+    path: routes.adminContactMessages,
+    element: (
+      <RoleRoute roles={[3]}>
+        <ContactMessages />
       </RoleRoute>
     ),
     route: Route,

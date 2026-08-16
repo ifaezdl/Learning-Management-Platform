@@ -32,6 +32,11 @@ export const adminSidebarData = [
     route: all_routes.AdminRequests,
   },
   {
+    title: "پیام‌های کاربران",
+    icon: "isax isax-message-question5",
+    route: all_routes.adminContactMessages,
+  },
+  {
     title: "گفتگوهای دوره",
     icon: "isax isax-message-text-1",
     route: all_routes.chat,
