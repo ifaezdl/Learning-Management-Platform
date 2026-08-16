@@ -560,3 +560,340 @@
         }
     }
 }
+/* ================= Course group chat (live) ================= */
+.chat-day-sep {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 14px 0;
+    span {
+        background: $light-500;
+        color: $text-color;
+        font-size: 12px;
+        font-weight: 500;
+        padding: 4px 16px;
+        border-radius: 30px;
+    }
+}
+.chat-load-more {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
+}
+.chat-typing-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: $white;
+    border: 1px solid $light;
+    border-radius: 14px;
+    padding: 8px 14px;
+    margin: 6px 0 6px 52px;
+    span {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: $gray-500;
+        animation: chatTypingBounce 1.2s infinite ease-in-out;
+        &:nth-child(2) { animation-delay: 0.15s; }
+        &:nth-child(3) { animation-delay: 0.3s; }
+    }
+}
+@keyframes chatTypingBounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: .5; }
+    30% { transform: translateY(-5px); opacity: 1; }
+}
+.chat-reaction-bar {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    right: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: $white;
+    border: 1px solid $light;
+    border-radius: 40px;
+    padding: 5px 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    z-index: 5;
+    button {
+        background: transparent;
+        border: 0;
+        font-size: 20px;
+        line-height: 1;
+        padding: 2px 4px;
+        border-radius: 50%;
+        transition: transform .15s ease;
+        &:hover { transform: scale(1.25); background: $light-500; }
+    }
+}
+.chat-reaction-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: $light-500;
+    border: 1px solid $light;
+    border-radius: 30px;
+    padding: 2px 9px;
+    margin-top: 4px;
+    margin-inline-end: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    &.mine {
+        background: rgba($primary, 0.12);
+        border-color: rgba($primary, 0.35);
+    }
+    .count { font-size: 11px; color: $text-color; }
+}
+.chat-msg-wrap {
+    position: relative;
+    &:hover .chat-msg-actions {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+.chat-msg-actions {
+    position: absolute;
+    top: 4px;
+    inset-inline-start: -4px;
+    display: flex;
+    gap: 2px;
+    background: $white;
+    border: 1px solid $light;
+    border-radius: 30px;
+    padding: 2px 6px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .15s ease;
+    z-index: 4;
+    button {
+        background: transparent;
+        border: 0;
+        color: $text-color;
+        font-size: 13px;
+        padding: 3px;
+        line-height: 1;
+        &:hover { color: $primary; }
+    }
+}
+.chat-reply-quote {
+    display: flex;
+    align-items: center;
+    background: $light-500;
+    border-inline-start: 3px solid $primary;
+    border-radius: 8px;
+    padding: 6px 10px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: $text-color;
+    overflow: hidden;
+    .quote-name { color: $primary; font-weight: 600; margin-inline-end: 6px; white-space: nowrap; }
+    .quote-text {
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-weight: 500;
+    }
+    .btn-close-reply {
+        background: transparent;
+        border: 0;
+        color: $text-color;
+        font-size: 13px;
+        margin-inline-start: 8px;
+        line-height: 1;
+    }
+}
+.chat-reply-inside {
+    border-inline-start: 2px solid $primary;
+    padding-inline-start: 8px;
+    margin-bottom: 6px;
+    font-size: 11px;
+    color: $text-color;
+    overflow: hidden;
+    .quote-name { color: $primary; font-weight: 600; margin-inline-end: 5px; white-space: nowrap; }
+    .quote-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+}
+.chat-attachment-file {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba($primary, 0.06);
+    border: 1px solid rgba($primary, 0.25);
+    border-radius: 10px;
+    padding: 8px 12px;
+    min-width: 220px;
+    margin-top: 6px;
+    .file-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: rgba($primary, 0.12);
+        color: $primary;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+    .file-meta {
+        flex: 1;
+        min-width: 0;
+        .file-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: $text-color;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 240px;
+            display: block;
+        }
+        .file-size { font-size: 11px; color: $gray-500; }
+    }
+    a { color: $primary; font-size: 16px; }
+}
+.chat-attachment-img {
+    max-width: 260px;
+    border-radius: 10px;
+    margin-top: 6px;
+    cursor: pointer;
+    display: block;
+    border: 1px solid $light;
+}
+.chat-poll-card {
+    background: $white;
+    border: 1px solid $light;
+    border-radius: 14px;
+    padding: 14px;
+    max-width: 420px;
+    margin: 10px 0;
+    .poll-question {
+        font-weight: 700;
+        font-size: 14px;
+        margin-bottom: 2px;
+    }
+    .poll-meta { font-size: 11px; color: $gray-500; margin-bottom: 10px; }
+    .poll-option {
+        border: 1px solid $light;
+        border-radius: 10px;
+        padding: 8px 12px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        transition: border-color .15s ease;
+        &:hover { border-color: rgba($primary, 0.5); }
+        &.voted {
+            border-color: rgba($primary, 0.6);
+            background: rgba($primary, 0.05);
+        }
+        &.disabled { cursor: default; }
+        .poll-option-fill {
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 0;
+            background: rgba($primary, 0.1);
+            transition: width .4s ease;
+            border-radius: 10px;
+        }
+        .poll-option-body {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            .opt-text { font-size: 13px; font-weight: 600; }
+            .opt-pct { font-size: 12px; color: $primary; font-weight: 700; }
+        }
+    }
+    .poll-total { font-size: 11px; color: $gray-500; margin-top: 4px; }
+}
+.chat-members-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid $light;
+    &:last-child { border-bottom: 0; }
+}
+.chat-online-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #2ab574;
+    border: 2px solid $white;
+    position: absolute;
+    bottom: 0;
+    inset-inline-end: 0;
+}
+.chat-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 320px;
+    color: $gray-500;
+    i { font-size: 48px; margin-bottom: 12px; opacity: .5; }
+}
+.msg_card_body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    background: #f7f8fc;
+}
+
+// keep message actions reachable on touch devices
+@media (max-width: 767px) {
+    .chat-msg-actions {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+/* ================= Course group chat: RTL bubble polish ================= */
+/*
+ * The theme's chat bubbles were designed for an LTR page. The live course
+ * chat is a Persian (RTL) page, so we mirror the bubble tails and neutralise
+ * the LTR-only offsets here. All rules are scoped to .course-live-chat so the
+ * static template pages (student/instructor-message) are untouched.
+ */
+.course-live-chat {
+    // mirror the bubble tail so it points at the avatar (avatar sits on the
+    // outer edge in RTL: left for sent, right for received)
+    .media.sent .media-body .msg-box:first-child .sent-message {
+        border-radius: 15px 15px 15px 0;
+    }
+    .media.received .media-body .msg-box .received-message {
+        border-radius: 15px 15px 0 15px;
+    }
+
+    // the 70px offset in the theme is for the LTR avatar gap; not needed in RTL
+    .media.sent .media-body .msg-box {
+        margin-right: 0;
+    }
+
+    // group consecutive messages from the same sender more tightly
+    .media.msg-continued {
+        margin-bottom: 6px;
+        .media-body {
+            .msg-box:first-child .sent-message,
+            .received-message {
+                border-radius: 15px 15px 15px 15px;
+            }
+        }
+    }
+
+    // attachment image inside a bubble should not overflow the bubble radius
+    .chat-attachment-img {
+        max-width: 240px;
+    }
+}
+
+// RTL: reaction bar should open toward the outer edge
+[dir="rtl"] .chat-reaction-bar,
+.course-live-chat .chat-reaction-bar {
+    right: auto;
+    left: 0;
+}

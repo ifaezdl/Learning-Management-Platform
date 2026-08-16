@@ -22,4 +22,9 @@ export const instructorSidebarData = [
     icon: "isax isax-profile-2user5",
     route: all_routes.studentsList,
   },
+  {
+    title: "گفتگوهای دوره",
+    icon: "isax isax-message-text-1",
+    route: all_routes.chat,
+  },
 ];

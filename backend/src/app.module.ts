@@ -16,6 +16,7 @@ import { CartModule } from './cart/cart.module';
 import { PaymentModule } from './payment/payment.module';
 import { QuizModule } from './quiz/quiz.module';
 import { CertificatesModule } from '../certificates/certificates.module';
+import { ChatModule } from './chat/chat.module';
 import { StudentDashboardController } from './student-dashboard.controller';
 import { InstructorDashboardController } from './instructor-dashboard.controller';
 // --- ADD to imports ---
@@ -38,6 +39,7 @@ import { InstructorDashboardController } from './instructor-dashboard.controller
     PaymentModule,
     QuizModule,
     CertificatesModule, // ← add this
+    ChatModule,
   ],
   controllers: [AppController, StudentDashboardController, InstructorDashboardController],
   providers: [AppService],

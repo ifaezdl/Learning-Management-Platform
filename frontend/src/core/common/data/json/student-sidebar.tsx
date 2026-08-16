@@ -17,6 +17,11 @@ export const studentSidebarData = [
     route: all_routes.studentCourses,
   },
   {
+    title: "گفتگوهای دوره",
+    icon: "isax isax-message-text-1",
+    route: all_routes.chat,
+  },
+  {
     title: "آزمون های پیش رو",
     icon: "isax isax-teacher5",
     route: all_routes.studentQuiz,

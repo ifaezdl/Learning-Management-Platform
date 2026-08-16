@@ -63,6 +63,9 @@ model Courses {
   Payments               Payments[]
   Quizzes                Quizzes[]
   Reviews                Reviews[]
+  ChatMessages           ChatMessages[]
+  ChatReads              ChatReads[]
+  ChatPolls              ChatPolls[]
 
   @@index([CategoryId], map: "IX_Courses_CategoryId")
   @@index([Teacher_Id], map: "IX_Courses_TeacherId")
@@ -196,6 +199,11 @@ model Users {
   QuizAttempts                                            QuizAttempts[]
   RefreshTokens                                           RefreshTokens[]
   Reviews                                                 Reviews[]
+  ChatMessages                                            ChatMessages[]
+  ChatReads                                               ChatReads[]
+  ChatMessageReactions                                    ChatMessageReactions[]
+  ChatPolls                                               ChatPolls[]
+  ChatPollVotes                                           ChatPollVotes[]
   Roles                                                   Roles                @relation(fields: [Role_Id], references: [Id], onUpdate: NoAction, map: "FK_users_Roles")
   Sex                                                     Sex?                 @relation(fields: [Sex_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_users_Sex")
 }
@@ -374,4 +382,88 @@ model Certificates {
   Users           Users        @relation(fields: [Student_Id], references: [Id], onUpdate: NoAction, map: "FK_Certificates_Users")
 
   @@index([Student_Id], map: "IX_Certificates_Student")
+}
+
+model ChatMessages {
+  Id                Int                   @id(map: "PK_ChatMessages") @default(autoincrement())
+  Course_Id         Int
+  Sender_Id         Int
+  Content           String?               @db.NVarChar(Max)
+  AttachmentUrl     String?               @db.NVarChar(500)
+  AttachmentName    String?               @db.NVarChar(250)
+  AttachmentType    String?               @db.NVarChar(50)
+  AttachmentSize    BigInt?
+  ReplyTo_Id        Int?
+  CreatedAt         DateTime              @default(now()) @db.DateTime
+  Courses           Courses               @relation(fields: [Course_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ChatMessages_Courses")
+  Sender            Users                 @relation(fields: [Sender_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ChatMessages_Users")
+  ReplyTo           ChatMessages?         @relation("ChatMessageReplies", fields: [ReplyTo_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ChatMessages_ReplyTo")
+  Replies           ChatMessages[]        @relation("ChatMessageReplies")
+  Reactions         ChatMessageReactions[]
+
+  @@index([Course_Id], map: "IX_ChatMessages_Course")
+  @@index([Sender_Id], map: "IX_ChatMessages_Sender")
+  @@index([ReplyTo_Id], map: "IX_ChatMessages_ReplyTo")
+}
+
+model ChatReads {
+  Id                 Int      @id(map: "PK_ChatReads") @default(autoincrement())
+  User_Id            Int
+  Course_Id          Int
+  LastReadMessage_Id Int
+  UpdatedAt          DateTime @default(now()) @db.DateTime
+  Users              Users    @relation(fields: [User_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ChatReads_Users")
+  Courses            Courses  @relation(fields: [Course_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ChatReads_Courses")
+
+  @@unique([User_Id, Course_Id], map: "UQ_ChatReads_UserCourse")
+  @@index([Course_Id], map: "IX_ChatReads_Course")
+}
+
+model ChatMessageReactions {
+  Id          Int          @id(map: "PK_ChatMessageReactions") @default(autoincrement())
+  Message_Id  Int
+  User_Id     Int
+  Reaction    String       @db.NVarChar(10)
+  CreatedAt   DateTime     @default(now()) @db.DateTime
+  ChatMessages ChatMessages @relation(fields: [Message_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ChatReactions_Message")
+  Users       Users        @relation(fields: [User_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ChatReactions_User")
+
+  @@unique([Message_Id, User_Id], map: "UQ_ChatReactions_MessageUser")
+  @@index([User_Id], map: "IX_ChatReactions_User")
+}
+
+model ChatPolls {
+  Id         Int                @id(map: "PK_ChatPolls") @default(autoincrement())
+  Course_Id  Int
+  Creator_Id Int
+  Question   String             @db.NVarChar(300)
+  IsActive   Boolean            @default(true)
+  CreatedAt  DateTime           @default(now()) @db.DateTime
+  Courses    Courses            @relation(fields: [Course_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ChatPolls_Courses")
+  Users      Users              @relation(fields: [Creator_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ChatPolls_Creator")
+  Options    ChatPollOptions[]
+
+  @@index([Course_Id], map: "IX_ChatPolls_Course")
+}
+
+model ChatPollOptions {
+  Id         Int             @id(map: "PK_ChatPollOptions") @default(autoincrement())
+  Poll_Id    Int
+  OptionText String          @db.NVarChar(150)
+  ChatPolls  ChatPolls       @relation(fields: [Poll_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ChatPollOptions_Poll")
+  Votes      ChatPollVotes[]
+
+  @@index([Poll_Id], map: "IX_ChatPollOptions_Poll")
+}
+
+model ChatPollVotes {
+  Id              Int              @id(map: "PK_ChatPollVotes") @default(autoincrement())
+  Option_Id       Int
+  User_Id         Int
+  CreatedAt       DateTime         @default(now()) @db.DateTime
+  ChatPollOptions ChatPollOptions  @relation(fields: [Option_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ChatPollVotes_Option")
+  Users           Users            @relation(fields: [User_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ChatPollVotes_User")
+
+  @@unique([Option_Id, User_Id], map: "UQ_ChatPollVotes_OptionUser")
+  @@index([User_Id], map: "IX_ChatPollVotes_User")
 }

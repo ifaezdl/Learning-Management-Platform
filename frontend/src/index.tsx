@@ -13,6 +13,7 @@ import "../node_modules/@fortawesome/fontawesome-free/css/fontawesome.min.css";
 import "../node_modules/@fortawesome/fontawesome-free/css/all.min.css";
 import "../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js";
 import { AuthProvider } from "./context/AuthContext";
+import { ChatProvider } from "./core/common/chat/chatContext";
 import { Toaster } from "react-hot-toast";
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement,
@@ -22,8 +23,10 @@ root.render(
     <Provider store={store}>
       <BrowserRouter basename={base_path}>
         <AuthProvider>
-          <Toaster />
-          <ALLRoutes />
+          <ChatProvider>
+            <Toaster />
+            <ALLRoutes />
+          </ChatProvider>
         </AuthProvider>
       </BrowserRouter>
     </Provider>

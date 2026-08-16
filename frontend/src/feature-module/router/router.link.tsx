@@ -77,6 +77,7 @@ import StudentChangePassword from "../student/student-settings/student-change-pa
 import StudentSocialProfile from "../student/student-settings/student-social-profile/studentSocialProfile";
 import StudentLinkedAccounts from "../student/student-settings/student-linked-accounts/studentLinkedAccounts";
 import StudentNotification from "../student/student-settings/student-notifications/studentNotification";
+import ChatPage from "../chat/chat";
 import StudentQuizQuestion from "../student/student-quiz-question/studentQuizQuestion";
 import InstructorProfileSettings from "../Instructor/instructor-settings/instructor-profile-settings/instructorProfile";
 import PublicRoute from "./publicRoute";
@@ -591,6 +592,24 @@ export const publicRoutes = [
   {
     path: routes.studentNotification,
     element: <StudentNotification />,
+    route: Route,
+  },
+  {
+    path: routes.chat,
+    element: (
+      <RoleRoute roles={[1, 2, 3]}>
+        <ChatPage />
+      </RoleRoute>
+    ),
+    route: Route,
+  },
+  {
+    path: routes.chatCourse,
+    element: (
+      <RoleRoute roles={[1, 2, 3]}>
+        <ChatPage />
+      </RoleRoute>
+    ),
     route: Route,
   },
   {
