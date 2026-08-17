@@ -1,21 +1,15 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import toast from "react-hot-toast";
 import courseService, { Lesson } from "../../../../services/course.service";
 import LessonFileManager from "./LessonFileManager";
 import uploadService from "../../../../services/upload.service";
-
+import "./lesson-manager.scss";
 interface LessonManagerProps {
   courseId: number;
   sectionId: number;
   onLessonsChanged: () => void;
 }
-
-// مقادیر ثابت برای اجبار روشن ماندن مودال، مستقل از هر تم تیره‌ی سراسری که
-// ممکن است در پروژه فعال باشد.
-const modalContentStyle: React.CSSProperties = {
-  backgroundColor: "#fff",
-  color: "#212529",
-};
 
 const LessonManager: React.FC<LessonManagerProps> = ({
   sectionId,
@@ -59,6 +53,16 @@ const LessonManager: React.FC<LessonManagerProps> = ({
   useEffect(() => {
     fetchLessons();
   }, [fetchLessons]);
+
+  // قفل کردن اسکرول پس‌زمینه وقتی هر یک از مودال‌ها باز است
+  useEffect(() => {
+    if (showAddModal || showEditModal || showDeleteModal) {
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = "";
+      };
+    }
+  }, [showAddModal, showEditModal, showDeleteModal]);
 
   const resetForm = () => {
     setLessonTitle("");
@@ -211,16 +215,33 @@ const LessonManager: React.FC<LessonManagerProps> = ({
     setShowDeleteModal(true);
   };
 
+  const closeAddModal = () => {
+    setShowAddModal(false);
+    resetForm();
+  };
+
+  const closeEditModal = () => {
+    setShowEditModal(false);
+    setSelectedLesson(null);
+    resetForm();
+  };
+
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setSelectedLesson(null);
+  };
+
   const lessonForm = (
     <form onSubmit={showEditModal ? handleEdit : handleAdd}>
-      <div className="modal-body">
-        <div className="input-block">
-          <label className="form-label">
-            عنوان درس <span className="text-danger">*</span>
+      <div className="lesson-modal-body">
+        <div className="lesson-form-group">
+          <label>
+            عنوان درس
+            <span>*</span>
           </label>
           <input
             type="text"
-            className="form-control"
+            className="lesson-form-control"
             value={lessonTitle}
             onChange={(e) => setLessonTitle(e.target.value)}
             placeholder="عنوان درس را وارد کنید"
@@ -228,10 +249,11 @@ const LessonManager: React.FC<LessonManagerProps> = ({
             autoFocus
           />
         </div>
-        <div className="input-block">
-          <label className="form-label">توضیحات</label>
+
+        <div className="lesson-form-group">
+          <label>توضیحات</label>
           <textarea
-            className="form-control"
+            className="lesson-form-control lesson-textarea"
             rows={3}
             value={lessonDescription}
             onChange={(e) => setLessonDescription(e.target.value)}
@@ -239,121 +261,138 @@ const LessonManager: React.FC<LessonManagerProps> = ({
             disabled={saving}
           />
         </div>
-        <div className="row">
-          <div className="col-md-6">
-            <div className="input-block">
-              <label className="form-label">نوع ویدیو</label>
 
-              <select
-                className="form-control"
-                value={videoType ? "1" : "0"}
-                onChange={(e) => setVideoType(e.target.value === "1")}
-              >
-                <option value="0">لینک ویدیو</option>
-
-                <option value="1">فایل آپلود شده</option>
-              </select>
-            </div>
+        <div className="lesson-form-row">
+          <div className="lesson-form-group">
+            <label>نوع ویدیو</label>
+            <select
+              className="lesson-form-control"
+              value={videoType ? "1" : "0"}
+              onChange={(e) => setVideoType(e.target.value === "1")}
+              disabled={saving}
+            >
+              <option value="0">لینک ویدیو</option>
+              <option value="1">فایل آپلود شده</option>
+            </select>
           </div>
-          {videoType && (
-            <div className="input-block">
-              <label className="form-label">ویدیوی درس</label>
 
-              <input
-                type="file"
-                accept="video/*"
-                className="form-control"
-                onChange={handleVideoUpload}
-              />
-
-              {uploadingVideo && <p>درحال آپلود...</p>}
-
-              {videoPreview && (
-                <video controls width="400" src={videoPreview} />
-              )}
-            </div>
-          )}
-          {!videoType && (
-            <div className="input-block">
-              <label className="form-label">لینک ویدیو</label>
-
-              <input
-                type="text"
-                className="form-control"
-                value={lessonVideoUrl}
-                onChange={(e) => setLessonVideoUrl(e.target.value)}
-              />
-            </div>
-          )}
-          <div className="col-md-6">
-            <div className="input-block">
-              <label className="form-label">مدت زمان (دقیقه)</label>
-              <input
-                type="number"
-                className="form-control"
-                value={lessonDuration}
-                onChange={(e) => setLessonDuration(e.target.value)}
-                placeholder="0"
-                min="0"
-                disabled={saving}
-              />
-            </div>
+          <div className="lesson-form-group">
+            <label>مدت زمان (دقیقه)</label>
+            <input
+              type="number"
+              className="lesson-form-control"
+              value={lessonDuration}
+              onChange={(e) => setLessonDuration(e.target.value)}
+              placeholder="0"
+              min="0"
+              disabled={saving}
+            />
           </div>
         </div>
-        <div className="row">
-          <div className="col-md-6">
-            <div className="input-block">
-              <label className="form-label">ترتیب نمایش </label>
+
+        {videoType ? (
+          <div className="lesson-form-group">
+            <label>ویدیوی درس</label>
+            <input
+              type="file"
+              accept="video/*"
+              className="lesson-form-control"
+              onChange={handleVideoUpload}
+              disabled={saving}
+            />
+
+            {uploadingVideo && (
+              <small className="lesson-uploading-text">
+                در حال آپلود ویدیو...
+              </small>
+            )}
+
+            {videoPreview && (
+              <div className="lesson-video-preview">
+                <video controls src={videoPreview} />
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="lesson-form-group">
+            <label>لینک ویدیو</label>
+            <input
+              type="text"
+              className="lesson-form-control"
+              value={lessonVideoUrl}
+              onChange={(e) => setLessonVideoUrl(e.target.value)}
+              placeholder="https://..."
+              disabled={saving}
+            />
+          </div>
+        )}
+
+        <div className="lesson-form-row">
+          <div className="lesson-form-group">
+            <label>ترتیب نمایش</label>
+            <input
+              type="number"
+              className="lesson-form-control"
+              value={lessonOrder}
+              onChange={(e) => setLessonOrder(e.target.value)}
+              placeholder="به صورت خودکار تعیین می‌شود"
+              min="1"
+              disabled={saving}
+            />
+          </div>
+
+          <div className="lesson-form-group lesson-form-group-checkbox">
+            <label>&nbsp;</label>
+            <div className="lesson-checkbox-row">
               <input
-                type="number"
-                className="form-control"
-                value={lessonOrder}
-                onChange={(e) => setLessonOrder(e.target.value)}
-                placeholder="به صورت خودکار تعیین می‌شود"
-                min="1"
+                type="checkbox"
+                id="freePreviewCheck"
+                checked={lessonFreePreview}
+                onChange={(e) => setLessonFreePreview(e.target.checked)}
                 disabled={saving}
               />
-            </div>
-          </div>
-          <div className="col-md-6">
-            <div className="input-block">
-              <label className="form-label">&nbsp;</label>
-              <div className="form-check mt-2">
-                <input
-                  type="checkbox"
-                  className="form-check-input"
-                  id="freePreviewCheck"
-                  checked={lessonFreePreview}
-                  onChange={(e) => setLessonFreePreview(e.target.checked)}
-                  disabled={saving}
-                />
-                <label className="form-check-label" htmlFor="freePreviewCheck">
-                  قابل مشاهده به‌صورت رایگان
-                </label>
-              </div>
+              <label
+                htmlFor="freePreviewCheck"
+                className="lesson-checkbox-label"
+              >
+                قابل مشاهده به‌صورت رایگان
+              </label>
             </div>
           </div>
         </div>
       </div>
-      <div className="modal-footer">
+
+      <div className="lesson-modal-footer">
         <button
           type="button"
-          className="btn btn-light"
-          onClick={() => {
-            if (showAddModal) setShowAddModal(false);
-            if (showEditModal) {
-              setShowEditModal(false);
-              setSelectedLesson(null);
-            }
-            resetForm();
-          }}
+          className="lesson-modal-btn cancel"
+          onClick={showEditModal ? closeEditModal : closeAddModal}
           disabled={saving}
         >
           لغو
         </button>
-        <button type="submit" className="btn btn-primary" disabled={saving}>
-          {saving && <span className="spinner-border spinner-border-sm me-2" />}
-          {showEditModal ? "ذخیره تغییرات" : "افزودن درس"}
+
+        <button
+          type="submit"
+          className="lesson-modal-btn primary"
+          disabled={saving}
+        >
+          {saving ? (
+            <>
+              <span className="spinner-border spinner-border-sm" />
+              در حال ذخیره...
+            </>
+          ) : showEditModal ? (
+            <>
+              <i className="isax isax-tick-circle" />
+              ذخیره تغییرات
+            </>
+          ) : (
+            <>
+              <i className="isax isax-add" />
+              افزودن درس
+            </>
+          )}
         </button>
       </div>
     </form>
@@ -361,202 +400,294 @@ const LessonManager: React.FC<LessonManagerProps> = ({
 
   return (
     <>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h6 className="mb-0 text-muted">دروس</h6>
+      <div className="lesson-manager-header">
+        <div className="lesson-manager-title">
+          <div className="lesson-manager-icon">
+            <i className="fas fa-book-open" />
+          </div>
+
+          <div>
+            <h6>دروس</h6>
+            <span>درس‌های این سرفصل را مدیریت کنید</span>
+          </div>
+        </div>
+
         <button
-          className="btn btn-sm btn-outline-primary"
+          className="lesson-add-btn"
           onClick={() => {
             resetForm();
             setShowAddModal(true);
           }}
         >
-          <i className="fas fa-plus me-1" /> افزودن درس
+          <i className="fas fa-plus" />
+          افزودن درس
         </button>
       </div>
 
       {loading ? (
-        <div className="text-center py-3">
-          <div className="spinner-border spinner-border-sm text-primary" />
+        <div className="lesson-loading">
+          <div className="spinner-border spinner-border-sm" />
+          <span>در حال بارگذاری درس‌ها...</span>
         </div>
       ) : lessons.length === 0 ? (
-        <div className="text-center py-4 text-muted">
-          <i className="fas fa-book fa-2x mb-2 d-block" />
-          <p className="mb-0">هنوز هیچ درسی اضافه نشده است.</p>
+        <div className="lesson-empty-state">
+          <div className="lesson-empty-icon">
+            <i className="fas fa-book-open" />
+          </div>
+
+          <h6>هنوز درسی اضافه نشده است</h6>
+
+          <p>
+            برای این سرفصل هنوز هیچ درسی ایجاد نشده است.
+            <br />
+            اولین درس را اضافه کنید.
+          </p>
+
+          <button
+            className="lesson-empty-btn"
+            onClick={() => {
+              resetForm();
+              setShowAddModal(true);
+            }}
+          >
+            <i className="fas fa-plus me-1" />
+            افزودن اولین درس
+          </button>
         </div>
       ) : (
-        <div className="row">
-          {lessons.map((lesson) => (
-            <div className="col-md-12 mb-3" key={lesson.Id}>
-              <div className="card border">
-                <div className="card-body py-2 px-3">
-                  <div className="d-flex justify-content-between align-items-start">
-                    <div className="flex-grow-1">
-                      <div className="d-flex align-items-center mb-1">
-                        <strong className="me-2">{lesson.Title}</strong>
-                        {lesson.IsFreePreview && (
-                          <span className="badge bg-success">
-                            پیش‌نمایش رایگان
-                          </span>
-                        )}
-                      </div>
-                      {lesson.Description && (
-                        <p className="text-muted mb-1 small text-truncate">
-                          {lesson.Description}
-                        </p>
-                      )}
-                      <div className="d-flex gap-3 text-muted small">
-                        {lesson.DurationMinutes != null && (
-                          <span>
-                            <i className="fas fa-clock me-1" />
-                            {lesson.DurationMinutes} دقیقه
-                          </span>
-                        )}
-                        {lesson.VideoUrl && (
-                          <span>
-                            <i className="fas fa-video me-1" />
-                            ویدیو
-                          </span>
-                        )}
-                        <span>
-                          <i className="fas fa-paperclip me-1" />
-                          {lesson.LessonFiles?.length || 0} فایل ها
-                        </span>
-                      </div>
-                    </div>
-                    <div className="d-flex gap-1">
-                      <button
-                        className="edit-btn1"
-                        title="ویرایش درس"
-                        onClick={() => openEditModal(lesson)}
-                      >
-                        <i className="fas fa-pen" />
-                      </button>
-                      <button
-                        className="delete-btn1"
-                        title="حذف درس"
-                        onClick={() => openDeleteModal(lesson)}
-                      >
-                        <i className="fas fa-trash" />
-                      </button>
-                    </div>
+        <div className="lesson-list">
+          {lessons.map((lesson, index) => (
+            <div className="lesson-card" key={lesson.Id}>
+              <div className="lesson-card-main">
+                <div className="lesson-number">{index + 1}</div>
+
+                <div className="lesson-content">
+                  <div className="lesson-title-row">
+                    <h6>{lesson.Title}</h6>
+
+                    {lesson.IsFreePreview && (
+                      <span className="lesson-free-badge">
+                        <i className="fas fa-unlock-alt" />
+                        پیش‌نمایش رایگان
+                      </span>
+                    )}
                   </div>
-                  <div className="mt-2">
-                    <LessonFileManager lessonId={lesson.Id} />
+
+                  {lesson.Description && (
+                    <p className="lesson-description">{lesson.Description}</p>
+                  )}
+
+                  <div className="lesson-meta">
+                    {lesson.DurationMinutes != null && (
+                      <span>
+                        <i className="fas fa-clock" />
+                        {lesson.DurationMinutes} دقیقه
+                      </span>
+                    )}
+
+                    {lesson.VideoUrl && (
+                      <span>
+                        <i className="fas fa-video" />
+                        ویدیو
+                      </span>
+                    )}
+
+                    <span>
+                      <i className="fas fa-paperclip" />
+                      {lesson.LessonFiles?.length || 0} فایل
+                    </span>
                   </div>
                 </div>
+
+                <div className="lesson-actions">
+                  <button
+                    className="lesson-action edit"
+                    title="ویرایش درس"
+                    onClick={() => openEditModal(lesson)}
+                  >
+                    <i className="fas fa-pen" />
+                  </button>
+
+                  <button
+                    className="lesson-action delete"
+                    title="حذف درس"
+                    onClick={() => openDeleteModal(lesson)}
+                  >
+                    <i className="fas fa-trash" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="lesson-files">
+                <LessonFileManager lessonId={lesson.Id} />
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* مودال افزودن درس */}
-      {showAddModal && (
-        <div
-          className="modal fade show d-block"
-          tabIndex={-1}
-          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-        >
-          <div className="modal-dialog modal-dialog-centered modal-lg">
-            <div className="modal-content" style={modalContentStyle}>
-              <div className="modal-header">
-                <h5 className="modal-title">افزودن درس</h5>
+      {/* =========================
+        ADD LESSON MODAL
+      ========================= */}
+      {showAddModal &&
+        createPortal(
+          <div className="lesson-modal-backdrop">
+            <div
+              className="lesson-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="add-lesson-title"
+            >
+              <div className="lesson-modal-header">
+                <div className="lesson-modal-title">
+                  <div className="lesson-modal-icon">
+                    <i className="isax isax-book-1" />
+                  </div>
+
+                  <div>
+                    <h5 id="add-lesson-title">افزودن درس</h5>
+                    <span>یک درس جدید به این سرفصل اضافه کنید.</span>
+                  </div>
+                </div>
+
                 <button
                   type="button"
-                  className="btn-close"
-                  onClick={() => {
-                    setShowAddModal(false);
-                    resetForm();
-                  }}
-                />
+                  className="lesson-modal-close"
+                  onClick={closeAddModal}
+                  disabled={saving}
+                >
+                  <i className="isax isax-close-circle" />
+                </button>
               </div>
+
               {lessonForm}
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
 
-      {/* مودال ویرایش درس */}
-      {showEditModal && (
-        <div
-          className="modal fade show d-block"
-          tabIndex={-1}
-          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-        >
-          <div className="modal-dialog modal-dialog-centered modal-lg">
-            <div className="modal-content" style={modalContentStyle}>
-              <div className="modal-header">
-                <h5 className="modal-title">ویرایش درس</h5>
+      {/* =========================
+        EDIT LESSON MODAL
+      ========================= */}
+      {showEditModal &&
+        createPortal(
+          <div className="lesson-modal-backdrop">
+            <div
+              className="lesson-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="edit-lesson-title"
+            >
+              <div className="lesson-modal-header">
+                <div className="lesson-modal-title">
+                  <div className="lesson-modal-icon edit">
+                    <i className="isax isax-edit-2" />
+                  </div>
+
+                  <div>
+                    <h5 id="edit-lesson-title">ویرایش درس</h5>
+                    <span>اطلاعات این درس را ویرایش کنید.</span>
+                  </div>
+                </div>
+
                 <button
                   type="button"
-                  className="btn-close"
-                  onClick={() => {
-                    setShowEditModal(false);
-                    setSelectedLesson(null);
-                    resetForm();
-                  }}
-                />
+                  className="lesson-modal-close"
+                  onClick={closeEditModal}
+                  disabled={saving}
+                >
+                  <i className="isax isax-close-circle" />
+                </button>
               </div>
+
               {lessonForm}
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
 
-      {/* مودال حذف درس */}
-      {showDeleteModal && (
-        <div
-          className="modal fade show d-block"
-          tabIndex={-1}
-          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-        >
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content" style={modalContentStyle}>
-              <div className="modal-header">
-                <h5 className="modal-title">حذف درس</h5>
+      {/* =========================
+        DELETE LESSON MODAL
+      ========================= */}
+      {showDeleteModal &&
+        createPortal(
+          <div className="lesson-modal-backdrop">
+            <div
+              className="lesson-modal lesson-delete-modal"
+              role="dialog"
+              aria-modal="true"
+            >
+              <div className="lesson-modal-header">
+                <div className="lesson-modal-title">
+                  <div className="lesson-modal-icon danger">
+                    <i className="isax isax-trash" />
+                  </div>
+
+                  <div>
+                    <h5>حذف درس</h5>
+                    <span>این عملیات قابل بازگشت نیست.</span>
+                  </div>
+                </div>
+
                 <button
                   type="button"
-                  className="btn-close"
-                  onClick={() => {
-                    setShowDeleteModal(false);
-                    setSelectedLesson(null);
-                  }}
-                />
+                  className="lesson-modal-close"
+                  onClick={closeDeleteModal}
+                  disabled={saving}
+                >
+                  <i className="isax isax-close-circle" />
+                </button>
               </div>
-              <div className="modal-body">
+
+              <div className="lesson-delete-body">
                 <p>
-                  آیا از حذف این درس اطمینان دارید{" "}
-                  <strong>{selectedLesson?.Title}</strong>؟
+                  آیا از حذف درس
+                  <strong> «{selectedLesson?.Title}» </strong>
+                  اطمینان دارید؟
                 </p>
+
+                <div className="lesson-delete-warning">
+                  <i className="isax isax-warning-2" />
+                  <span>
+                    با حذف این درس، فایل‌های آموزشی مرتبط با آن نیز حذف خواهند
+                    شد.
+                  </span>
+                </div>
               </div>
-              <div className="modal-footer">
+
+              <div className="lesson-modal-footer">
                 <button
                   type="button"
-                  className="btn btn-light"
-                  onClick={() => {
-                    setShowDeleteModal(false);
-                    setSelectedLesson(null);
-                  }}
+                  className="lesson-modal-btn cancel"
+                  onClick={closeDeleteModal}
                   disabled={saving}
                 >
                   لغو
                 </button>
+
                 <button
                   type="button"
-                  className="btn btn-danger"
+                  className="lesson-modal-btn danger"
                   onClick={handleDelete}
                   disabled={saving}
                 >
-                  {saving && (
-                    <span className="spinner-border spinner-border-sm me-2" />
+                  {saving ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm" />
+                      در حال حذف...
+                    </>
+                  ) : (
+                    <>
+                      <i className="isax isax-trash" />
+                      حذف درس
+                    </>
                   )}
-                  حذف
                 </button>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
     </>
   );
 };

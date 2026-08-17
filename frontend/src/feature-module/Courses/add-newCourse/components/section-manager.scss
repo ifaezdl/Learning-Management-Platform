@@ -1,0 +1,970 @@
+/* =========================================
+   SECTION MANAGER
+========================================= */
+@import "../../../../../src/style/scss/utils/variables";
+
+.section-manager {
+  width: 100%;
+  background: var(--white);
+  border: 1px solid var(--gray-100);
+  border-radius: $border-radius-xxl;
+  overflow: hidden;
+}
+
+/* =========================================
+   HEADER
+========================================= */
+
+.section-manager-header {
+  padding: 18px 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  border-bottom: 1px solid var(--gray-100);
+  background: var(--light-900);
+}
+
+.section-manager-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-manager-icon {
+  width: 42px;
+  height: 42px;
+
+  flex: 0 0 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 9px;
+
+  background: $primary-transparent;
+  color: $primary;
+
+  font-size: 19px;
+}
+
+.section-manager-heading h6 {
+  margin: 0 0 4px;
+
+  color: var(--gray-900);
+
+  font-size: 14px;
+  font-weight: $font-weight-semibold;
+}
+
+.section-manager-heading p {
+  margin: 0;
+
+  color: var(--gray-500);
+
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.section-add-btn {
+  height: 38px;
+
+  padding: 0 14px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  border: 1px solid $primary;
+  border-radius: 6px;
+
+  background: $primary;
+  color: $white;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: $font-weight-semibold;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.section-add-btn:hover {
+  background: $primary-hover;
+  border-color: $primary-hover;
+
+  transform: translateY(-1px);
+}
+
+.section-add-btn i {
+  font-size: 15px;
+}
+
+/* =========================================
+   BODY
+========================================= */
+
+.section-manager-body {
+  padding: 20px;
+}
+
+/* =========================================
+   LOADING
+========================================= */
+
+.section-loading {
+  min-height: 180px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 12px;
+
+  color: var(--gray-500);
+
+  font-size: 12px;
+}
+
+.section-loading .spinner-border {
+  width: 28px;
+  height: 28px;
+
+  color: $primary;
+}
+
+/* =========================================
+   EMPTY STATE
+========================================= */
+
+.section-empty-state {
+  padding: 45px 20px;
+
+  text-align: center;
+
+  border: 1px dashed var(--gray-200);
+  border-radius: 10px;
+
+  background: var(--light-900);
+}
+
+.section-empty-icon {
+  width: 62px;
+  height: 62px;
+
+  margin: 0 auto 15px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: $primary-transparent;
+  color: $primary;
+
+  font-size: 26px;
+}
+
+.section-empty-state h6 {
+  margin-bottom: 7px;
+
+  color: var(--gray-900);
+
+  font-size: 14px;
+  font-weight: $font-weight-semibold;
+}
+
+.section-empty-state p {
+  max-width: 420px;
+
+  margin: 0 auto 18px;
+
+  color: var(--gray-500);
+
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.section-empty-btn {
+  height: 36px;
+
+  padding: 0 14px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  border: 1px solid $primary;
+  border-radius: 6px;
+
+  background: transparent;
+  color: $primary;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: $font-weight-medium;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.section-empty-btn:hover {
+  background: $primary;
+  color: #fff;
+}
+
+/* =========================================
+   SECTIONS LIST
+========================================= */
+
+.sections-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* =========================================
+   SECTION ITEM
+========================================= */
+
+.section-item {
+  border: 1px solid var(--gray-100);
+  border-radius: 9px;
+
+  background: var(--white);
+
+  overflow: hidden;
+
+  transition: all 0.2s ease;
+}
+
+.section-item:hover {
+  border-color: rgba(55, 87, 197, 0.25);
+}
+
+.section-item.is-expanded {
+  border-color: rgba(55, 87, 197, 0.35);
+
+  box-shadow: 0 4px 14px rgba(55, 87, 197, 0.07);
+}
+
+/* =========================================
+   SECTION HEADER
+========================================= */
+
+.section-item-header {
+  min-height: 76px;
+
+  display: flex;
+  align-items: stretch;
+
+  position: relative;
+}
+
+.section-toggle {
+  flex: 1;
+
+  min-width: 0;
+
+  padding: 12px 14px;
+
+  border: 0;
+  background: transparent;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  text-align: right;
+
+  font-family: inherit;
+
+  cursor: pointer;
+}
+
+.section-number {
+  width: 40px;
+  height: 40px;
+
+  flex: 0 0 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: $primary-transparent;
+  color: $primary;
+
+  font-size: 12px;
+  font-weight: $font-weight-bold;
+}
+
+.section-main-info {
+  min-width: 0;
+
+  flex: 1;
+}
+
+.section-title-row {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  margin-bottom: 4px;
+}
+
+.section-label {
+  color: var(--gray-500);
+
+  font-size: 10px;
+  font-weight: $font-weight-medium;
+}
+
+.section-lesson-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  padding: 3px 7px;
+
+  border-radius: 20px;
+
+  background: $primary-transparent;
+  color: $primary;
+
+  font-size: 10px;
+  font-weight: $font-weight-medium;
+}
+
+.section-lesson-count i {
+  font-size: 11px;
+}
+
+.section-main-info strong {
+  display: block;
+
+  overflow: hidden;
+
+  color: var(--gray-900);
+
+  font-size: 13px;
+  font-weight: $font-weight-semibold;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.section-chevron {
+  width: 30px;
+  height: 30px;
+
+  flex: 0 0 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 6px;
+
+  color: var(--gray-400);
+
+  transition: all 0.2s ease;
+}
+
+.section-chevron i {
+  font-size: 15px;
+  transition: transform 0.2s ease;
+}
+
+.section-chevron.expanded {
+  background: $primary-transparent;
+  color: $primary;
+}
+
+.section-chevron.expanded i {
+  transform: rotate(180deg);
+}
+
+/* =========================================
+   ACTIONS
+========================================= */
+
+.section-actions {
+  padding: 0 13px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+
+  border-right: 1px solid var(--gray-100);
+}
+
+.section-action-btn {
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid transparent;
+  border-radius: 6px;
+
+  background: transparent;
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.section-action-btn.edit {
+  color: $primary;
+}
+
+.section-action-btn.edit:hover {
+  background: $primary-transparent;
+  border-color: rgba(55, 87, 197, 0.15);
+}
+
+.section-action-btn.delete {
+  color: $danger;
+}
+
+.section-action-btn.delete:hover {
+  background: $danger-transparent;
+  border-color: rgba(231, 13, 13, 0.12);
+}
+
+/* =========================================
+   LESSONS
+========================================= */
+
+.section-lessons {
+  padding: 18px;
+
+  border-top: 1px solid var(--gray-100);
+
+  background: var(--light-900);
+}
+
+/* =========================================
+   MODAL
+========================================= */
+
+.section-modal-backdrop {
+  position: fixed;
+  inset: 0;
+
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(15, 15, 65, 0.45);
+
+  backdrop-filter: blur(3px);
+
+  animation: sectionModalFadeIn 0.18s ease;
+}
+
+@keyframes sectionModalFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.section-modal {
+  width: 100%;
+  max-width: 480px;
+
+  overflow: hidden;
+
+  background: var(--white);
+
+  border: 1px solid var(--gray-100);
+  border-radius: 12px;
+
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+
+  animation: sectionModalSlideUp 0.2s ease;
+}
+
+@keyframes sectionModalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================
+   MODAL HEADER
+========================================= */
+
+.section-modal-header {
+  padding: 18px 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.section-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.section-modal-icon {
+  width: 40px;
+  height: 40px;
+
+  flex: 0 0 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: $primary-transparent;
+  color: $primary;
+
+  font-size: 18px;
+}
+
+.section-modal-icon.edit {
+  background: $info-transparent;
+  color: $info;
+}
+
+.section-modal-icon.danger {
+  background: $danger-transparent;
+  color: $danger;
+}
+
+.section-modal-title h5 {
+  margin: 0 0 3px;
+
+  color: var(--gray-900);
+
+  font-size: 15px;
+  font-weight: $font-weight-semibold;
+}
+
+.section-modal-title span {
+  color: var(--gray-500);
+
+  font-size: 11px;
+}
+
+.section-modal-close {
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 0;
+  border-radius: 6px;
+
+  background: var(--light-800);
+  color: var(--gray-500);
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.section-modal-close:hover {
+  background: $danger-transparent;
+  color: $danger;
+}
+
+/* =========================================
+   MODAL BODY
+========================================= */
+
+.section-modal-body {
+  padding: 20px;
+}
+
+.section-form-group {
+  margin-bottom: 17px;
+}
+
+.section-form-group:last-child {
+  margin-bottom: 0;
+}
+
+.section-form-group label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: var(--gray-700);
+
+  font-size: 12px;
+  font-weight: $font-weight-medium;
+}
+
+.section-form-group label span {
+  margin-right: 4px;
+
+  color: $danger;
+}
+
+.section-form-control {
+  width: 100%;
+  height: 42px;
+
+  padding: 0 12px;
+
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
+
+  background: var(--white);
+  color: var(--gray-900);
+
+  font-family: inherit;
+  font-size: 12px;
+
+  outline: none;
+
+  transition: all 0.2s ease;
+}
+
+.section-form-control::placeholder {
+  color: var(--gray-400);
+}
+
+.section-form-control:focus {
+  border-color: $primary;
+
+  box-shadow: 0 0 0 3px rgba(55, 87, 197, 0.09);
+}
+
+.section-form-control:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.section-form-group small {
+  display: block;
+
+  margin-top: 6px;
+
+  color: var(--gray-400);
+
+  font-size: 10px;
+  line-height: 1.7;
+}
+
+/* =========================================
+   MODAL FOOTER
+========================================= */
+
+.section-modal-footer {
+  padding: 14px 20px;
+
+  display: flex;
+  justify-content: flex-start;
+
+  gap: 8px;
+
+  border-top: 1px solid var(--gray-100);
+
+  background: var(--light-900);
+}
+
+.section-modal-btn {
+  min-width: 100px;
+  height: 38px;
+
+  padding: 0 13px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 6px;
+
+  border-radius: 6px;
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: $font-weight-semibold;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.section-modal-btn.cancel {
+  border: 1px solid var(--gray-200);
+
+  background: var(--white);
+  color: var(--gray-600);
+}
+
+.section-modal-btn.cancel:hover {
+  border-color: var(--gray-300);
+  background: var(--light-800);
+}
+
+.section-modal-btn.primary {
+  border: 1px solid $primary;
+
+  background: $primary;
+  color: #fff;
+}
+
+.section-modal-btn.primary:hover {
+  background: $primary-hover;
+}
+
+.section-modal-btn.danger {
+  border: 1px solid $danger;
+
+  background: $danger;
+  color: #fff;
+}
+
+.section-modal-btn.danger:hover {
+  background: $danger-hover;
+}
+
+.section-modal-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================================
+   DELETE MODAL
+========================================= */
+
+.section-delete-modal {
+  max-width: 450px;
+}
+
+.section-delete-body {
+  padding: 22px 20px;
+}
+
+.section-delete-body > p {
+  margin: 0 0 16px;
+
+  color: var(--gray-700);
+
+  font-size: 13px;
+  line-height: 1.9;
+}
+
+.section-delete-body strong {
+  color: var(--gray-900);
+}
+
+.section-delete-warning {
+  padding: 12px;
+
+  display: flex;
+  align-items: flex-start;
+
+  gap: 9px;
+
+  border: 1px solid rgba(231, 13, 13, 0.12);
+  border-radius: 7px;
+
+  background: $danger-transparent;
+  color: $danger;
+
+  font-size: 11px;
+  line-height: 1.8;
+}
+
+.section-delete-warning i {
+  flex: 0 0 auto;
+
+  margin-top: 2px;
+
+  font-size: 15px;
+}
+
+/* =========================================
+   DARK MODE
+========================================= */
+
+.dark-mode .section-manager {
+  background: var(--light-100);
+  border-color: var(--gray-200);
+}
+
+.dark-mode .section-manager-header {
+  background: var(--light-200);
+  border-color: var(--gray-200);
+}
+
+.dark-mode .section-item {
+  background: var(--light-100);
+  border-color: var(--gray-200);
+}
+
+.dark-mode .section-actions {
+  border-color: var(--gray-200);
+}
+
+.dark-mode .section-lessons {
+  background: var(--light-200);
+  border-color: var(--gray-200);
+}
+
+.dark-mode .section-empty-state {
+  background: var(--light-200);
+  border-color: var(--gray-300);
+}
+
+.dark-mode .section-modal {
+  background: var(--light-100);
+  border-color: var(--gray-200);
+}
+
+.dark-mode .section-modal-header {
+  border-color: var(--gray-200);
+}
+
+.dark-mode .section-modal-footer {
+  background: var(--light-200);
+  border-color: var(--gray-200);
+}
+
+.dark-mode .section-form-control {
+  background: var(--light-100);
+  border-color: var(--gray-300);
+  color: var(--gray-900);
+}
+
+.dark-mode .section-modal-close {
+  background: var(--light-300);
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 767px) {
+  .section-manager-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .section-add-btn {
+    width: 100%;
+  }
+
+  .section-manager-body {
+    padding: 14px;
+  }
+
+  .section-item-header {
+    min-height: 68px;
+  }
+
+  .section-toggle {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .section-number {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+  }
+
+  .section-actions {
+    padding: 0 8px;
+  }
+
+  .section-action-btn {
+    width: 29px;
+    height: 29px;
+  }
+
+  .section-lessons {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 575px) {
+  .section-manager-heading {
+    align-items: flex-start;
+  }
+
+  .section-manager-heading p {
+    max-width: 250px;
+  }
+
+  .section-title-row {
+    flex-wrap: wrap;
+  }
+
+  .section-main-info strong {
+    max-width: 150px;
+  }
+
+  .section-chevron {
+    display: none;
+  }
+
+  .section-modal-backdrop {
+    padding: 12px;
+  }
+
+  .section-modal-header {
+    padding: 15px;
+  }
+
+  .section-modal-body {
+    padding: 16px;
+  }
+
+  .section-modal-footer {
+    padding: 12px 16px;
+  }
+
+  .section-modal-btn {
+    flex: 1;
+  }
+}

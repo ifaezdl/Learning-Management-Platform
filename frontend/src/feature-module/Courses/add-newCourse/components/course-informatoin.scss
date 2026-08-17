@@ -1,0 +1,761 @@
+@import "../../../../../src/style/scss/utils/variables";
+.course-information-page {
+  width: 100%;
+  padding: 4px 0 30px;
+  color: var(--gray-900);
+  font-family: "YekanBakh", "Inter", sans-serif;
+}
+
+/* =========================================
+   HEADER
+========================================= */
+
+.course-form-header {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #3757c5 0%, #2f49aa 55%, #241b4b 100%);
+  border-radius: 12px;
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  color: #fff;
+  box-shadow: 0px 8px 24px rgba(55, 87, 197, 0.18);
+}
+
+.course-form-header::before {
+  content: "";
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  left: -50px;
+  top: -90px;
+}
+
+.course-form-header::after {
+  content: "";
+  position: absolute;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background: rgba(255, 70, 103, 0.12);
+  right: 20%;
+  bottom: -90px;
+}
+
+.course-form-header > div {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.course-form-icon {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.13);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 23px;
+}
+
+.course-form-header h4 {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.course-form-header p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 13px;
+}
+
+.course-step-badge {
+  position: relative;
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* =========================================
+   CARDS
+========================================= */
+
+.course-form-card {
+  background: var(--white);
+  border: 1px solid var(--gray-100);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: $box-shadow-xs-2;
+  transition: all 0.2s ease;
+}
+
+.course-form-card:hover {
+  box-shadow: $box-shadow-md;
+}
+
+/* =========================================
+   SECTION TITLE
+========================================= */
+
+.course-section-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 17px;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.section-number {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  border-radius: 8px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: $primary-transparent;
+  color: $primary;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.section-number.green {
+  background: $success-transparent;
+  color: $success;
+}
+
+.section-number.orange {
+  background: $secondary-transparent;
+  color: $secondary;
+}
+
+.course-section-title h5 {
+  margin: 0 0 4px;
+  color: var(--gray-900);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.course-section-title p {
+  margin: 0;
+  color: var(--gray-500);
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+/* =========================================
+   INPUTS
+========================================= */
+
+.course-input-group label {
+  display: block;
+  color: var(--gray-700);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.course-input-group label span {
+  color: $danger;
+  margin-right: 4px;
+}
+
+.course-input {
+  height: 46px;
+  border: 1px solid var(--gray-100);
+  border-radius: 6px;
+  background: var(--white);
+  color: var(--gray-900);
+  font-family: inherit;
+  font-size: 13px;
+  padding: 0 14px;
+  transition: all 0.2s ease;
+}
+
+.course-input:hover {
+  border-color: var(--gray-200);
+}
+
+.course-input:focus {
+  border-color: $primary;
+  box-shadow: 0 0 0 3px rgba(55, 87, 197, 0.09);
+  background: var(--white);
+}
+
+.course-input::placeholder {
+  color: var(--gray-300);
+}
+
+.course-input:disabled {
+  background: var(--light-800);
+  cursor: not-allowed;
+}
+
+.course-input-group small {
+  display: block;
+  margin-top: 7px;
+  color: var(--gray-400);
+  font-size: 11px;
+}
+
+/* =========================================
+   SELECT
+========================================= */
+
+.select-wrapper {
+  position: relative;
+}
+
+.select-wrapper .course-input {
+  appearance: none;
+  padding-left: 40px;
+  cursor: pointer;
+}
+
+.select-wrapper i {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gray-400);
+  pointer-events: none;
+  font-size: 15px;
+}
+
+/* =========================================
+   EDITOR
+========================================= */
+
+.course-editor {
+  border: 1px solid var(--gray-100);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--white);
+}
+
+.course-editor:focus-within {
+  border-color: $primary;
+  box-shadow: 0 0 0 3px rgba(55, 87, 197, 0.08);
+}
+
+.course-editor .rsw-editor {
+  min-height: 230px;
+  border: 0;
+  font-family: "YekanBakh", "Inter", sans-serif;
+  font-size: 13px;
+}
+
+/* =========================================
+   PRICE INPUT
+========================================= */
+
+.input-with-suffix {
+  position: relative;
+}
+
+.input-with-suffix .course-input {
+  padding-left: 65px;
+}
+
+.input-with-suffix > span {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  color: var(--gray-400);
+  font-size: 11px;
+  pointer-events: none;
+}
+
+/* =========================================
+   UPLOAD
+========================================= */
+
+.course-upload-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(280px, 1fr);
+  gap: 20px;
+}
+
+.course-upload-box {
+  min-height: 220px;
+
+  border: 1px dashed var(--gray-200);
+  border-radius: 10px;
+
+  background: var(--light-900);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  cursor: pointer;
+
+  padding: 25px;
+
+  transition: all 0.2s ease;
+}
+
+.course-upload-box:hover {
+  border-color: $primary;
+  background: $primary-transparent;
+}
+
+.course-upload-box.uploading {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.upload-icon {
+  width: 58px;
+  height: 58px;
+
+  border-radius: 10px;
+
+  background: $primary-transparent;
+  color: $primary;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 25px;
+
+  margin-bottom: 14px;
+}
+
+.course-upload-box strong {
+  color: var(--gray-700);
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.course-upload-box small {
+  color: var(--gray-400);
+  font-size: 11px;
+}
+
+.course-upload-box .spinner-border {
+  width: 27px;
+  height: 27px;
+
+  color: $primary;
+
+  margin-bottom: 14px;
+}
+
+/* =========================================
+   IMAGE PREVIEW
+========================================= */
+
+.thumbnail-preview-card {
+  border: 1px solid var(--gray-100);
+  border-radius: 10px;
+
+  padding: 12px;
+
+  background: var(--white);
+
+  box-shadow: $box-shadow-xs;
+}
+
+.preview-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  color: var(--gray-600);
+
+  font-size: 12px;
+  font-weight: 600;
+
+  margin-bottom: 10px;
+}
+
+.preview-label i {
+  color: $success;
+  font-size: 16px;
+}
+
+.thumbnail-preview-card img {
+  width: 100%;
+  height: 195px;
+
+  object-fit: cover;
+
+  display: block;
+
+  border-radius: 7px;
+}
+
+/* =========================================
+   DYNAMIC LIST
+========================================= */
+
+.dynamic-items {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.dynamic-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.item-number {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+
+  border-radius: 50%;
+
+  background: $primary-transparent;
+  color: $primary;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.dynamic-input-row .course-input {
+  flex: 1;
+}
+
+.delete-item-btn {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+
+  border: 1px solid $danger-100;
+  border-radius: 6px;
+
+  background: $danger-transparent;
+  color: $danger;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.delete-item-btn:hover {
+  background: $danger;
+  border-color: $danger;
+  color: #fff;
+}
+
+/* =========================================
+   EMPTY STATE
+========================================= */
+
+.empty-dynamic-state {
+  min-height: 82px;
+
+  border: 1px dashed var(--gray-200);
+  border-radius: 8px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-direction: column;
+
+  gap: 5px;
+
+  color: var(--gray-400);
+
+  font-size: 11px;
+}
+
+.empty-dynamic-state i {
+  color: var(--gray-300);
+  font-size: 20px;
+}
+
+/* =========================================
+   ADD BUTTON
+========================================= */
+
+.add-item-btn {
+  border: 0;
+  background: transparent;
+
+  color: $primary;
+
+  padding: 0;
+
+  margin-top: 16px;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.add-item-btn i {
+  font-size: 15px;
+}
+
+.add-item-btn:hover {
+  color: $primary-hover;
+}
+
+/* =========================================
+   SUBMIT BAR
+========================================= */
+
+.course-submit-bar {
+  margin-top: 20px;
+
+  padding: 17px 20px;
+
+  border: 1px solid var(--gray-100);
+  border-radius: 10px;
+
+  background: var(--white);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  box-shadow: $box-shadow-sm;
+}
+
+.course-submit-bar > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.course-submit-bar strong {
+  color: var(--gray-700);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.course-submit-bar span {
+  color: var(--gray-400);
+  font-size: 11px;
+}
+
+/* =========================================
+   SUBMIT BUTTON
+========================================= */
+
+.course-submit-btn {
+  min-width: 190px;
+  height: 46px;
+
+  border: 0;
+  border-radius: 6px;
+
+  background: $primary;
+  color: #fff;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  cursor: pointer;
+
+  box-shadow: 0 4px 12px rgba(55, 87, 197, 0.18);
+
+  transition: all 0.2s ease;
+}
+
+.course-submit-btn:hover:not(:disabled) {
+  background: $primary-hover;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(55, 87, 197, 0.23);
+}
+
+.course-submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.course-submit-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.course-submit-btn .spinner-border {
+  width: 15px;
+  height: 15px;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 991px) {
+  .course-upload-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .course-form-header {
+    padding: 20px;
+  }
+
+  .course-form-header > div {
+    align-items: flex-start;
+  }
+
+  .course-step-badge {
+    display: none;
+  }
+
+  .course-form-card {
+    padding: 18px;
+  }
+
+  .course-section-title {
+    margin-bottom: 20px;
+  }
+
+  .course-submit-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .course-submit-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 575px) {
+  .course-form-header h4 {
+    font-size: 17px;
+  }
+
+  .course-form-header p {
+    font-size: 11px;
+  }
+
+  .course-form-icon {
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
+    font-size: 20px;
+  }
+
+  .dynamic-input-row {
+    gap: 5px;
+  }
+
+  .item-number {
+    display: none;
+  }
+
+  .delete-item-btn {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+  }
+
+  .course-upload-box {
+    min-height: 190px;
+  }
+
+  .thumbnail-preview-card img {
+    height: 170px;
+  }
+}
+
+/* =========================================
+   DARK MODE
+========================================= */
+
+.dark-mode .course-form-card,
+.dark-mode .course-submit-bar,
+.dark-mode .thumbnail-preview-card {
+  background: var(--light-100);
+  border-color: var(--gray-200);
+}
+
+.dark-mode .course-input {
+  background: var(--light-200);
+  border-color: var(--gray-300);
+  color: var(--gray-900);
+}
+
+.dark-mode .course-input:focus {
+  border-color: $primary;
+  background: var(--light-200);
+}
+
+.dark-mode .course-upload-box {
+  background: var(--light-200);
+  border-color: var(--gray-300);
+}
+
+.dark-mode .course-upload-box:hover {
+  background: rgba(55, 87, 197, 0.08);
+}
+
+.dark-mode .course-section-title {
+  border-color: var(--gray-200);
+}
+
+.dark-mode .course-editor {
+  background: var(--light-200);
+  border-color: var(--gray-300);
+}
+
+.dark-mode .empty-dynamic-state {
+  border-color: var(--gray-300);
+}
+
+.dark-mode .item-number {
+  background: rgba(55, 87, 197, 0.14);
+}

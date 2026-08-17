@@ -24,7 +24,7 @@ root.render(
       <BrowserRouter basename={base_path}>
         <AuthProvider>
           <ChatProvider>
-            <Toaster />
+            <Toaster containerStyle={{ zIndex: 999999 }} />
             <ALLRoutes />
           </ChatProvider>
         </AuthProvider>

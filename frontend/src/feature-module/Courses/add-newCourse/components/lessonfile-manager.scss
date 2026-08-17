@@ -1,0 +1,610 @@
+@import "../../../../../src/style/scss/utils/variables";
+/* =========================================================
+   Lesson File Manager
+   Project Theme
+   Primary: #3757C5
+   Secondary: #FF4667
+========================================================= */
+
+.lesson-files-manager {
+  width: 100%;
+}
+
+/* =========================
+   Header
+========================= */
+
+.lesson-files-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.lesson-files-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.lesson-files-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  background: rgba(55, 87, 197, 0.08);
+  color: #3757c5;
+  font-size: 13px;
+}
+
+.lesson-files-title h6 {
+  margin: 0 0 2px;
+  color: var(--gray-800);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.lesson-files-title span {
+  color: var(--gray-500);
+  font-size: 10px;
+}
+
+/* =========================
+   Add Button
+========================= */
+
+.lesson-file-add-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 11px;
+  border: 1px solid rgba(55, 87, 197, 0.25);
+  border-radius: 6px;
+  background: rgba(55, 87, 197, 0.06);
+  color: #3757c5;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lesson-file-add-btn:hover {
+  border-color: #3757c5;
+  background: #3757c5;
+  color: #fff;
+}
+
+/* =========================
+   Loading
+========================= */
+
+.lesson-files-loading {
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--gray-500);
+  font-size: 11px;
+}
+
+.lesson-files-loading .spinner-border {
+  color: #3757c5;
+}
+
+/* =========================
+   Empty State
+========================= */
+
+.lesson-files-empty {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px;
+  border: 1px dashed var(--gray-200);
+  border-radius: 8px;
+  background: var(--white);
+}
+
+.lesson-files-empty-icon {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  background: var(--light-600);
+  color: var(--gray-400);
+  font-size: 14px;
+}
+
+.lesson-files-empty h6 {
+  margin: 0 0 3px;
+  color: var(--gray-700);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.lesson-files-empty p {
+  margin: 0;
+  color: var(--gray-500);
+  font-size: 10px;
+  line-height: 1.7;
+}
+
+/* =========================
+   File List
+========================= */
+
+.lesson-file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+/* =========================
+   File Item
+========================= */
+
+.lesson-file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid var(--gray-100);
+  border-radius: 7px;
+  background: var(--white);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.lesson-file-item:hover {
+  border-color: rgba(55, 87, 197, 0.2);
+  box-shadow: 0 3px 12px rgba(55, 87, 197, 0.05);
+}
+
+/* =========================
+   File Info
+========================= */
+
+.lesson-file-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.lesson-file-type {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  background: rgba(55, 87, 197, 0.08);
+  color: #3757c5;
+  font-size: 15px;
+}
+
+.lesson-file-details {
+  min-width: 0;
+  flex: 1;
+}
+
+.lesson-file-name {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--gray-800);
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.lesson-file-name:hover {
+  color: #3757c5;
+}
+
+.lesson-file-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 3px;
+  color: var(--gray-500);
+  font-size: 9px;
+}
+
+.lesson-file-meta-separator {
+  color: var(--gray-300);
+}
+
+/* =========================
+   File Actions
+========================= */
+
+.lesson-file-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.lesson-file-action {
+  width: 29px;
+  height: 29px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--gray-100);
+  border-radius: 6px;
+  background: var(--white);
+  font-size: 10px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lesson-file-action.view {
+  color: #3757c5;
+}
+
+.lesson-file-action.view:hover {
+  border-color: #3757c5;
+  background: rgba(55, 87, 197, 0.08);
+  color: #3757c5;
+}
+
+.lesson-file-action.delete {
+  color: #e70d0d;
+}
+
+.lesson-file-action.delete:hover {
+  border-color: #e70d0d;
+  background: rgba(231, 13, 13, 0.07);
+}
+
+/* =========================
+   Modal
+========================= */
+
+.lesson-file-modal {
+  border: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--white);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+}
+
+.lesson-file-modal .modal-header {
+  padding: 17px 20px;
+  border-bottom: 1px solid var(--gray-100);
+  background: var(--white);
+}
+
+.lesson-file-modal .modal-title {
+  margin: 0;
+  color: var(--gray-900);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.lesson-file-modal .modal-header h5 {
+  margin: 0;
+  color: var(--gray-900);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.lesson-file-modal .modal-body {
+  padding: 20px;
+}
+
+.lesson-file-modal .modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--gray-100);
+}
+
+/* =========================
+   Form
+========================= */
+
+.lesson-file-modal .input-block {
+  margin-bottom: 16px;
+}
+
+.lesson-file-modal .input-block label {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--gray-800);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.lesson-file-modal .form-control {
+  min-height: 42px;
+  border: 1px solid var(--gray-200);
+  border-radius: 7px;
+  background: var(--white);
+  color: var(--gray-900);
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.lesson-file-modal .form-control:focus {
+  border-color: #3757c5;
+  box-shadow: 0 0 0 3px rgba(55, 87, 197, 0.1);
+}
+
+.lesson-file-modal .form-control::placeholder {
+  color: var(--gray-400);
+}
+
+/* =========================
+   Selected File Info
+========================= */
+
+.lesson-file-selected {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  margin-top: 4px;
+  border: 1px solid rgba(55, 87, 197, 0.12);
+  border-radius: 8px;
+  background: rgba(55, 87, 197, 0.04);
+}
+
+.lesson-file-selected-icon {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(55, 87, 197, 0.1);
+  color: #3757c5;
+  font-size: 15px;
+}
+
+.lesson-file-selected-details {
+  min-width: 0;
+}
+
+.lesson-file-selected-details strong {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--gray-800);
+  font-size: 11px;
+}
+
+.lesson-file-selected-details span {
+  color: var(--gray-500);
+  font-size: 10px;
+}
+
+/* =========================
+   Modal Buttons
+========================= */
+
+.lesson-file-modal .btn {
+  min-height: 38px;
+  padding: 0 15px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.lesson-file-modal .btn-primary {
+  border-color: #3757c5;
+  background: #3757c5;
+}
+
+.lesson-file-modal .btn-primary:hover {
+  border-color: #241b4b;
+  background: #241b4b;
+}
+
+.lesson-file-modal .btn-danger {
+  border-color: #e70d0d;
+  background: #e70d0d;
+}
+
+/* =========================
+   Delete Confirmation
+========================= */
+
+.lesson-file-delete-message {
+  padding: 4px 0;
+  color: var(--gray-700);
+  font-size: 13px;
+  line-height: 2;
+}
+
+.lesson-file-delete-message strong {
+  color: var(--gray-900);
+}
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 575px) {
+  .lesson-files-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .lesson-file-add-btn {
+    width: 100%;
+  }
+
+  .lesson-file-item {
+    align-items: flex-start;
+  }
+
+  .lesson-file-actions {
+    padding-top: 2px;
+  }
+
+  .lesson-file-meta {
+    gap: 4px;
+  }
+
+  .lesson-files-empty {
+    align-items: flex-start;
+  }
+}
+/* ================================
+   Lesson File Manager
+================================ */
+
+.lesson-file-manager-modal {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 99999 !important;
+
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+  background: rgba(15, 15, 65, 0.55);
+  backdrop-filter: blur(3px);
+}
+
+.lesson-file-manager-modal .modal-dialog {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 100000;
+}
+
+.lesson-file-manager-modal .modal-content {
+  border: 0;
+  border-radius: 14px;
+  background: var(--white);
+  color: var(--dark);
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.lesson-file-manager-modal .modal-header {
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--gray-100);
+  background: var(--white);
+}
+
+.lesson-file-manager-modal .modal-header h5 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.lesson-file-manager-modal .modal-body {
+  padding: 24px 22px;
+}
+
+.lesson-file-manager-modal .modal-footer {
+  padding: 16px 22px;
+  border-top: 1px solid var(--gray-100);
+  background: var(--light-900);
+}
+
+.lesson-file-manager-modal .input-block {
+  margin-bottom: 18px;
+}
+
+.lesson-file-manager-modal .input-block label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray-800);
+}
+
+.lesson-file-manager-modal .form-control {
+  min-height: 44px;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--gray-900);
+}
+
+.lesson-file-manager-modal .form-control:focus {
+  border-color: $primary;
+  box-shadow: 0 0 0 3px rgba(55, 87, 197, 0.1);
+}
+
+.lesson-file-manager-modal .btn-primary {
+  background: $primary;
+  border-color: $primary;
+}
+
+.lesson-file-manager-modal .btn-primary:hover {
+  background: $primary-hover;
+  border-color: $primary-hover;
+}
+
+.lesson-file-manager-modal .btn-light {
+  background: var(--light-900);
+  border-color: var(--gray-200);
+  color: var(--gray-700);
+}
+
+.lesson-file-manager-modal .file-selected-info {
+  padding: 14px 16px;
+  border: 1px solid rgba(55, 87, 197, 0.15);
+  border-radius: 10px;
+  background: rgba(55, 87, 197, 0.05);
+}
+
+.lesson-file-manager-modal .file-selected-info div {
+  font-size: 13px;
+  color: var(--gray-600);
+}
+
+.lesson-file-manager-modal .file-selected-info b {
+  color: var(--gray-800);
+}
+
+@media (max-width: 576px) {
+  .lesson-file-manager-modal {
+    padding: 12px;
+  }
+
+  .lesson-file-manager-modal .modal-dialog {
+    max-width: 100%;
+  }
+
+  .lesson-file-manager-modal .modal-body {
+    padding: 18px;
+  }
+
+  .lesson-file-manager-modal .modal-footer {
+    padding: 14px 18px;
+  }
+}
