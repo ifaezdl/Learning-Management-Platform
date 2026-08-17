@@ -1,7 +1,41 @@
 @import "./style/css/meanmenu.css";
 @import "./style/scss/main.scss";
 @import "./style/fonts/persianfonts/ImportFonts.css";
+.course-editor [contenteditable="true"] {
+  direction: rtl;
+  text-align: right;
+}
+.course-editor {
+  direction: rtl;
+  text-align: right;
+}
 
+.course-editor ul {
+  direction: rtl;
+  text-align: right;
+  list-style-type: disc !important;
+  padding-right: 2rem !important;
+  padding-left: 0 !important;
+  margin: 1rem 0 !important;
+}
+
+.course-editor ol {
+  direction: rtl;
+  text-align: right;
+  list-style-type: decimal !important;
+  padding-right: 2rem !important;
+  padding-left: 0 !important;
+  margin: 1rem 0 !important;
+}
+
+.course-editor li {
+  display: list-item !important;
+  text-align: right;
+}
+
+.course-editor p {
+  text-align: right;
+}
 .course-item-two {
   transition:
     transform 0.25s ease,

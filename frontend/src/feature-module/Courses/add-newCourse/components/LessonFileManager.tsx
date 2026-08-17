@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import toast from "react-hot-toast";
 import courseService, { LessonFile } from "../../../../services/course.service";
 import uploadService from "../../../../services/upload.service";
-
+import "./lessonfile-manager.scss";
 interface LessonFileManagerProps {
   lessonId: number;
 }
@@ -55,7 +56,14 @@ const LessonFileManager: React.FC<LessonFileManagerProps> = ({ lessonId }) => {
   );
   const [fileExtension, setFileExtension] = useState("");
   const [fileSize, setFileSize] = useState(0);
-
+  useEffect(() => {
+    if (showAddModal || showDeleteModal) {
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = "";
+      };
+    }
+  }, [showAddModal, showDeleteModal]);
   const fetchFiles = useCallback(async () => {
     setLoading(true);
     try {
@@ -181,29 +189,98 @@ const LessonFileManager: React.FC<LessonFileManagerProps> = ({ lessonId }) => {
 
   return (
     <>
-      <div className="d-flex align-items-center gap-2 flex-wrap">
-        <small className="text-muted">
-          <i className="fas fa-paperclip me-1"></i>
-          فایل‌های آموزشی
-        </small>
+      <div className="lesson-files-manager">
+        <div className="lesson-files-header">
+          <div className="lesson-files-title">
+            <div className="lesson-files-icon">
+              <i className="fas fa-paperclip" />
+            </div>
+
+            <div>
+              <h6>فایل‌های آموزشی</h6>
+              <span>
+                {files.length > 0
+                  ? `${files.length} فایل آموزشی`
+                  : "فایل‌های مرتبط با این درس"}
+              </span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="lesson-file-add-btn"
+            onClick={() => {
+              resetForm();
+              setShowAddModal(true);
+            }}
+          >
+            <i className="fas fa-plus" />
+            افزودن فایل
+          </button>
+        </div>
 
         {loading ? (
-          <span className="spinner-border spinner-border-sm"></span>
+          <div className="lesson-files-loading">
+            <span className="spinner-border spinner-border-sm" />
+            <span>در حال بارگذاری فایل‌ها...</span>
+          </div>
         ) : files.length === 0 ? (
-          <span className="text-muted">هنوز فایلی اضافه نشده</span>
-        ) : (
-          files.map((file) => (
-            <div
-              key={file.Id}
-              className="border rounded p-2 d-flex align-items-center gap-3 bg-light"
-            >
-              <i
-                className={`fas ${getFileIcon(file.FileExtension)} text-primary`}
-                style={{ fontSize: 22 }}
-              />
+          <div className="lesson-files-empty">
+            <div className="lesson-files-empty-icon">
+              <i className="fas fa-folder-open" />
+            </div>
 
-              <div>
-                <div>
+            <div>
+              <h6>هنوز فایلی اضافه نشده است</h6>
+              <p>
+                می‌توانید جزوه، PDF، فایل ارائه یا سایر فایل‌های آموزشی این درس
+                را اضافه کنید.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="lesson-file-list">
+            {files.map((file) => (
+              <div className="lesson-file-item" key={file.Id}>
+                <div className="lesson-file-info">
+                  <div className="lesson-file-type">
+                    <i className={`fas ${getFileIcon(file.FileExtension)}`} />
+                  </div>
+
+                  <div className="lesson-file-details">
+                    <a
+                      href={
+                        file.FileType
+                          ? `${getApiUrl()}${file.FileUrl}`
+                          : file.FileUrl
+                      }
+                      target="_blank"
+                      rel="noreferrer"
+                      className="lesson-file-name"
+                      title={file.FileName}
+                    >
+                      {file.FileName}
+                    </a>
+
+                    <div className="lesson-file-meta">
+                      {file.FileExtension && (
+                        <span>{file.FileExtension.toUpperCase()}</span>
+                      )}
+
+                      <span className="lesson-file-meta-separator">•</span>
+
+                      <span>{formatFileSize(file.FileSize)}</span>
+
+                      <span className="lesson-file-meta-separator">•</span>
+
+                      <span>
+                        {file.FileType ? "فایل آپلود شده" : "لینک خارجی"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="lesson-file-actions">
                   <a
                     href={
                       file.FileType
@@ -212,133 +289,183 @@ const LessonFileManager: React.FC<LessonFileManagerProps> = ({ lessonId }) => {
                     }
                     target="_blank"
                     rel="noreferrer"
-                    className="fw-semibold text-decoration-none"
+                    className="lesson-file-action view"
+                    title="مشاهده فایل"
                   >
-                    {file.FileName}
+                    <i className="fas fa-external-link-alt" />
                   </a>
+
+                  <button
+                    type="button"
+                    className="lesson-file-action delete"
+                    aria-label={`حذف ${file.FileName}`}
+                    title="حذف فایل"
+                    onClick={() => openDeleteModal(file)}
+                  >
+                    <i className="fas fa-trash" />
+                  </button>
                 </div>
-
-                <small className="text-muted">
-                  {file.FileExtension?.toUpperCase()} •{" "}
-                  {formatFileSize(file.FileSize)}
-                </small>
               </div>
-
-              <button
-                type="button"
-                className="btn btn-sm btn-outline-danger"
-                aria-label={`حذف ${file.FileName}`}
-                onClick={() => openDeleteModal(file)}
-              >
-                <i className="fas fa-trash"></i>
-              </button>
-            </div>
-          ))
+            ))}
+          </div>
         )}
-
-        <button
-          type="button"
-          className="btn btn-primary btn-sm"
-          onClick={() => setShowAddModal(true)}
-        >
-          <i className="fas fa-plus me-1"></i>
-          افزودن فایل
-        </button>
       </div>
 
-      {showAddModal && (
-        <div
-          className="modal fade show d-block"
-          style={{ background: "rgba(0,0,0,.5)" }}
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="modal-dialog modal-lg modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5>افزودن فایل آموزشی</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={closeAddModal}
-                ></button>
+      {showAddModal &&
+        createPortal(
+          <div
+            className="lesson-file-manager-modal"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="modal-dialog modal-lg modal-dialog-centered">
+              <div className="modal-content lesson-file-modal">
+                <div className="modal-header">
+                  <h5>افزودن فایل آموزشی</h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={closeAddModal}
+                  ></button>
+                </div>
+
+                <form onSubmit={handleAdd}>
+                  <div className="modal-body">
+                    <div className="row">
+                      <div className="col-md-12">
+                        <div className="input-block">
+                          <label>
+                            <span className="text-danger"> * </span>
+                            عنوان فایل
+                          </label>
+                          <input
+                            className="form-control"
+                            value={fileName}
+                            onChange={(e) => setFileName(e.target.value)}
+                            placeholder="مثال: جزوه جلسه اول"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="col-md-12">
+                        <div className="input-block">
+                          <label>روش افزودن</label>
+                          <select
+                            className="form-control"
+                            value={fileSource}
+                            onChange={(e) =>
+                              setFileSource(e.target.value as "upload" | "link")
+                            }
+                          >
+                            <option value="upload">آپلود فایل</option>
+                            <option value="link">لینک فایل</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {fileSource === "upload" && (
+                        <div className="col-md-12">
+                          <div className="input-block">
+                            <label>انتخاب فایل</label>
+                            <input
+                              type="file"
+                              className="form-control"
+                              onChange={handleSelectFile}
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {fileSource === "link" && (
+                        <div className="col-md-12">
+                          <div className="input-block">
+                            <label>لینک فایل</label>
+                            <input
+                              className="form-control"
+                              value={fileUrl}
+                              onChange={(e) => setFileUrl(e.target.value)}
+                              placeholder="https://..."
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {selectedUploadFile && (
+                        <div className="col-md-12">
+                          <div className="lesson-file-selected">
+                            <div className="lesson-file-selected-icon">
+                              <i
+                                className={`fas ${getFileIcon(fileExtension)}`}
+                              />
+                            </div>
+
+                            <div className="lesson-file-selected-details">
+                              <strong title={selectedUploadFile.name}>
+                                {selectedUploadFile.name}
+                              </strong>
+
+                              <span>
+                                {fileExtension.toUpperCase()} &nbsp;•&nbsp;{" "}
+                                {formatFileSize(fileSize)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="modal-footer">
+                    <button
+                      type="button"
+                      className="btn btn-light"
+                      onClick={closeAddModal}
+                    >
+                      انصراف
+                    </button>
+                    <button
+                      className="btn btn-primary"
+                      disabled={saving}
+                      type="submit"
+                    >
+                      {saving && (
+                        <span className="spinner-border spinner-border-sm me-2"></span>
+                      )}
+                      {uploading ? "در حال آپلود..." : "ثبت فایل"}
+                    </button>
+                  </div>
+                </form>
               </div>
+            </div>
+          </div>,
+          document.body,
+        )}
 
-              <form onSubmit={handleAdd}>
+      {showDeleteModal &&
+        selectedFile &&
+        createPortal(
+          <div
+            className="lesson-file-manager-modal"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content lesson-file-modal">
+                <div className="modal-header">
+                  <h5>حذف فایل</h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={closeDeleteModal}
+                  ></button>
+                </div>
+
                 <div className="modal-body">
-                  <div className="row">
-                    <div className="col-md-12">
-                      <div className="input-block">
-                        <label>
-                          عنوان فایل <span className="text-danger">*</span>
-                        </label>
-                        <input
-                          className="form-control"
-                          value={fileName}
-                          onChange={(e) => setFileName(e.target.value)}
-                          placeholder="مثال: جزوه جلسه اول"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="col-md-12">
-                      <div className="input-block">
-                        <label>روش افزودن</label>
-                        <select
-                          className="form-control"
-                          value={fileSource}
-                          onChange={(e) =>
-                            setFileSource(e.target.value as "upload" | "link")
-                          }
-                        >
-                          <option value="upload">آپلود فایل</option>
-                          <option value="link">لینک فایل</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    {fileSource === "upload" && (
-                      <div className="col-md-12">
-                        <div className="input-block">
-                          <label>انتخاب فایل</label>
-                          <input
-                            type="file"
-                            className="form-control"
-                            onChange={handleSelectFile}
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    {fileSource === "link" && (
-                      <div className="col-md-12">
-                        <div className="input-block">
-                          <label>لینک فایل</label>
-                          <input
-                            className="form-control"
-                            value={fileUrl}
-                            onChange={(e) => setFileUrl(e.target.value)}
-                            placeholder="https://..."
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    {selectedUploadFile && (
-                      <div className="col-md-12">
-                        <div className="alert alert-light">
-                          <div>
-                            <b>نام فایل:</b> {selectedUploadFile.name}
-                          </div>
-                          <div>
-                            <b>نوع فایل:</b> {fileExtension.toUpperCase()}
-                          </div>
-                          <div>
-                            <b>حجم فایل:</b> {formatFileSize(fileSize)}
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                  <div className="lesson-file-delete-message">
+                    آیا از حذف فایل <strong>«{selectedFile.FileName}»</strong>{" "}
+                    مطمئن هستید؟
+                    <br />
+                    این عملیات قابل بازگشت نیست.
                   </div>
                 </div>
 
@@ -346,74 +473,27 @@ const LessonFileManager: React.FC<LessonFileManagerProps> = ({ lessonId }) => {
                   <button
                     type="button"
                     className="btn btn-light"
-                    onClick={closeAddModal}
+                    onClick={closeDeleteModal}
                   >
                     انصراف
                   </button>
                   <button
-                    className="btn btn-primary"
+                    type="button"
+                    className="btn btn-danger"
                     disabled={saving}
-                    type="submit"
+                    onClick={handleDeleteConfirm}
                   >
                     {saving && (
                       <span className="spinner-border spinner-border-sm me-2"></span>
                     )}
-                    {uploading ? "در حال آپلود..." : "ثبت فایل"}
+                    حذف فایل
                   </button>
                 </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showDeleteModal && selectedFile && (
-        <div
-          className="modal fade show d-block"
-          style={{ background: "rgba(0,0,0,.5)" }}
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5>حذف فایل</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={closeDeleteModal}
-                ></button>
-              </div>
-
-              <div className="modal-body">
-                آیا از حذف فایل «{selectedFile.FileName}» مطمئن هستید؟ این
-                عملیات قابل بازگشت نیست.
-              </div>
-
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-light"
-                  onClick={closeDeleteModal}
-                >
-                  انصراف
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-danger"
-                  disabled={saving}
-                  onClick={handleDeleteConfirm}
-                >
-                  {saving && (
-                    <span className="spinner-border spinner-border-sm me-2"></span>
-                  )}
-                  حذف فایل
-                </button>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
     </>
   );
 };

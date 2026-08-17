@@ -6,9 +6,7 @@ import courseService, {
   Level,
 } from "../../../../services/course.service";
 import uploadService from "../../../../services/upload.service";
-import { Link } from "react-router-dom";
-import { api_base_url } from "../../../../environment";
-
+import "./course-informatoin.scss";
 interface CourseInformationProps {
   categories: Category[];
   levels: Level[];
@@ -23,6 +21,7 @@ const CourseInformation: React.FC<CourseInformationProps> = ({
   onComplete,
 }) => {
   const getApiUrl = () => "http://localhost:3001";
+
   const [title, setTitle] = useState(initialData?.Title || "");
   const [shortDescription, setShortDescription] = useState(
     initialData?.ShortDescription || "",
@@ -43,6 +42,7 @@ const CourseInformation: React.FC<CourseInformationProps> = ({
   const [durationMinutes, setDurationMinutes] = useState(
     initialData?.DurationMinutes?.toString() || "",
   );
+
   const buildThumbnailUrl = (path?: string) =>
     path ? `${getApiUrl()}${path}` : "";
 
@@ -51,10 +51,14 @@ const CourseInformation: React.FC<CourseInformationProps> = ({
   const [thumbnailPreview, setThumbnailPreview] = useState(
     buildThumbnailUrl(initialData?.Thumbnail),
   );
+
   const [learningOutcomes, setLearningOutcomes] = useState<string[]>([]);
   const [prerequisites, setPrerequisites] = useState<string[]>([]);
+
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
   useEffect(() => {
-    debugger;
     if (!initialData) return;
 
     setLearningOutcomes(
@@ -65,6 +69,7 @@ const CourseInformation: React.FC<CourseInformationProps> = ({
       initialData.CoursePrequisties?.map((x: any) => x.Title) ?? [],
     );
   }, [initialData]);
+
   const addLearningOutcome = (e: React.MouseEvent) => {
     e.preventDefault();
     setLearningOutcomes((prev) => [...prev, ""]);
@@ -78,12 +83,11 @@ const CourseInformation: React.FC<CourseInformationProps> = ({
 
   const removeLearningOutcome = (e: React.MouseEvent, index: number) => {
     e.preventDefault();
-
     setLearningOutcomes((prev) => prev.filter((_, i) => i !== index));
   };
+
   const addPrerequisite = (e: React.MouseEvent) => {
     e.preventDefault();
-
     setPrerequisites((prev) => [...prev, ""]);
   };
 
@@ -95,11 +99,9 @@ const CourseInformation: React.FC<CourseInformationProps> = ({
 
   const removePrerequisite = (e: React.MouseEvent, index: number) => {
     e.preventDefault();
-
     setPrerequisites((prev) => prev.filter((_, i) => i !== index));
   };
-  const [uploadingImage, setUploadingImage] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+
   const handleThumbnailUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -126,6 +128,7 @@ const CourseInformation: React.FC<CourseInformationProps> = ({
 
       setThumbnail(result.path);
       setThumbnailPreview(`${getApiUrl()}${result.path}`);
+
       toast.success("تصویر با موفقیت آپلود شد.");
     } catch {
       toast.error("آپلود تصویر انجام نشد.");
@@ -133,17 +136,34 @@ const CourseInformation: React.FC<CourseInformationProps> = ({
       setUploadingImage(false);
     }
   };
+
   const handleSubmit = async (e: React.FormEvent) => {
+    debugger;
     e.preventDefault();
 
     if (!title.trim()) {
       toast.error("عنوان دوره اجباری است.");
       return;
     }
+
     if (!categoryId) {
       toast.error("لطفاً یک دسته‌بندی انتخاب کنید.");
       return;
     }
+    if (!levelId) {
+      toast.error("لطفا سطح دوره را وارد نمایید.");
+      return;
+    }
+
+    if (!shortDescription) {
+      toast.error("معرفی کوتاه دوره را وارد نمایید.");
+      return;
+    }
+    if (!description) {
+      toast.error("لطفا توضیحات دوره را وارد کنید.");
+      return;
+    }
+
     if (!price || Number(price) < 0) {
       toast.error("لطفاً یک قیمت معتبر وارد کنید.");
       return;
@@ -153,7 +173,9 @@ const CourseInformation: React.FC<CourseInformationProps> = ({
       toast.error("لطفاً تصویر دوره را آپلود کنید.");
       return;
     }
+
     setSubmitting(true);
+
     try {
       if (initialData?.Id) {
         await courseService.updateCourse(initialData.Id, {
@@ -169,6 +191,7 @@ const CourseInformation: React.FC<CourseInformationProps> = ({
             : undefined,
           thumbnail: thumbnail.trim() || undefined,
         });
+
         await courseService.saveLearningOutcomes(initialData.Id, {
           items: learningOutcomes.filter((x) => x.trim() !== ""),
         });
@@ -176,6 +199,7 @@ const CourseInformation: React.FC<CourseInformationProps> = ({
         await courseService.savePrerequisites(initialData.Id, {
           items: prerequisites.filter((x) => x.trim() !== ""),
         });
+
         toast.success("دوره با موفقیت بروزرسانی شد.");
         onComplete(initialData.Id);
       } else {
@@ -192,6 +216,7 @@ const CourseInformation: React.FC<CourseInformationProps> = ({
             : undefined,
           thumbnail: thumbnail.trim() || undefined,
         });
+
         await courseService.saveLearningOutcomes(course.Id, {
           items: learningOutcomes.filter((x) => x.trim() !== ""),
         });
@@ -199,11 +224,13 @@ const CourseInformation: React.FC<CourseInformationProps> = ({
         await courseService.savePrerequisites(course.Id, {
           items: prerequisites.filter((x) => x.trim() !== ""),
         });
+
         toast.success("دوره با موفقیت ایجاد شد.");
         onComplete(course.Id);
       }
     } catch (err: any) {
       const msg = err?.response?.data?.message || "ذخیره دوره با خطا مواجه شد.";
+
       toast.error(Array.isArray(msg) ? msg[0] : msg);
     } finally {
       setSubmitting(false);
@@ -211,293 +238,467 @@ const CourseInformation: React.FC<CourseInformationProps> = ({
   };
 
   return (
-    <div className="form-inner wizard-form-card">
-      <div className="title">
-        <h5>اطلاعات دوره</h5>
-      </div>
+    <div className="course-information-page" dir="rtl">
       <form onSubmit={handleSubmit}>
-        <div className="row">
-          <div className="col-md-12">
-            <div className="input-block">
-              <label className="form-label">
-                <span className="text-danger ms-1">*</span>
-                عنوان دوره
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="عنوان دوره را وارد کنید"
-                disabled={submitting}
-              />
+        {/* Header */}
+        <div className="course-form-header">
+          <div>
+            <div className="course-form-icon">
+              <i className="isax isax-book-1" />
+            </div>
+
+            <div>
+              <h4>{initialData?.Id ? "ویرایش دوره" : "ایجاد دوره جدید"}</h4>
+
+              <p>
+                اطلاعات اصلی دوره، قیمت‌گذاری و محتوای آموزشی را تکمیل کنید.
+              </p>
             </div>
           </div>
-          <div className="col-md-6">
-            <div className="input-block">
-              <label className="form-label">
-                <span className="text-danger ms-1">*</span>
-                دسته بندی
-              </label>
-              <select
-                className="form-control"
-                value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
-                disabled={submitting}
-              >
-                <option value="">انتخاب دسته بندی</option>
-                {categories.map((cat) => (
-                  <option key={cat.Id} value={cat.Id}>
-                    {cat.Title}
-                  </option>
-                ))}
-              </select>
+
+          <span className="course-step-badge">مرحله ۱</span>
+        </div>
+
+        {/* Main Information */}
+        <div className="course-form-card">
+          <div className="course-section-title">
+            <div className="section-number">۱</div>
+
+            <div>
+              <h5>اطلاعات اصلی دوره</h5>
+              <p>مشخصات اولیه و دسته‌بندی دوره را وارد کنید.</p>
             </div>
           </div>
-          <div className="col-md-6">
-            <div className="input-block">
-              <label className="form-label">سطح</label>
-              <select
-                className="form-control"
-                value={levelId}
-                onChange={(e) => setLevelId(e.target.value)}
-                disabled={submitting}
-              >
-                <option value="">انتخاب سطح</option>
-                {levels.map((lvl) => (
-                  <option key={lvl.Id} value={lvl.Id}>
-                    {lvl.LevelName}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-          <div className="col-md-12">
-            <div className="input-block">
-              <label className="form-label">
-                <span className="text-danger ms-1">*</span>
-                معرفی دوره
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                value={shortDescription}
-                onChange={(e) => setShortDescription(e.target.value)}
-                placeholder="معرفی کوتاهی از دوره بنویسید"
-                disabled={submitting}
-              />
-            </div>
-          </div>
-          <div className="col-md-12">
-            <div className="input-block">
-              <label className="form-label">توضیحات دوره</label>
-              <div className="summernote">
-                <DefaultEditor
-                  value={description}
-                  onChange={(e: any) => setDescription(e.target.value)}
+
+          <div className="row g-4">
+            <div className="col-md-12">
+              <div className="course-input-group">
+                <label>
+                  <span> * </span>
+                  عنوان دوره
+                </label>
+
+                <input
+                  type="text"
+                  className="form-control course-input"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="مثلاً آموزش جامع React از صفر تا پیشرفته"
                   disabled={submitting}
                 />
               </div>
             </div>
+
+            <div className="col-md-6">
+              <div className="course-input-group">
+                <label>
+                  <span> * </span>
+                  دسته‌بندی
+                </label>
+
+                <div className="select-wrapper">
+                  <select
+                    className="form-control course-input"
+                    value={categoryId}
+                    onChange={(e) => setCategoryId(e.target.value)}
+                    disabled={submitting}
+                  >
+                    <option value="">انتخاب دسته‌بندی</option>
+
+                    {categories.map((cat) => (
+                      <option key={cat.Id} value={cat.Id}>
+                        {cat.Title}
+                      </option>
+                    ))}
+                  </select>
+
+                  <i className="isax isax-arrow-down-1" />
+                </div>
+              </div>
+            </div>
+
+            <div className="col-md-6">
+              <div className="course-input-group">
+                <label>
+                  <span> * </span>
+                  سطح دوره
+                </label>
+
+                <div className="select-wrapper">
+                  <select
+                    className="form-control course-input"
+                    value={levelId}
+                    onChange={(e) => setLevelId(e.target.value)}
+                    disabled={submitting}
+                  >
+                    <option value="">انتخاب سطح</option>
+
+                    {levels.map((lvl) => (
+                      <option key={lvl.Id} value={lvl.Id}>
+                        {lvl.LevelName}
+                      </option>
+                    ))}
+                  </select>
+
+                  <i className="isax isax-arrow-down-1" />
+                </div>
+              </div>
+            </div>
+
+            <div className="col-md-12">
+              <div className="course-input-group">
+                <label>
+                  <span> * </span>
+                  معرفی کوتاه دوره
+                </label>
+
+                <input
+                  type="text"
+                  className="form-control course-input"
+                  value={shortDescription}
+                  onChange={(e) => setShortDescription(e.target.value)}
+                  placeholder="در یک جمله توضیح دهید این دوره چه چیزی را آموزش می‌دهد."
+                  disabled={submitting}
+                />
+
+                <small>
+                  این متن می‌تواند در کارت دوره و صفحه لیست دوره‌ها نمایش داده
+                  شود.
+                </small>
+              </div>
+            </div>
           </div>
-          <div className="col-md-4">
-            <div className="input-block">
-              <label className="form-label">
-                <span className="text-danger ms-1">*</span>
-                هزینه (ریال)
+        </div>
+
+        {/* Description */}
+        <div className="course-form-card">
+          <div className="course-section-title">
+            <div className="section-number">۲</div>
+
+            <div className="course-input-group">
+              <label>
+                <span>*</span>
+                <span className="fs-16" style={{ color: "black" }}>
+                  {" "}
+                  توضیحات دوره
+                </span>
               </label>
-              <input
-                type="number"
-                className="form-control"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                placeholder="0.00"
-                min="0"
-                step="0.01"
+              <p>توضیحات کامل دوره را برای دانشجویان بنویسید.</p>
+            </div>
+          </div>
+
+          <div className="course-input-group">
+            <label>توضیحات کامل</label>
+
+            <div className="course-editor">
+              <DefaultEditor
+                value={description}
+                onChange={(e: any) => setDescription(e.target.value)}
                 disabled={submitting}
               />
             </div>
           </div>
-          <div className="col-md-4">
-            <div className="input-block">
-              <label className="form-label">قیمت با تخفیف (اختیاری)</label>
-              <input
-                type="number"
-                className="form-control"
-                value={discountPrice}
-                onChange={(e) => setDiscountPrice(e.target.value)}
-                placeholder="0.00"
-                min="0"
-                step="0.01"
-                disabled={submitting}
-              />
+        </div>
+
+        {/* Pricing */}
+        <div className="course-form-card">
+          <div className="course-section-title">
+            <div className="section-number">۳</div>
+
+            <div>
+              <h5>قیمت و مدت دوره</h5>
+              <p>اطلاعات مالی و مدت زمان دوره را مشخص کنید.</p>
             </div>
           </div>
-          <div className="col-md-4">
-            <div className="input-block">
-              <label className="form-label">مدت دوره (دقیقه)</label>
-              <input
-                type="number"
-                className="form-control"
-                value={durationMinutes}
-                onChange={(e) => setDurationMinutes(e.target.value)}
-                placeholder="0"
-                min="0"
-                disabled={submitting}
-              />
+
+          <div className="row g-4">
+            <div className="col-md-4">
+              <div className="course-input-group">
+                <label>
+                  <span> * </span>
+                  قیمت دوره
+                </label>
+
+                <div className="input-with-suffix">
+                  <input
+                    type="number"
+                    className="form-control course-input"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    placeholder="0"
+                    min="0"
+                    disabled={submitting}
+                  />
+
+                  <span>ریال</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-md-4">
+              <div className="course-input-group">
+                <label>قیمت با تخفیف</label>
+
+                <div className="input-with-suffix">
+                  <input
+                    type="number"
+                    className="form-control course-input"
+                    value={discountPrice}
+                    onChange={(e) => setDiscountPrice(e.target.value)}
+                    placeholder="اختیاری"
+                    min="0"
+                    disabled={submitting}
+                  />
+
+                  <span>ریال</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-md-4">
+              <div className="course-input-group">
+                <label>مدت دوره</label>
+
+                <div className="input-with-suffix">
+                  <input
+                    type="number"
+                    className="form-control course-input"
+                    value={durationMinutes}
+                    onChange={(e) => setDurationMinutes(e.target.value)}
+                    placeholder="مثلاً 480"
+                    min="0"
+                    disabled={submitting}
+                  />
+
+                  <span>دقیقه</span>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="col-md-12">
-            <div className="input-block">
-              <label className="form-label">
-                <span className="text-danger ms-1">*</span>
-                تصویر کاور دوره
+        </div>
+
+        {/* Thumbnail */}
+        <div className="course-form-card">
+          <div className="course-section-title">
+            <div className="section-number">۴</div>
+
+            <div className="course-input-group">
+              <label>
+                <span>*</span>
+                <span className="fs-16" style={{ color: "black" }}>
+                  {" "}
+                  تصویر کاور دوره
+                </span>
               </label>
+              <p>یک تصویر مناسب برای نمایش دوره انتخاب کنید.</p>
+            </div>
+          </div>
+
+          <div className="course-upload-layout">
+            <label
+              htmlFor="course-thumbnail"
+              className={`course-upload-box ${
+                uploadingImage ? "uploading" : ""
+              }`}
+            >
+              {uploadingImage ? (
+                <>
+                  <span className="spinner-border" />
+                  <strong>در حال آپلود تصویر...</strong>
+                  <small>لطفاً تا پایان آپلود صبر کنید.</small>
+                </>
+              ) : (
+                <>
+                  <div className="upload-icon">
+                    <i className="isax isax-gallery-add" />
+                  </div>
+
+                  <strong>برای انتخاب تصویر کلیک کنید</strong>
+
+                  <small>JPG، PNG یا WEBP — حداکثر ۵ مگابایت</small>
+                </>
+              )}
 
               <input
+                id="course-thumbnail"
                 type="file"
-                className="form-control"
                 accept="image/*"
                 onChange={handleThumbnailUpload}
                 disabled={uploadingImage || submitting}
+                hidden
               />
+            </label>
 
-              <small className="text-muted">
-                فرمت‌های مجاز: JPG، PNG، WEBP - حداکثر حجم: ۵ مگابایت
-              </small>
+            {thumbnailPreview && (
+              <div className="thumbnail-preview-card">
+                <div className="preview-label">
+                  <span>پیش‌نمایش</span>
 
-              {uploadingImage && (
-                <div className="mt-2">
-                  <span className="spinner-border spinner-border-sm me-2"></span>
-                  در حال آپلود تصویر...
+                  <i className="isax isax-tick-circle" />
                 </div>
-              )}
 
-              {thumbnailPreview && (
-                <div className="mt-3">
-                  <img
-                    src={thumbnailPreview}
-                    alt="Course Thumbnail"
-                    style={{
-                      maxWidth: "320px",
-                      maxHeight: "200px",
-                      borderRadius: "10px",
-                      objectFit: "cover",
-                      border: "1px solid #ddd",
-                    }}
-                  />
-                </div>
-              )}
-            </div>
+                <img src={thumbnailPreview} alt="Course Thumbnail" />
+              </div>
+            )}
           </div>
+        </div>
 
-          <div className="col-md-6">
-            <div className="bg-light border p-4 rounded-3">
-              <h6 className="mb-2">دانشجویان چه چیزهایی یاد خواهد گرفت؟</h6>
+        {/* Learning Outcomes */}
+        <div className="row g-4">
+          <div className="col-lg-6">
+            <div className="course-form-card h-100">
+              <div className="course-section-title">
+                <div className="section-number green">
+                  <i className="isax isax-teacher" />
+                </div>
 
-              <div className="input-block">
+                <div>
+                  <h5>دانشجویان چه چیزهایی یاد می‌گیرند؟</h5>
+                  <p>مهارت‌ها و نتایجی که دانشجو بعد از دوره به دست می‌آورد.</p>
+                </div>
+              </div>
+
+              <div className="dynamic-items">
+                {learningOutcomes.length === 0 && (
+                  <div className="empty-dynamic-state">
+                    <i className="isax isax-task-square" />
+                    <span>هنوز موردی اضافه نشده است.</span>
+                  </div>
+                )}
+
                 {learningOutcomes.map((item, index) => (
-                  <div
-                    key={index}
-                    className="d-flex align-items-center add-new-input"
-                  >
+                  <div key={index} className="dynamic-input-row">
+                    <span className="item-number">{index + 1}</span>
+
                     <input
                       type="text"
-                      className="form-control"
-                      placeholder="مثلاً یادگیری React"
+                      className="form-control course-input"
+                      placeholder="مثلاً ساخت یک پروژه واقعی با React"
                       value={item}
                       onChange={(e) =>
                         updateLearningOutcome(index, e.target.value)
                       }
                     />
 
-                    <Link
-                      to="#"
-                      className="link-trash"
+                    <button
+                      type="button"
+                      className="delete-item-btn"
                       onClick={(e) => removeLearningOutcome(e, index)}
                     >
                       <i className="isax isax-trash" />
-                    </Link>
+                    </button>
                   </div>
                 ))}
               </div>
 
-              <div className="d-flex justify-content-end mt-3">
-                <Link
-                  to="#"
-                  className="d-flex align-items-center add-new-topic"
-                  onClick={addLearningOutcome}
-                >
-                  <i className="isax isax-add me-1" />
-                  افزودن مورد جدید
-                </Link>
-              </div>
+              <button
+                type="button"
+                className="add-item-btn"
+                onClick={addLearningOutcome}
+              >
+                <i className="isax isax-add" />
+                افزودن نتیجه یادگیری
+              </button>
             </div>
           </div>
 
-          <div className="col-md-6">
-            {" "}
-            <div className="bg-light border p-4 rounded-3">
-              {" "}
-              <h6 className="mb-2">پیش نیاز های دوره</h6>{" "}
-              <div className="input-block">
-                {" "}
+          {/* Prerequisites */}
+          <div className="col-lg-6">
+            <div className="course-form-card h-100">
+              <div className="course-section-title">
+                <div className="section-number orange">
+                  <i className="isax isax-clipboard-text" />
+                </div>
+
+                <div>
+                  <h5>پیش‌نیازهای دوره</h5>
+                  <p>
+                    دانش یا مهارت‌هایی که دانشجو بهتر است قبل از شروع داشته
+                    باشد.
+                  </p>
+                </div>
+              </div>
+
+              <div className="dynamic-items">
+                {prerequisites.length === 0 && (
+                  <div className="empty-dynamic-state">
+                    <i className="isax isax-document-text" />
+                    <span>هنوز پیش‌نیازی اضافه نشده است.</span>
+                  </div>
+                )}
+
                 {prerequisites.map((item, index) => (
-                  <div
-                    key={index}
-                    className="d-flex align-items-center add-new-input"
-                  >
-                    {" "}
+                  <div key={index} className="dynamic-input-row">
+                    <span className="item-number">{index + 1}</span>
+
                     <input
                       type="text"
-                      className="form-control"
-                      placeholder="مثلاً آشنایی با HTML"
+                      className="form-control course-input"
+                      placeholder="مثلاً آشنایی با HTML و CSS"
                       value={item}
                       onChange={(e) =>
                         updatePrerequisite(index, e.target.value)
                       }
-                    />{" "}
-                    <Link
-                      to="#"
-                      className="link-trash"
+                    />
+
+                    <button
+                      type="button"
+                      className="delete-item-btn"
                       onClick={(e) => removePrerequisite(e, index)}
                     >
-                      {" "}
-                      <i className="isax isax-trash" />{" "}
-                    </Link>{" "}
+                      <i className="isax isax-trash" />
+                    </button>
                   </div>
-                ))}{" "}
-              </div>{" "}
-              <div className="d-flex justify-content-end mt-3">
-                {" "}
-                <Link
-                  to="#"
-                  className="d-flex align-items-center add-new-topic"
-                  onClick={addPrerequisite}
-                >
-                  {" "}
-                  <i className="isax isax-add me-1" /> افزودن مورد جدید{" "}
-                </Link>{" "}
-              </div>{" "}
-            </div>{" "}
+                ))}
+              </div>
+
+              <button
+                type="button"
+                className="add-item-btn"
+                onClick={addPrerequisite}
+              >
+                <i className="isax isax-add" />
+                افزودن پیش‌نیاز
+              </button>
+            </div>
           </div>
         </div>
-        <div className="add-form-btn widget-next-btn submit-btn d-flex justify-content-end mb-0">
-          <div className="btn-left">
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={submitting}
-            >
-              {submitting && (
+
+        {/* Submit */}
+        <div className="course-submit-bar">
+          <div>
+            <strong>
+              {initialData?.Id
+                ? "ویرایش دوره آماده ذخیره است"
+                : "دوره شما آماده ایجاد است"}
+            </strong>
+
+            <span>اطلاعات وارد شده را بررسی کنید و سپس ادامه دهید.</span>
+          </div>
+
+          <button
+            type="submit"
+            className="course-submit-btn"
+            disabled={submitting || uploadingImage}
+          >
+            {submitting ? (
+              <>
                 <span
-                  className="spinner-border spinner-border-sm me-2"
+                  className="spinner-border spinner-border-sm"
                   role="status"
                 />
-              )}
-              {initialData?.Id ? "ذخیره تغییرات" : "ذخیره و ادامه"}
-            </button>
-          </div>
+                در حال ذخیره...
+              </>
+            ) : (
+              <>
+                <i className="isax isax-tick-circle" />
+
+                {initialData?.Id ? "ذخیره تغییرات" : "ذخیره و ادامه"}
+
+                <i className="isax isax-arrow-left-2" />
+              </>
+            )}
+          </button>
         </div>
       </form>
     </div>

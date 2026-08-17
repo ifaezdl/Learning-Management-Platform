@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { all_routes } from "../../router/all_routes";
-import Breadcrumb from "../../../core/common/Breadcrumb/breadcrumb";
+import "./coursecreate.scss";
 import courseService, {
   Category,
   Level,
@@ -112,7 +112,9 @@ const AddNewCourse = () => {
       localStorage.removeItem(stepStorageKey(courseId));
     }
     // Admins manage courses from the admin panel; teachers go to their course list
-    navigate(user?.roleId === 3 ? route.adminCourseManagement : route.instructorCourse);
+    navigate(
+      user?.roleId === 3 ? route.adminCourseManagement : route.instructorCourse,
+    );
   }, [navigate, route, courseId, user?.roleId]);
 
   if (loadingCourse) {
@@ -130,183 +132,229 @@ const AddNewCourse = () => {
   }
 
   const renderStep = () => {
+    const stepConfig = {
+      1: {
+        title: "سرفصل‌های دوره",
+        description:
+          "سرفصل‌های اصلی دوره را ایجاد و ساختار آموزشی آن را مشخص کنید.",
+        backText: "اطلاعات دوره",
+        nextText: "دروس",
+        nextStep: 2,
+      },
+
+      2: {
+        title: "دروس دوره",
+        description:
+          "درس‌های مربوط به هر سرفصل را ایجاد و محتوای آموزشی دوره را سازماندهی کنید.",
+        backText: "سرفصل‌ها",
+        nextText: "فایل‌های دروس",
+        nextStep: 3,
+      },
+
+      3: {
+        title: "فایل‌های دروس",
+        description:
+          "فایل‌های آموزشی مربوط به هر درس را مدیریت و به درس موردنظر اضافه کنید.",
+        backText: "دروس",
+        nextText: "آزمون دوره",
+        nextStep: 4,
+      },
+    };
+
+    const renderNavigation = ({
+      prevStep,
+      nextStep,
+      nextText,
+      showNext = true,
+    }: {
+      prevStep: number;
+      nextStep?: number;
+      nextText?: string;
+      showNext?: boolean;
+    }) => {
+      return (
+        <div className="course-wizard-navigation">
+          <button
+            type="button"
+            className="wizard-nav-btn wizard-prev-btn"
+            onClick={() => goToStep(prevStep)}
+          >
+            <i className="isax isax-arrow-right-3" />
+            <span>قبلی</span>
+          </button>
+
+          {showNext && nextStep !== undefined && (
+            <button
+              type="button"
+              className="wizard-nav-btn wizard-next-btn"
+              onClick={() => goToStep(nextStep)}
+            >
+              <span>{nextText}</span>
+              <i className="isax isax-arrow-left-2" />
+            </button>
+          )}
+        </div>
+      );
+    };
+
+    const renderManagementStep = (
+      step: 1 | 2 | 3,
+      content: React.ReactNode,
+    ) => {
+      const config = stepConfig[step];
+
+      return (
+        <div className="course-wizard-card">
+          <div className="course-wizard-card-header">
+            <div className="wizard-card-heading">
+              <div className="wizard-card-icon">
+                <i
+                  className={
+                    step === 1
+                      ? "isax isax-folder-2"
+                      : step === 2
+                        ? "isax isax-book-1"
+                        : "isax isax-document"
+                  }
+                />
+              </div>
+
+              <div>
+                <h5>{config.title}</h5>
+                <p>{config.description}</p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="wizard-edit-btn"
+              onClick={() => goToStep(step - 1)}
+            >
+              <i className="isax isax-arrow-right-3" />
+              {config.backText}
+            </button>
+          </div>
+
+          <div className="course-wizard-content">{content}</div>
+
+          {renderNavigation({
+            prevStep: step - 1,
+            nextStep: config.nextStep,
+            nextText: `بعدی: ${config.nextText}`,
+          })}
+        </div>
+      );
+    };
+
     switch (currentStep) {
       case 0:
         return (
-          <CourseInformation
-            categories={categories}
-            levels={levels}
-            initialData={courseData}
-            onComplete={handleCourseCreated}
-          />
+          <div className="course-wizard-step">
+            <CourseInformation
+              categories={categories}
+              levels={levels}
+              initialData={courseData}
+              onComplete={handleCourseCreated}
+            />
+          </div>
         );
+
       case 1:
-        return (
-          <div className="form-inner wizard-form-card">
-            <div className="title d-flex justify-content-between align-items-center">
-              <Link
-                to="#"
-                className="btn btn-sm btn-outline-secondary"
-                onClick={() => goToStep(0)}
-                title="ویرایش اطلاعات دوره"
-              >
-                <i className="fas fa-edit me-1" /> ویرایش دوره
-              </Link>
-            </div>
-            {courseId && <SectionManager courseId={courseId} />}
-            <div className="add-form-btn widget-next-btn submit-btn mb-0">
-              <div className="btn-left">
-                <Link
-                  to="#"
-                  className="btn btn-light main-btn prev_btns"
-                  onClick={() => goToStep(0)}
-                >
-                  <i className="isax isax-arrow-right-3 me-1" /> قبلی
-                </Link>
-              </div>
-              <div className="btn-left">
-                <Link
-                  to="#"
-                  className="btn btn-secondary main-btn next_btns"
-                  onClick={() => goToStep(2)}
-                >
-                  بعدی: دروس <i className="isax isax-arrow-left-2 ms-1" />
-                </Link>
-              </div>
-            </div>
-          </div>
+        return renderManagementStep(
+          1,
+          courseId ? <SectionManager courseId={courseId} /> : null,
         );
+
       case 2:
-        return (
-          <div className="form-inner wizard-form-card">
-            <div className="title d-flex justify-content-between align-items-center">
-              <h5 className="mb-0">دروس</h5>
-              <Link
-                to="#"
-                className="btn btn-sm btn-outline-secondary"
-                onClick={() => goToStep(1)}
-              >
-                <i className="fas fa-arrow-left me-1" /> بازگشت به سرفصل ها
-              </Link>
-            </div>
-            {courseId && <SectionManager courseId={courseId} />}
-            <div className="add-form-btn widget-next-btn submit-btn mb-0">
-              <div className="btn-left">
-                <Link
-                  to="#"
-                  className="btn btn-light main-btn prev_btns"
-                  onClick={() => goToStep(1)}
-                >
-                  <i className="isax isax-arrow-right-3 me-1" /> قبلی
-                </Link>
-              </div>
-              <div className="btn-left">
-                <Link
-                  to="#"
-                  className="btn btn-secondary main-btn next_btns"
-                  onClick={() => goToStep(3)}
-                >
-                  بعدی: فایل های دروس{" "}
-                  <i className="isax isax-arrow-left-2 ms-1" />
-                </Link>
-              </div>
-            </div>
-          </div>
+        return renderManagementStep(
+          2,
+          courseId ? <SectionManager courseId={courseId} /> : null,
         );
+
       case 3:
-        return (
-          <div className="form-inner wizard-form-card">
-            <div className="title d-flex justify-content-between align-items-center">
-              <h5 className="mb-0">فایل های دروس</h5>
-              <Link
-                to="#"
-                className="btn btn-sm btn-outline-secondary"
-                onClick={() => goToStep(2)}
-              >
-                <i className="fas fa-arrow-left me-1" /> بازگشت به دروس
-              </Link>
-            </div>
-            <p className="text-muted mb-3">
-              فایل‌های مربوط به هر درس را مدیریت کنید. سرفصل ها را باز کنید تا
-              درس‌ها را ببینید، سپس فایل‌ها را به هر درس اضافه کنید.
-            </p>
-            {courseId && <SectionManager courseId={courseId} />}
-            <div className="add-form-btn widget-next-btn submit-btn mb-0">
-              <div className="btn-left">
-                <Link
-                  to="#"
-                  className="btn btn-light main-btn prev_btns"
-                  onClick={() => goToStep(2)}
-                >
-                  <i className="isax isax-arrow-right-3 me-1" /> قبلی
-                </Link>
-              </div>
-              <div className="btn-left">
-                <Link
-                  to="#"
-                  className="btn btn-secondary main-btn next_btns"
-                  onClick={() => goToStep(4)}
-                >
-                  بعدی: آزمون <i className="isax isax-arrow-left-2 ms-1" />
-                </Link>
-              </div>
-            </div>
-          </div>
+        return renderManagementStep(
+          3,
+          courseId ? <SectionManager courseId={courseId} /> : null,
         );
+
       case 4:
         return (
-          <div className="form-inner wizard-form-card">
-            <div className="title d-flex justify-content-between align-items-center">
-              <h5 className="mb-0">آزمون دوره</h5>
-              <Link
-                to="#"
-                className="btn btn-sm btn-outline-secondary"
+          <div className="course-wizard-card">
+            <div className="course-wizard-card-header">
+              <div className="wizard-card-heading">
+                <div className="wizard-card-icon quiz-icon">
+                  <i className="isax isax-clipboard-text" />
+                </div>
+
+                <div>
+                  <h5>آزمون دوره</h5>
+                  <p>سوالات آزمون دوره را ایجاد و مدیریت کنید.</p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="wizard-edit-btn"
                 onClick={() => goToStep(3)}
               >
-                <i className="fas fa-arrow-left me-1" /> بازگشت به فایل های دروس
-              </Link>
+                <i className="isax isax-arrow-right-3" />
+                فایل‌های دروس
+              </button>
             </div>
-            {courseId && (
-              <InstructorQuizQuestions
-                courseId={courseId}
-                onPrev={() => goToStep(3)}
-                onNext={() => goToStep(5)}
-              />
-            )}
+
+            <div className="course-wizard-content">
+              {courseId && (
+                <InstructorQuizQuestions
+                  courseId={courseId}
+                  onPrev={() => goToStep(3)}
+                  onNext={() => goToStep(5)}
+                />
+              )}
+            </div>
           </div>
         );
+
       case 5:
         return (
-          <div className="form-inner wizard-form-card">
-            <div className="title d-flex justify-content-between align-items-center">
-              <h5 className="mb-0">انتشار دوره</h5>
-              <Link
-                to="#"
-                className="btn btn-sm btn-outline-secondary"
+          <div className="course-wizard-card">
+            <div className="course-wizard-card-header">
+              <div className="wizard-card-heading">
+                <div className="wizard-card-icon publish-icon">
+                  <i className="isax isax-send-2" />
+                </div>
+
+                <div>
+                  <h5>انتشار دوره</h5>
+                  <p>اطلاعات نهایی دوره را بررسی کرده و آن را منتشر کنید.</p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="wizard-edit-btn"
                 onClick={() => goToStep(4)}
               >
-                <i className="fas fa-arrow-left me-1" /> بازگشت به آزمون
-              </Link>
+                <i className="isax isax-arrow-right-3" />
+                آزمون دوره
+              </button>
             </div>
-            {courseId && (
-              <CourseSummary
-                courseId={courseId}
-                onPublished={handlePublished}
-              />
-            )}
-            <div className="add-form-btn widget-next-btn submit-btn mb-0">
-              <div className="btn-left">
-                <Link
-                  to="#"
-                  className="btn btn-light main-btn prev_btns"
-                  onClick={() => goToStep(4)}
-                >
-                  <i className="isax isax-arrow-right-3 me-1" /> قبلی
-                </Link>
-              </div>
+
+            <div className="course-wizard-content">
+              {courseId && (
+                <CourseSummary
+                  courseId={courseId}
+                  onPublished={handlePublished}
+                />
+              )}
             </div>
+
+            {renderNavigation({
+              prevStep: 4,
+              showNext: false,
+            })}
           </div>
         );
+
       default:
         return null;
     }

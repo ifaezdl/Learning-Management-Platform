@@ -1,0 +1,288 @@
+@import "../../../../src/style/scss/utils/variables";
+.course-wizard-step {
+  width: 100%;
+}
+
+/* =========================================
+   MAIN WIZARD CARD
+========================================= */
+
+.course-wizard-card {
+  width: 100%;
+  background: var(--white);
+  border: 1px solid var(--gray-100);
+  border-radius: 12px;
+  box-shadow: $box-shadow-xs-2;
+  overflow: hidden;
+}
+
+/* =========================================
+   CARD HEADER
+========================================= */
+
+.course-wizard-card-header {
+  min-height: 90px;
+  padding: 20px 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.wizard-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.wizard-card-icon {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+
+  border-radius: 9px;
+
+  background: $primary-transparent;
+  color: $primary;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 20px;
+}
+
+.wizard-card-icon.quiz-icon {
+  background: $secondary-transparent;
+  color: $secondary;
+}
+
+.wizard-card-icon.publish-icon {
+  background: $success-transparent;
+  color: $success;
+}
+
+.wizard-card-heading h5 {
+  margin: 0 0 4px;
+
+  color: var(--gray-900);
+
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.wizard-card-heading p {
+  margin: 0;
+
+  color: var(--gray-500);
+
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+/* =========================================
+   EDIT / BACK BUTTON
+========================================= */
+
+.wizard-edit-btn {
+  height: 36px;
+
+  padding: 0 12px;
+
+  border: 1px solid var(--gray-100);
+  border-radius: 6px;
+
+  background: var(--white);
+  color: var(--gray-600);
+
+  font-family: inherit;
+  font-size: 12px;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.wizard-edit-btn i {
+  color: $primary;
+  font-size: 14px;
+}
+
+.wizard-edit-btn:hover {
+  border-color: $primary;
+  background: $primary-transparent;
+  color: $primary;
+}
+
+/* =========================================
+   CONTENT
+========================================= */
+
+.course-wizard-content {
+  padding: 24px;
+}
+
+/* =========================================
+   NAVIGATION
+========================================= */
+
+.course-wizard-navigation {
+  padding: 16px 24px;
+
+  border-top: 1px solid var(--gray-100);
+
+  background: var(--light-900);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+}
+
+.wizard-nav-btn {
+  min-width: 125px;
+  height: 42px;
+
+  border-radius: 6px;
+
+  padding: 0 15px;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.wizard-prev-btn {
+  border: 1px solid var(--gray-200);
+
+  background: var(--white);
+  color: var(--gray-600);
+}
+
+.wizard-prev-btn:hover {
+  border-color: $primary;
+  color: $primary;
+  background: $primary-transparent;
+}
+
+.wizard-next-btn {
+  border: 1px solid $primary;
+
+  background: $primary;
+  color: #fff;
+
+  box-shadow: 0 3px 8px rgba(55, 87, 197, 0.16);
+}
+
+.wizard-next-btn:hover {
+  border-color: $primary-hover;
+  background: $primary-hover;
+
+  transform: translateY(-1px);
+
+  box-shadow: 0 5px 12px rgba(55, 87, 197, 0.2);
+}
+
+.wizard-nav-btn i {
+  font-size: 14px;
+}
+
+/* =========================================
+   DARK MODE
+========================================= */
+
+.dark-mode .course-wizard-card {
+  background: var(--light-100);
+  border-color: var(--gray-200);
+}
+
+.dark-mode .course-wizard-card-header {
+  background: var(--light-100);
+  border-color: var(--gray-200);
+}
+
+.dark-mode .course-wizard-navigation {
+  background: var(--light-200);
+  border-color: var(--gray-200);
+}
+
+.dark-mode .wizard-edit-btn {
+  background: var(--light-200);
+  border-color: var(--gray-300);
+  color: var(--gray-800);
+}
+
+.dark-mode .wizard-prev-btn {
+  background: var(--light-200);
+  border-color: var(--gray-300);
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 767px) {
+  .course-wizard-card-header {
+    padding: 17px;
+    align-items: flex-start;
+  }
+
+  .course-wizard-content {
+    padding: 17px;
+  }
+
+  .course-wizard-navigation {
+    padding: 13px 17px;
+  }
+
+  .wizard-edit-btn {
+    white-space: nowrap;
+  }
+
+  .wizard-card-heading p {
+    max-width: 450px;
+  }
+}
+
+@media (max-width: 575px) {
+  .course-wizard-card-header {
+    flex-direction: column;
+  }
+
+  .wizard-card-heading {
+    width: 100%;
+  }
+
+  .wizard-edit-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .course-wizard-navigation {
+    flex-direction: column-reverse;
+  }
+
+  .wizard-nav-btn {
+    width: 100%;
+  }
+}

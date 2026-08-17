@@ -5,17 +5,11 @@ import courseService, {
   Lesson,
 } from "../../../../services/course.service";
 import LessonManager from "./LessonManager";
+import "./section-manager.scss";
 
 interface SectionManagerProps {
   courseId: number;
 }
-
-// مقادیر ثابت برای اجبار روشن ماندن مودال، مستقل از هر تم تیره‌ی سراسری که
-// ممکن است در پروژه فعال باشد.
-const modalContentStyle: React.CSSProperties = {
-  backgroundColor: "#fff",
-  color: "#212529",
-};
 
 const SectionManager: React.FC<SectionManagerProps> = ({ courseId }) => {
   const [sections, setSections] = useState<
@@ -140,299 +134,445 @@ const SectionManager: React.FC<SectionManagerProps> = ({ courseId }) => {
 
   return (
     <>
-      <div className="card">
-        <div className="card-header d-flex justify-content-between align-items-center">
+      <div className="section-manager">
+        {/* Header */}
+        <div className="section-manager-header">
+          <div className="section-manager-heading">
+            <div className="section-manager-icon">
+              <i className="isax isax-folder-2" />
+            </div>
+
+            <div>
+              <h6>مدیریت سرفصل‌ها</h6>
+              <p>
+                سرفصل‌های دوره را ایجاد کنید و درس‌های مربوط به هر سرفصل را
+                مدیریت کنید.
+              </p>
+            </div>
+          </div>
+
           <button
-            className="btn btn-primary btn-sm"
+            type="button"
+            className="section-add-btn"
             onClick={() => {
               setSectionTitle("");
               setSectionOrder("");
               setShowAddModal(true);
             }}
           >
-            <i className="fas fa-plus me-1" /> افزودن سرفصل
+            <i className="isax isax-add" />
+            <span>افزودن سرفصل</span>
           </button>
         </div>
-        <div className="card-body">
+
+        {/* Content */}
+        <div className="section-manager-body">
           {loading ? (
-            <div className="text-center py-4">
-              <div className="spinner-border text-primary" role="status" />
+            <div className="section-loading">
+              <div
+                className="spinner-border"
+                role="status"
+                aria-label="در حال بارگذاری"
+              />
+
+              <span>در حال دریافت سرفصل‌ها...</span>
             </div>
           ) : sections.length === 0 ? (
-            <div className="text-center py-5 text-muted">
-              <i className="fas fa-layer-group fa-3x mb-3 d-block" />
-              <p>
-                هنوز هیچ سرفصلی ایجاد نشده است. برای شروع، اولین سرفصل را اضافه
-                کنید.
-              </p>
+            <div className="section-empty-state">
+              <div className="section-modal-icon">
+                <i className="isax isax-folder-add" />
+              </div>
+
+              <h6>هنوز سرفصلی ایجاد نشده است</h6>
+
+              <p>برای شروع ساختار دوره، اولین سرفصل خود را ایجاد کنید.</p>
+
+              <button
+                type="button"
+                className="section-empty-btn"
+                onClick={() => {
+                  setSectionTitle("");
+                  setSectionOrder("");
+                  setShowAddModal(true);
+                }}
+              >
+                <i className="isax isax-add" />
+                افزودن اولین سرفصل
+              </button>
             </div>
           ) : (
-            <div
-              className="accordion accordions-items-seperate"
-              id="sectionsAccordion"
-            >
-              {sections.map((section, index) => (
-                <div className="accordion-item" key={section.Id}>
-                  <div className="accordion-header d-flex justify-content-between align-items-center">
-                    <button
-                      className="accordion-button"
-                      type="button"
-                      onClick={() => toggleExpand(section.Id)}
-                      style={{
-                        boxShadow: "none",
-                        backgroundColor:
-                          expandedSection === section.Id
-                            ? undefined
-                            : "#f8f9fa",
-                      }}
-                    >
-                      <span className="me-2">
-                        <i className="fas fa-grip-vertical text-muted" />
-                      </span>
-                      <div>
-                        <strong>
-                          سرفصل {index + 1}: {section.Title}
-                        </strong>
-                        <span className="badge bg-secondary ms-2">
-                          {section.Lessons?.length || 0} دروس
-                        </span>
+            <div className="sections-list">
+              {sections.map((section, index) => {
+                const isExpanded = expandedSection === section.Id;
+                const lessonCount = section.Lessons?.length || 0;
+
+                return (
+                  <div
+                    className={`section-item ${
+                      isExpanded ? "is-expanded" : ""
+                    }`}
+                    key={section.Id}
+                  >
+                    {/* Section Header */}
+                    <div className="section-item-header">
+                      <button
+                        type="button"
+                        className="section-toggle"
+                        onClick={() => toggleExpand(section.Id)}
+                      >
+                        <div className="section-number">
+                          {String(index + 1).padStart(2, "0")}
+                        </div>
+
+                        <div className="section-main-info">
+                          <div className="section-title-row">
+                            <span className="section-label">
+                              سرفصل {index + 1}
+                            </span>
+
+                            <span className="section-lesson-count">
+                              <i className="isax isax-book-1" />
+                              {lessonCount} درس
+                            </span>
+                          </div>
+
+                          <strong>{section.Title}</strong>
+                        </div>
+
+                        <div
+                          className={`section-chevron ${
+                            isExpanded ? "expanded" : ""
+                          }`}
+                        >
+                          <i className="isax isax-arrow-down-1" />
+                        </div>
+                      </button>
+
+                      <div className="section-actions">
+                        <button
+                          type="button"
+                          className="section-action-btn edit"
+                          title="ویرایش سرفصل"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openEditModal(section);
+                          }}
+                        >
+                          <i className="isax isax-edit-2" />
+                        </button>
+
+                        <button
+                          type="button"
+                          className="section-action-btn delete"
+                          title="حذف سرفصل"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openDeleteModal(section);
+                          }}
+                        >
+                          <i className="isax isax-trash" />
+                        </button>
                       </div>
-                    </button>
-                    <div
-                      className="d-flex align-items-center pe-3"
-                      style={{ position: "relative", zIndex: 10 }}
-                    >
-                      <button
-                        className="edit-btn1"
-                        title="ویرایش سرفصل"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openEditModal(section);
-                        }}
-                      >
-                        <i className="fas fa-pen" />
-                      </button>
-                      <button
-                        className="delete-btn1 ms-2"
-                        title="حذف سرفصل"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openDeleteModal(section);
-                        }}
-                      >
-                        <i className="fas fa-trash" />
-                      </button>
                     </div>
-                  </div>
-                  {expandedSection === section.Id && (
-                    <div className="accordion-collapse collapse show">
-                      <div className="accordion-body">
+
+                    {/* Lessons */}
+                    {isExpanded && (
+                      <div className="section-lessons">
                         <LessonManager
                           courseId={courseId}
                           sectionId={section.Id}
                           onLessonsChanged={fetchSections}
                         />
                       </div>
-                    </div>
-                  )}
-                </div>
-              ))}
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
       </div>
 
-      {/* مودال افزودن سرفصل */}
+      {/* =========================
+        ADD SECTION MODAL
+    ========================= */}
       {showAddModal && (
-        <div
-          className="modal fade show d-block"
-          tabIndex={-1}
-          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-        >
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content" style={modalContentStyle}>
-              <div className="modal-header">
-                <h5 className="modal-title">افزودن سرفصل</h5>
+        <div className="section-modal-backdrop">
+          <div
+            className="section-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="add-section-title"
+          >
+            <div className="section-modal-header">
+              <div className="section-modal-title">
+                <div className="section-modal-icon">
+                  <i className="isax isax-folder-add" />
+                </div>
+
+                <div>
+                  <h5 id="add-section-title">افزودن سرفصل</h5>
+                  <span>یک سرفصل جدید به دوره اضافه کنید.</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="section-modal-close"
+                onClick={() => setShowAddModal(false)}
+                disabled={saving}
+              >
+                <i className="isax isax-close-circle" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAdd}>
+              <div className="section-modal-body">
+                <div className="section-form-group">
+                  <label>
+                    <span> * </span>
+                    عنوان سرفصل
+                  </label>
+
+                  <input
+                    type="text"
+                    className="section-form-control"
+                    value={sectionTitle}
+                    onChange={(e) => setSectionTitle(e.target.value)}
+                    placeholder="مثلاً: مبانی برنامه‌نویسی"
+                    disabled={saving}
+                    autoFocus
+                  />
+                </div>
+
+                <div className="section-form-group">
+                  <label>ترتیب نمایش</label>
+
+                  <input
+                    type="number"
+                    className="section-form-control"
+                    value={sectionOrder}
+                    onChange={(e) => setSectionOrder(e.target.value)}
+                    placeholder="به صورت خودکار تعیین می‌شود"
+                    min="1"
+                    disabled={saving}
+                  />
+
+                  <small>
+                    در صورت خالی گذاشتن، ترتیب به صورت خودکار تعیین می‌شود.
+                  </small>
+                </div>
+              </div>
+
+              <div className="section-modal-footer">
                 <button
                   type="button"
-                  className="btn-close"
+                  className="section-modal-btn cancel"
                   onClick={() => setShowAddModal(false)}
-                />
-              </div>
-              <form onSubmit={handleAdd}>
-                <div className="modal-body">
-                  <div className="input-block">
-                    <label className="form-label">
-                      عنوان سرفصل <span className="text-danger">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={sectionTitle}
-                      onChange={(e) => setSectionTitle(e.target.value)}
-                      placeholder="عنوان سرفصل را وارد کنید"
-                      disabled={saving}
-                      autoFocus
-                    />
-                  </div>
-                  <div className="input-block">
-                    <label className="form-label">ترتیب نمایش</label>
-                    <input
-                      type="number"
-                      className="form-control"
-                      value={sectionOrder}
-                      onChange={(e) => setSectionOrder(e.target.value)}
-                      placeholder="به صورت خودکار تعیین می‌شود"
-                      min="1"
-                      disabled={saving}
-                    />
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <button
-                    type="button"
-                    className="btn btn-light"
-                    onClick={() => setShowAddModal(false)}
-                    disabled={saving}
-                  >
-                    لغو
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn btn-primary"
-                    disabled={saving}
-                  >
-                    {saving && (
-                      <span className="spinner-border spinner-border-sm me-2" />
-                    )}
-                    افزودن سرفصل
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* مودال ویرایش سرفصل */}
-      {showEditModal && (
-        <div
-          className="modal fade show d-block"
-          tabIndex={-1}
-          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-        >
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content" style={modalContentStyle}>
-              <div className="modal-header">
-                <h5 className="modal-title">ویرایش سرفصل</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowEditModal(false)}
-                />
-              </div>
-              <form onSubmit={handleEdit}>
-                <div className="modal-body">
-                  <div className="input-block">
-                    <label className="form-label">
-                      عنوان سرفصل <span className="text-danger">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={sectionTitle}
-                      onChange={(e) => setSectionTitle(e.target.value)}
-                      placeholder="عنوان سرفصل را وارد کنید"
-                      disabled={saving}
-                      autoFocus
-                    />
-                  </div>
-                  <div className="input-block">
-                    <label className="form-label">ترتیب نمایش</label>
-                    <input
-                      type="number"
-                      className="form-control"
-                      value={sectionOrder}
-                      onChange={(e) => setSectionOrder(e.target.value)}
-                      placeholder="به صورت خودکار تعیین می‌شود"
-                      min="1"
-                      disabled={saving}
-                    />
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <button
-                    type="button"
-                    className="btn btn-light"
-                    onClick={() => setShowEditModal(false)}
-                    disabled={saving}
-                  >
-                    لغو
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn btn-primary"
-                    disabled={saving}
-                  >
-                    {saving && (
-                      <span className="spinner-border spinner-border-sm me-2" />
-                    )}
-                    ذخیره تغییرات
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* مودال حذف سرفصل */}
-      {showDeleteModal && (
-        <div
-          className="modal fade show d-block"
-          tabIndex={-1}
-          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-        >
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content" style={modalContentStyle}>
-              <div className="modal-header">
-                <h5 className="modal-title">حذف سرفصل</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowDeleteModal(false)}
-                />
-              </div>
-              <div className="modal-body">
-                <p>
-                  از حذف کردن سرفصل اطمینان دارید{" "}
-                  <strong>{selectedSection?.Title}</strong>؟
-                </p>
-                <p className="text-muted mb-0">
-                  تمام درس‌های این بخش نیز حذف خواهند شد.
-                </p>
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-light"
-                  onClick={() => setShowDeleteModal(false)}
                   disabled={saving}
                 >
                   لغو
                 </button>
+
                 <button
-                  type="button"
-                  className="btn btn-danger"
-                  onClick={handleDelete}
+                  type="submit"
+                  className="section-modal-btn primary"
                   disabled={saving}
                 >
-                  {saving && (
-                    <span className="spinner-border spinner-border-sm me-2" />
+                  {saving ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm" />
+                      در حال ذخیره...
+                    </>
+                  ) : (
+                    <>
+                      <i className="isax isax-add" />
+                      افزودن سرفصل
+                    </>
                   )}
-                  حذف
                 </button>
               </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* =========================
+        EDIT SECTION MODAL
+    ========================= */}
+      {showEditModal && (
+        <div className="section-modal-backdrop">
+          <div
+            className="section-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="edit-section-title"
+          >
+            <div className="section-modal-header">
+              <div className="section-modal-title">
+                <div className="section-modal-icon edit">
+                  <i className="isax isax-edit-2" />
+                </div>
+
+                <div>
+                  <h5 id="edit-section-title">ویرایش سرفصل</h5>
+                  <span>اطلاعات سرفصل را ویرایش کنید.</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="section-modal-close"
+                onClick={() => setShowEditModal(false)}
+                disabled={saving}
+              >
+                <i className="isax isax-close-circle" />
+              </button>
+            </div>
+
+            <form onSubmit={handleEdit}>
+              <div className="section-modal-body">
+                <div className="section-form-group">
+                  <label>
+                    عنوان سرفصل
+                    <span>*</span>
+                  </label>
+
+                  <input
+                    type="text"
+                    className="section-form-control"
+                    value={sectionTitle}
+                    onChange={(e) => setSectionTitle(e.target.value)}
+                    placeholder="عنوان سرفصل را وارد کنید"
+                    disabled={saving}
+                    autoFocus
+                  />
+                </div>
+
+                <div className="section-form-group">
+                  <label>ترتیب نمایش</label>
+
+                  <input
+                    type="number"
+                    className="section-form-control"
+                    value={sectionOrder}
+                    onChange={(e) => setSectionOrder(e.target.value)}
+                    placeholder="به صورت خودکار تعیین می‌شود"
+                    min="1"
+                    disabled={saving}
+                  />
+                </div>
+              </div>
+
+              <div className="section-modal-footer">
+                <button
+                  type="button"
+                  className="section-modal-btn cancel"
+                  onClick={() => setShowEditModal(false)}
+                  disabled={saving}
+                >
+                  لغو
+                </button>
+
+                <button
+                  type="submit"
+                  className="section-modal-btn primary"
+                  disabled={saving}
+                >
+                  {saving ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm" />
+                      در حال ذخیره...
+                    </>
+                  ) : (
+                    <>
+                      <i className="isax isax-tick-circle" />
+                      ذخیره تغییرات
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* =========================
+        DELETE MODAL
+    ========================= */}
+      {showDeleteModal && (
+        <div className="section-modal-backdrop">
+          <div
+            className="section-modal section-delete-modal"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="section-modal-header">
+              <div className="section-modal-title">
+                <div className="section-modal-icon danger">
+                  <i className="isax isax-trash" />
+                </div>
+
+                <div>
+                  <h5>حذف سرفصل</h5>
+                  <span>این عملیات قابل بازگشت نیست.</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="section-modal-close"
+                onClick={() => setShowDeleteModal(false)}
+                disabled={saving}
+              >
+                <i className="isax isax-close-circle" />
+              </button>
+            </div>
+
+            <div className="section-delete-body">
+              <p>
+                آیا از حذف سرفصل
+                <strong> «{selectedSection?.Title}» </strong>
+                اطمینان دارید؟
+              </p>
+
+              <div className="section-delete-warning">
+                <i className="isax isax-warning-2" />
+
+                <span>
+                  با حذف این سرفصل، تمام درس‌های مربوط به آن نیز حذف خواهند شد.
+                </span>
+              </div>
+            </div>
+
+            <div className="section-modal-footer">
+              <button
+                type="button"
+                className="section-modal-btn cancel"
+                onClick={() => setShowDeleteModal(false)}
+                disabled={saving}
+              >
+                لغو
+              </button>
+
+              <button
+                type="button"
+                className="section-modal-btn danger"
+                onClick={handleDelete}
+                disabled={saving}
+              >
+                {saving ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm" />
+                    در حال حذف...
+                  </>
+                ) : (
+                  <>
+                    <i className="isax isax-trash" />
+                    حذف سرفصل
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>
