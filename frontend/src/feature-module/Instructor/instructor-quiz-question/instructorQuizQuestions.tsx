@@ -8,7 +8,7 @@ import quizService, {
   QuizQuestionItem,
   QuizChoice,
 } from "../../../services/quiz.service";
-
+import "./InstructorQuizQuestions.scss";
 interface Props {
   courseId: number;
   onPrev?: () => void;
@@ -64,12 +64,14 @@ const InstructorQuizQuestions: React.FC<Props> = ({
     showAllQuestions: false,
     allowPreviousQuestion: true,
   });
+
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const load = async () => {
       try {
         const quiz = await quizService.getQuiz(courseId);
+
         if (quiz) {
           setQuestions(
             quiz.QuizQuestions.map((q: any) => ({
@@ -85,6 +87,7 @@ const InstructorQuizQuestions: React.FC<Props> = ({
               })),
             })),
           );
+
           setSettings((s) => ({
             ...s,
             title: quiz.Title,
@@ -112,11 +115,12 @@ const InstructorQuizQuestions: React.FC<Props> = ({
           }));
         }
       } catch {
-        // no quiz yet — fine
+        // no quiz yet
       } finally {
         setLoadingExisting(false);
       }
     };
+
     load();
   }, [courseId]);
 
@@ -146,40 +150,62 @@ const InstructorQuizQuestions: React.FC<Props> = ({
 
   const handleCorrectChange = (index: number) => {
     setFormChoices((prev) =>
-      prev.map((c, i) => ({ ...c, isCorrect: i === index })),
+      prev.map((c, i) => ({
+        ...c,
+        isCorrect: i === index,
+      })),
     );
   };
 
   const addChoiceField = () => {
     if (formChoices.length >= 6) return;
-    setFormChoices((prev) => [...prev, { text: "", isCorrect: false }]);
+
+    setFormChoices((prev) => [
+      ...prev,
+      {
+        text: "",
+        isCorrect: false,
+      },
+    ]);
   };
 
   const removeChoiceField = (index: number) => {
     if (formChoices.length <= 2) return;
+
     setFormChoices((prev) => {
       const next = prev.filter((_, i) => i !== index);
-      if (!next.some((c) => c.isCorrect)) next[0].isCorrect = true;
+
+      if (!next.some((c) => c.isCorrect)) {
+        next[0].isCorrect = true;
+      }
+
       return next;
     });
   };
 
   const saveQuestionFromModal = () => {
     const text = formText.trim();
-    const choices = formChoices.map((c) => ({ ...c, text: c.text.trim() }));
+
+    const choices = formChoices.map((c) => ({
+      ...c,
+      text: c.text.trim(),
+    }));
 
     if (!text) {
       toast.error("متن سوال را وارد کنید.");
       return;
     }
+
     if (choices.some((c) => !c.text)) {
       toast.error("متن همه گزینه‌ها را وارد کنید.");
       return;
     }
+
     if (choices.filter((c) => c.isCorrect).length !== 1) {
       toast.error("دقیقاً یک گزینه صحیح انتخاب کنید.");
       return;
     }
+
     if (!formScore || formScore <= 0) {
       toast.error("نمره سوال باید بزرگتر از صفر باشد.");
       return;
@@ -189,7 +215,12 @@ const InstructorQuizQuestions: React.FC<Props> = ({
       setQuestions((prev) =>
         prev.map((q) =>
           q.clientId === editingClientId
-            ? { ...q, questionText: text, choices, score: formScore }
+            ? {
+                ...q,
+                questionText: text,
+                choices,
+                score: formScore,
+              }
             : q,
         ),
       );
@@ -205,6 +236,7 @@ const InstructorQuizQuestions: React.FC<Props> = ({
         },
       ]);
     }
+
     setModalOpen(false);
   };
 
@@ -217,9 +249,12 @@ const InstructorQuizQuestions: React.FC<Props> = ({
       toast.error("تعداد سوال باید بین ۱ تا ۱۰۰ باشد.");
       return;
     }
+
     setGenerating(true);
+
     try {
       const generated = await quizService.generateQuestions(courseId, aiCount);
+
       const mapped: QuizQuestionItem[] = generated.map((q) => ({
         clientId: makeClientId(),
         questionText: q.questionText,
@@ -227,7 +262,9 @@ const InstructorQuizQuestions: React.FC<Props> = ({
         score: 1,
         isAiGenerated: true,
       }));
+
       setQuestions((prev) => [...prev, ...mapped]);
+
       toast.success(`${mapped.length} سوال با موفقیت تولید شد.`);
     } catch (err: any) {
       toast.error(
@@ -243,10 +280,12 @@ const InstructorQuizQuestions: React.FC<Props> = ({
       toast.error("حداقل یک سوال اضافه کنید.");
       return;
     }
+
     if (!settings.startDateObj || !settings.endDateObj) {
       toast.error("تاریخ شروع و پایان آزمون را مشخص کنید.");
       return;
     }
+
     if (settings.questionsToShow > questions.length) {
       toast.error(
         "تعداد سوالات نمایشی نمی‌تواند از تعداد کل سوالات بیشتر باشد.",
@@ -255,10 +294,12 @@ const InstructorQuizQuestions: React.FC<Props> = ({
     }
 
     const totalMaxScore = questions.reduce((sum, q) => sum + (q.score ?? 1), 0);
+
     if (!settings.passScore || settings.passScore <= 0) {
       toast.error("نمره قبولی را وارد کنید.");
       return;
     }
+
     if (settings.passScore > totalMaxScore) {
       toast.error("نمره قبولی نمی‌تواند از مجموع نمرات سوالات بیشتر باشد.");
       return;
@@ -266,10 +307,12 @@ const InstructorQuizQuestions: React.FC<Props> = ({
 
     const startDateJs = settings.startDateObj.toDate();
     const [startH, startM] = settings.startTime.split(":").map(Number);
+
     startDateJs.setHours(startH, startM, 0, 0);
 
     const endDateJs = settings.endDateObj.toDate();
     const [endH, endM] = settings.endTime.split(":").map(Number);
+
     endDateJs.setHours(endH, endM, 0, 0);
 
     const startAt = startDateJs.toISOString();
@@ -281,6 +324,7 @@ const InstructorQuizQuestions: React.FC<Props> = ({
     }
 
     setSaving(true);
+
     try {
       await quizService.saveQuiz(courseId, {
         title: settings.title,
@@ -301,6 +345,7 @@ const InstructorQuizQuestions: React.FC<Props> = ({
           })),
         })),
       });
+
       toast.success("آزمون با موفقیت ذخیره شد.");
       onNext?.();
     } catch (err: any) {
@@ -313,186 +358,292 @@ const InstructorQuizQuestions: React.FC<Props> = ({
   };
 
   if (loadingExisting) {
-    return <div className="text-center py-5">در حال بارگذاری آزمون...</div>;
+    return (
+      <div className="quiz-loading">
+        <div className="spinner-border text-primary" />
+        <span>در حال بارگذاری آزمون...</span>
+      </div>
+    );
   }
-
   return (
-    <div className="form-inner wizard-form-card">
-      <div className="title d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <h5 className="mb-0">سوالات آزمون (بانک سوالات: {questions.length})</h5>
-        <div className="d-flex align-items-center gap-2">
-          <input
-            type="number"
-            min={1}
-            max={100}
-            value={aiCount}
-            onChange={(e) => setAiCount(Number(e.target.value))}
-            className="form-control"
-            style={{ width: 80 }}
-          />
+    <div className="form-inner wizard-form-card instructor-quiz-page">
+      {/* ==================== Quiz Header ==================== */}
+      <div className="quiz-page-header">
+        <div>
+          <div className="quiz-page-title">
+            <div className="quiz-title-icon">
+              <i className="isax isax-clipboard-text" />
+            </div>
+
+            <div>
+              <h5>سوالات آزمون</h5>
+              <p>مدیریت بانک سوالات و تنظیمات آزمون</p>
+            </div>
+          </div>
+
+          <div className="quiz-question-count">
+            <i className="isax isax-document-text" />
+            بانک سوالات:
+            <strong>{questions.length}</strong>
+          </div>
+        </div>
+
+        <div className="quiz-header-actions">
+          <div className="ai-generator">
+            <input
+              type="number"
+              min={1}
+              max={100}
+              value={aiCount}
+              onChange={(e) => setAiCount(Number(e.target.value))}
+              className="form-control"
+            />
+
+            <button
+              type="button"
+              className="btn quiz-ai-btn"
+              onClick={handleGenerateAi}
+              disabled={generating}
+            >
+              <i className="fas fa-magic" />
+
+              {generating ? "در حال تولید..." : "تولید با هوش مصنوعی"}
+            </button>
+          </div>
+
           <button
             type="button"
-            className="btn btn-outline-secondary"
-            onClick={handleGenerateAi}
-            disabled={generating}
-          >
-            <i className="fas fa-magic me-1" />
-            {generating ? "در حال تولید..." : "تولید با هوش مصنوعی"}
-          </button>
-          <button
-            type="button"
-            className="btn btn-secondary"
+            className="btn quiz-add-btn"
             onClick={openAddModal}
           >
-            <i className="fas fa-plus me-1" /> افزودن سوال
+            <i className="fas fa-plus" />
+            افزودن سوال
           </button>
         </div>
       </div>
 
+      {/* ==================== Questions ==================== */}
       {questions.length === 0 ? (
-        <div className="text-center text-muted py-5">
-          هنوز سوالی اضافه نشده. با هوش مصنوعی تولید کنید یا به‌صورت دستی اضافه
-          کنید.
+        <div className="quiz-empty-state">
+          <div className="quiz-empty-icon">
+            <i className="isax isax-document-text" />
+          </div>
+
+          <h6>هنوز سوالی اضافه نشده است</h6>
+
+          <p>
+            می‌توانید سوالات را به‌صورت دستی اضافه کنید یا از هوش مصنوعی برای
+            تولید سوال استفاده کنید.
+          </p>
+
+          <button
+            type="button"
+            className="btn quiz-modal-save"
+            onClick={openAddModal}
+          >
+            <i className="fas fa-plus me-1" />
+            افزودن اولین سوال
+          </button>
         </div>
       ) : (
-        <div className="d-flex flex-column gap-3 my-3">
+        <div className="quiz-questions-list">
           {questions.map((q, idx) => (
-            <div className="card" key={q.clientId}>
-              <div className="card-body">
-                <div className="d-flex align-items-start justify-content-between">
-                  <h6 className="mb-2">
-                    {idx + 1}. {q.questionText}{" "}
-                    <span className="badge bg-primary-transparent text-primary ms-1">
-                      نمره: {q.score ?? 1}
-                    </span>{" "}
-                    {q.isAiGenerated && (
-                      <span className="badge bg-secondary-transparent text-secondary ms-1">
-                        AI
+            <div className="quiz-question-card" key={q.clientId}>
+              <div className="quiz-question-top">
+                <div className="quiz-question-number">{idx + 1}</div>
+
+                <div className="quiz-question-content">
+                  <div className="quiz-question-heading">
+                    <h6>{q.questionText}</h6>
+
+                    <div className="quiz-question-badges">
+                      <span className="quiz-score-badge">
+                        <i className="fas fa-star" />
+                        {q.score ?? 1} نمره
                       </span>
-                    )}
-                  </h6>
-                  <div className="d-flex align-items-center gap-2">
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-outline-secondary"
-                      onClick={() => openEditModal(q)}
-                    >
-                      <i className="isax isax-edit-2" />
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-outline-danger"
-                      onClick={() => deleteQuestion(q.clientId)}
-                    >
-                      <i className="isax isax-trash" />
-                    </button>
+
+                      {q.isAiGenerated && (
+                        <span className="quiz-ai-badge">
+                          <i className="fas fa-magic" />
+                          AI
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="quiz-choices">
+                    {q.choices.map((c, ci) => (
+                      <div
+                        key={ci}
+                        className={`quiz-choice ${
+                          c.isCorrect ? "correct" : ""
+                        }`}
+                      >
+                        <span className="quiz-choice-icon">
+                          {c.isCorrect ? (
+                            <i className="fas fa-check" />
+                          ) : (
+                            <span>{ci + 1}</span>
+                          )}
+                        </span>
+
+                        <span>{c.text}</span>
+
+                        {c.isCorrect && <small>پاسخ صحیح</small>}
+                      </div>
+                    ))}
                   </div>
                 </div>
-                <ul className="list-unstyled mb-0">
-                  {q.choices.map((c, ci) => (
-                    <li
-                      key={ci}
-                      className={
-                        c.isCorrect ? "text-success fw-medium" : "text-muted"
-                      }
-                    >
-                      {c.isCorrect ? (
-                        <i className="fas fa-check-circle me-1" />
-                      ) : (
-                        "○ "
-                      )}
-                      {c.text}
-                    </li>
-                  ))}
-                </ul>
+
+                <div className="quiz-question-actions">
+                  <button
+                    type="button"
+                    className="quiz-icon-btn edit"
+                    title="ویرایش سوال"
+                    onClick={() => openEditModal(q)}
+                  >
+                    <i className="isax isax-edit-2" />
+                  </button>
+
+                  <button
+                    type="button"
+                    className="quiz-icon-btn delete"
+                    title="حذف سوال"
+                    onClick={() => deleteQuestion(q.clientId)}
+                  >
+                    <i className="isax isax-trash" />
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      <div className="card">
-        <div className="card-body">
-          <h6 className="mb-3">تنظیمات آزمون</h6>
+      {/* ==================== Quiz Settings ==================== */}
+      <div className="quiz-settings-card">
+        <div className="quiz-section-header">
+          <div className="quiz-section-icon">
+            <i className="isax isax-setting-2" />
+          </div>
+
+          <div>
+            <h6>تنظیمات آزمون</h6>
+            <span>مشخصات و نحوه برگزاری آزمون را تنظیم کنید</span>
+          </div>
+        </div>
+
+        <div className="quiz-settings-body">
           <div className="row g-3">
-            <div className="col-md-3">
+            <div className="col-md-6 col-lg-3">
               <label className="form-label">عنوان آزمون</label>
+
               <input
                 className="form-control"
                 value={settings.title}
                 onChange={(e) =>
-                  setSettings({ ...settings, title: e.target.value })
+                  setSettings({
+                    ...settings,
+                    title: e.target.value,
+                  })
                 }
               />
             </div>
-            <div className="col-md-3">
+
+            <div className="col-md-6 col-lg-3">
               <label className="form-label">تاریخ شروع</label>
+
               <DatePicker
                 calendar={persian}
                 locale={persian_fa}
                 value={settings.startDateObj}
                 onChange={(val) =>
-                  setSettings({ ...settings, startDateObj: val as DateObject })
+                  setSettings({
+                    ...settings,
+                    startDateObj: val as DateObject,
+                  })
                 }
                 inputClass="form-control"
                 calendarPosition="bottom-right"
                 containerStyle={{ width: "100%" }}
               />
             </div>
-            <div className="col-md-3">
+
+            <div className="col-md-6 col-lg-3">
               <label className="form-label">تاریخ پایان</label>
+
               <DatePicker
                 calendar={persian}
                 locale={persian_fa}
                 value={settings.endDateObj}
                 onChange={(val) =>
-                  setSettings({ ...settings, endDateObj: val as DateObject })
+                  setSettings({
+                    ...settings,
+                    endDateObj: val as DateObject,
+                  })
                 }
                 inputClass="form-control"
                 calendarPosition="bottom-right"
                 containerStyle={{ width: "100%" }}
               />
             </div>
-            <div className="col-md-3">
+
+            <div className="col-md-6 col-lg-3">
               <label className="form-label">ساعت شروع</label>
+
               <input
                 type="time"
                 className="form-control"
                 value={settings.startTime}
                 onChange={(e) =>
-                  setSettings({ ...settings, startTime: e.target.value })
+                  setSettings({
+                    ...settings,
+                    startTime: e.target.value,
+                  })
                 }
               />
             </div>
 
-            <div className="col-md-3">
+            <div className="col-md-6 col-lg-3">
               <label className="form-label">ساعت پایان</label>
+
               <input
                 type="time"
                 className="form-control"
                 value={settings.endTime}
                 onChange={(e) =>
-                  setSettings({ ...settings, endTime: e.target.value })
-                }
-              />
-            </div>
-            <div className="col-md-3">
-              <label className="form-label">مدت زمان آزمون (دقیقه)</label>
-              <input
-                type="number"
-                min={1}
-                className="form-control"
-                value={settings.durationMinutes}
-                onChange={(e) =>
                   setSettings({
                     ...settings,
-                    durationMinutes: Number(e.target.value),
+                    endTime: e.target.value,
                   })
                 }
               />
             </div>
-            <div className="col-md-3">
+
+            <div className="col-md-6 col-lg-3">
+              <label className="form-label">مدت زمان آزمون</label>
+
+              <div className="quiz-input-with-unit">
+                <input
+                  type="number"
+                  min={1}
+                  className="form-control"
+                  value={settings.durationMinutes}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      durationMinutes: Number(e.target.value),
+                    })
+                  }
+                />
+
+                <span>دقیقه</span>
+              </div>
+            </div>
+
+            <div className="col-md-6 col-lg-3">
               <label className="form-label">نمره قبولی</label>
+
               <input
                 type="number"
                 min={0}
@@ -506,16 +657,16 @@ const InstructorQuizQuestions: React.FC<Props> = ({
                   })
                 }
               />
-              <small className="text-muted">
+
+              <small className="quiz-field-hint">
                 از مجموع {questions.reduce((s, q) => s + (q.score ?? 1), 0)}{" "}
                 نمره
               </small>
             </div>
-            <div className="col-md-3">
-              <label className="form-label">
-                تعداد سوال نمایش داده‌شده به هر کاربر (از بین {questions.length}{" "}
-                سوال)
-              </label>
+
+            <div className="col-md-6 col-lg-3">
+              <label className="form-label">تعداد سوال برای هر کاربر</label>
+
               <input
                 type="number"
                 min={1}
@@ -529,62 +680,73 @@ const InstructorQuizQuestions: React.FC<Props> = ({
                   })
                 }
               />
+
+              <small className="quiz-field-hint">
+                از {questions.length} سوال
+              </small>
             </div>
-            <div className="col-md-3">
-              <label className="form-label d-block">حالت نمایش سوالات</label>
-              <div className="d-flex gap-3">
-                <div className="form-check">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    name="show-mode"
-                    id="mode-one-by-one"
-                    checked={!settings.showAllQuestions}
-                    onChange={() =>
-                      setSettings({ ...settings, showAllQuestions: false })
-                    }
-                  />
-                  <label className="form-check-label" htmlFor="mode-one-by-one">
-                    یکی‌یکی
-                  </label>
+
+            <div className="col-md-6 col-lg-6">
+              <div className="quiz-setting-option">
+                <div>
+                  <strong>حالت نمایش سوالات</strong>
+                  <small>نحوه نمایش سوالات به شرکت‌کننده</small>
                 </div>
-                <div className="form-check">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    name="show-mode"
-                    id="mode-all"
-                    checked={settings.showAllQuestions}
-                    onChange={() =>
-                      setSettings({ ...settings, showAllQuestions: true })
-                    }
-                  />
-                  <label className="form-check-label" htmlFor="mode-all">
-                    همه با هم
+
+                <div className="quiz-radio-group">
+                  <label className={!settings.showAllQuestions ? "active" : ""}>
+                    <input
+                      type="radio"
+                      name="show-mode"
+                      checked={!settings.showAllQuestions}
+                      onChange={() =>
+                        setSettings({
+                          ...settings,
+                          showAllQuestions: false,
+                        })
+                      }
+                    />
+                    <span>یکی‌یکی</span>
+                  </label>
+
+                  <label className={settings.showAllQuestions ? "active" : ""}>
+                    <input
+                      type="radio"
+                      name="show-mode"
+                      checked={settings.showAllQuestions}
+                      onChange={() =>
+                        setSettings({
+                          ...settings,
+                          showAllQuestions: true,
+                        })
+                      }
+                    />
+                    <span>همه با هم</span>
                   </label>
                 </div>
               </div>
             </div>
-            <div className="col-md-3">
-              <label className="form-label d-block">
-                امکان بازگشت به سوال قبلی
-              </label>
-              <div className="form-check form-switch">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  role="switch"
-                  id="allow-prev-switch"
-                  checked={settings.allowPreviousQuestion}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      allowPreviousQuestion: e.target.checked,
-                    })
-                  }
-                />
-                <label className="form-check-label" htmlFor="allow-prev-switch">
-                  {settings.allowPreviousQuestion ? "فعال" : "غیرفعال"}
+
+            <div className="col-md-6 col-lg-6">
+              <div className="quiz-setting-option">
+                <div>
+                  <strong>امکان بازگشت به سوال قبلی</strong>
+                  <small>کاربر بتواند به سوال قبلی برگردد</small>
+                </div>
+
+                <label className="quiz-switch">
+                  <input
+                    type="checkbox"
+                    checked={settings.allowPreviousQuestion}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        allowPreviousQuestion: e.target.checked,
+                      })
+                    }
+                  />
+
+                  <span />
                 </label>
               </div>
             </div>
@@ -592,120 +754,172 @@ const InstructorQuizQuestions: React.FC<Props> = ({
         </div>
       </div>
 
-      <div className="add-form-btn widget-next-btn submit-btn mt-3">
-        <div className="btn-left">
-          <button
-            type="button"
-            className="btn btn-light main-btn prev_btns"
-            onClick={onPrev}
-          >
-            <i className="isax isax-arrow-right-3 me-1" /> قبلی
-          </button>
-        </div>
-        <div className="btn-left ms-auto">
-          <button
-            type="button"
-            className="btn btn-secondary main-btn"
-            onClick={handleSaveQuiz}
-            disabled={saving}
-          >
-            {saving ? "در حال ذخیره..." : "ذخیره آزمون و ادامه"}
-          </button>
-        </div>
+      {/* ==================== Footer ==================== */}
+      <div className="quiz-navigation">
+        <button type="button" className="btn quiz-prev-btn" onClick={onPrev}>
+          <i className="isax isax-arrow-right-3" />
+          قبلی
+        </button>
+
+        <button
+          type="button"
+          className="btn quiz-save-btn"
+          onClick={handleSaveQuiz}
+          disabled={saving}
+        >
+          {saving ? (
+            <>
+              <span className="spinner-border spinner-border-sm" />
+              در حال ذخیره...
+            </>
+          ) : (
+            <>
+              ذخیره آزمون و ادامه
+              <i className="isax isax-arrow-left-3" />
+            </>
+          )}
+        </button>
       </div>
 
+      {/* ==================== Question Modal ==================== */}
       {modalOpen && (
         <>
-          <div className="modal-backdrop fade show" onClick={closeModal} />
-          <div className="modal fade show d-block" tabIndex={-1} role="dialog">
-            <div className="modal-dialog modal-dialog-centered modal-lg">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="fw-bold">
-                    {editingClientId ? "ویرایش سوال" : "افزودن سوال"}
-                  </h5>
-                  <button
-                    type="button"
-                    className="btn-close"
-                    onClick={closeModal}
+          <div className="quiz-modal-backdrop" onClick={closeModal} />
+
+          <div className="quiz-modal-wrapper" role="dialog" aria-modal="true">
+            <div className="quiz-modal">
+              <div className="quiz-modal-header">
+                <div className="quiz-modal-title">
+                  <div className="quiz-modal-icon">
+                    <i
+                      className={
+                        editingClientId ? "isax isax-edit-2" : "fas fa-plus"
+                      }
+                    />
+                  </div>
+
+                  <div>
+                    <h5>{editingClientId ? "ویرایش سوال" : "افزودن سوال"}</h5>
+
+                    <span>متن سوال و گزینه‌های پاسخ را وارد کنید</span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="quiz-modal-close"
+                  onClick={closeModal}
+                >
+                  <i className="fas fa-times" />
+                </button>
+              </div>
+
+              <div className="quiz-modal-body">
+                <div className="quiz-modal-field">
+                  <label className="form-label">
+                    متن سوال
+                    <span className="text-danger">*</span>
+                  </label>
+
+                  <textarea
+                    className="form-control"
+                    rows={3}
+                    value={formText}
+                    onChange={(e) => setFormText(e.target.value)}
+                    placeholder="متن سوال را وارد کنید..."
                   />
                 </div>
-                <div className="modal-body">
-                  <div className="mb-3">
-                    <label className="form-label">
-                      متن سوال <span className="text-danger">*</span>
-                    </label>
-                    <textarea
-                      className="form-control"
-                      rows={2}
-                      value={formText}
-                      onChange={(e) => setFormText(e.target.value)}
-                    />
+
+                <div className="quiz-modal-score">
+                  <label className="form-label">نمره سوال</label>
+
+                  <input
+                    type="number"
+                    min={0}
+                    step={0.25}
+                    className="form-control"
+                    value={formScore}
+                    onChange={(e) => setFormScore(Number(e.target.value))}
+                  />
+                </div>
+
+                <div className="quiz-choices-header">
+                  <div>
+                    <h6>گزینه‌های پاسخ</h6>
+                    <span>گزینه صحیح را انتخاب کنید</span>
                   </div>
-                  <div className="mb-3" style={{ maxWidth: 160 }}>
-                    <label className="form-label">نمره این سوال</label>
-                    <input
-                      type="number"
-                      min={0}
-                      step={0.25}
-                      className="form-control"
-                      value={formScore}
-                      onChange={(e) => setFormScore(Number(e.target.value))}
-                    />
-                  </div>
+
+                  <span className="quiz-choice-count">
+                    {formChoices.length} گزینه
+                  </span>
+                </div>
+
+                <div className="quiz-modal-choices">
                   {formChoices.map((c, i) => (
-                    <div
-                      className="mb-2 d-flex align-items-center gap-2"
-                      key={i}
-                    >
-                      <input
-                        type="radio"
-                        name="correct-choice"
-                        checked={c.isCorrect}
-                        onChange={() => handleCorrectChange(i)}
-                      />
+                    <div className="quiz-choice-row" key={i}>
+                      <label className="quiz-choice-radio">
+                        <input
+                          type="radio"
+                          name="correct-choice"
+                          checked={c.isCorrect}
+                          onChange={() => handleCorrectChange(i)}
+                        />
+                        <span className="quiz-radio-circle" />
+                      </label>
+
+                      <div className="quiz-choice-number">{i + 1}</div>
+
                       <input
                         type="text"
-                        className="form-control"
+                        className="form-control quiz-choice-input"
                         placeholder={`گزینه ${i + 1}`}
                         value={c.text}
                         onChange={(e) =>
                           handleChoiceTextChange(i, e.target.value)
                         }
                       />
+
                       <button
                         type="button"
-                        className="btn btn-sm btn-outline-danger"
+                        className="quiz-choice-delete"
                         onClick={() => removeChoiceField(i)}
                         disabled={formChoices.length <= 2}
+                        title="حذف گزینه"
                       >
                         <i className="isax isax-trash" />
                       </button>
                     </div>
                   ))}
+
                   <button
                     type="button"
-                    className="btn btn-sm btn-outline-secondary mt-1"
+                    className="quiz-add-choice-btn"
                     onClick={addChoiceField}
                     disabled={formChoices.length >= 6}
                   >
-                    <i className="fas fa-plus me-1" /> افزودن گزینه
+                    <i className="fas fa-plus me-1" />
+                    افزودن گزینه
                   </button>
                 </div>
-                <div className="modal-footer">
-                  <button
-                    className="btn bg-gray-100 rounded-pill me-2"
-                    onClick={closeModal}
-                  >
-                    انصراف
-                  </button>
-                  <button
-                    className="btn btn-secondary rounded-pill"
-                    onClick={saveQuestionFromModal}
-                  >
-                    ذخیره سوال
-                  </button>
-                </div>
+              </div>
+
+              <div className="quiz-modal-footer">
+                <button
+                  type="button"
+                  className="btn quiz-modal-cancel"
+                  onClick={closeModal}
+                >
+                  انصراف
+                </button>
+
+                <button
+                  type="button"
+                  className="btn quiz-modal-save"
+                  onClick={saveQuestionFromModal}
+                >
+                  <i className="fas fa-check" />
+                  ذخیره سوال
+                </button>
               </div>
             </div>
           </div>

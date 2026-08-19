@@ -1,175 +1,152 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import ImageWithBasePath from "../imageWithBasePath";
+import ImageWithBasePath from "../../../core/common/imageWithBasePath";
 import { all_routes } from "../../../feature-module/router/all_routes";
+import { useAuth } from "../../../context/AuthContext";
 
 const Footer = () => {
+  const { isAuthenticated, user } = useAuth();
   return (
-    <>
-      {/* Footer */}
-      <footer className="footer">
-        <div className="footer-bg">
-          <ImageWithBasePath
-            src="assets/img/bg/footer-bg-01.png"
-            className="footer-bg-1"
-            alt=""
-          />
-          <ImageWithBasePath
-            src="assets/img/bg/footer-bg-02.png"
-            className="footer-bg-2"
-            alt=""
-          />
-        </div>
-        <div className="footer-top">
-          <div className="container">
-            <div className="row row-gap-4">
-              <div className="col-lg-4">
-                <div className="footer-about">
-                  <div className="footer-logo">
-                    <ImageWithBasePath src="assets/img/logo.svg" alt="" />
-                  </div>
-                  <p>
-                    پلتفرمی که برای کمک به سازمان‌ها، مربیان و فراگیران در
-                    مدیریت، ارائه و پیگیری فعالیت‌های یادگیری و آموزشی طراحی شده
-                    است.
-                  </p>
-                  <div className="d-flex align-items-center">
-                    <Link to="#" className="me-2">
-                      <ImageWithBasePath
-                        width={300}
-                        src="assets/img/logo-side.png"
-                        alt=""
-                      />
-                    </Link>
-                  </div>
+    <footer className="footer footer-one">
+      <div className="footer-top">
+        <div className="container">
+          <div className="row row-gap-4">
+            <div className="col-lg-4">
+              <div className="footer-about">
+                <div className="footer-logo">
+                  <ImageWithBasePath src="assets/img/logo-white.svg" alt="" />
+                </div>
+                <p>
+                  پلتفرمی که برای کمک به سازمان‌ها، مربیان و فراگیران در مدیریت،
+                  ارائه و پیگیری فعالیت‌های یادگیری و آموزشی طراحی شده است.
+                </p>
+                <div className="d-flex align-items-center">
+                  <Link to={all_routes.homeone}>
+                    <ImageWithBasePath
+                      src="assets/img/logo/logo-side.png"
+                      alt=""
+                    />
+                  </Link>
                 </div>
               </div>
-              <div className="col-lg-8">
-                <div className="row row-gap-4">
-                  <div className="col-lg-3">
-                    <div className="footer-widget footer-menu">
-                      <h5 className="footer-title">For Instructor</h5>
-                      <ul>
-                        <li>
-                          <Link to={all_routes.courseGrid}>Search Mentors</Link>
-                        </li>
-                        <li>
-                          <Link to={all_routes.login}>Login</Link>
-                        </li>
-                        <li>
-                          <Link to={all_routes.register}>Register</Link>
-                        </li>
-                        <li>
-                          <Link to={all_routes.courseList}>Booking</Link>
-                        </li>
-                        <li>
-                          <Link to={all_routes.studentDashboard}>
-                            Students Dashboard
-                          </Link>
-                        </li>
-                      </ul>
-                    </div>
+            </div>
+            <div className="col-lg-5">
+              <div className="row row-gap-4">
+                <div className="col-lg-4 col-md-4">
+                  <div className="footer-widget footer-menu">
+                    <h5 className="footer-title">دسترسی سریع</h5>
+
+                    <ul>
+                      <li>
+                        <Link to={all_routes.homeone}>صفحه اصلی</Link>
+                      </li>
+
+                      <li>
+                        <Link to={all_routes.courseGrid}>دوره‌ها</Link>
+                      </li>
+                    </ul>
                   </div>
-                  <div className="col-lg-3">
-                    <div className="footer-widget footer-menu">
-                      <h5 className="footer-title">For Student</h5>
-                      <ul>
-                        <li>
-                          <Link to="#">Appointments</Link>
-                        </li>
-                        <li>
-                          <Link to={all_routes.instructorMessage}>Chat</Link>
-                        </li>
-                        <li>
-                          <Link to={all_routes.login}>Login</Link>
-                        </li>
-                        <li>
-                          <Link to={all_routes.register}>Register</Link>
-                        </li>
-                        <li>
-                          <Link to={all_routes.instructorDashboard}>
-                            Instructor Dashboard
-                          </Link>
-                        </li>
-                      </ul>
-                    </div>
+                </div>
+                <div className="col-lg-4 col-md-4">
+                  <div className="footer-widget footer-menu">
+                    <h5 className="footer-title">اطلاعات</h5>
+
+                    <ul>
+                      <li>
+                        <Link to={all_routes.about_us}>درباره ما</Link>
+                      </li>
+
+                      <li>
+                        <Link to={all_routes.contactUs}>تماس با ما</Link>
+                      </li>
+
+                      <li>
+                        <Link to={all_routes.FAQ}>سوالات متداول</Link>
+                      </li>
+                    </ul>
                   </div>
-                  <div className="col-lg-6">
-                    <div className="footer-widget footer-contact">
-                      <h5 className="footer-title">Newsletter</h5>
-                      <div className="subscribe-input">
-                        <form action="#">
-                          <input
-                            type="email"
-                            className="form-control"
-                            placeholder="Enter your Email Address"
-                          />
-                          <button
-                            type="submit"
-                            className="btn btn-primary btn-sm inline-flex align-items-center"
-                          >
-                            <i className="isax isax-send-2 me-1" />
-                            Subscribe
-                          </button>
-                        </form>
-                      </div>
-                      <div className="footer-contact-info">
-                        <div className="footer-address d-flex align-items-center">
-                          <ImageWithBasePath
-                            src="assets/img/icon/icon-20.svg"
-                            alt="Img"
-                            className="img-fluid me-2"
-                          />
-                          <p>
-                            {" "}
-                            3556 Beech Street, San Francisco,
-                            <br /> California, CA 94108{" "}
-                          </p>
-                        </div>
-                        <div className="footer-address d-flex align-items-center">
-                          <ImageWithBasePath
-                            src="assets/img/icon/icon-19.svg"
-                            alt="Img"
-                            className="img-fluid me-2"
-                          />
-                          <p>dreamslms@example.com</p>
-                        </div>
-                        <div className="footer-address d-flex align-items-center">
-                          <ImageWithBasePath
-                            src="assets/img/icon/icon-21.svg"
-                            alt="Img"
-                            className="img-fluid me-2"
-                          />
-                          <p>+19 123-456-7890</p>
-                        </div>
-                      </div>
-                    </div>
+                </div>
+                <div className="col-lg-4 col-md-4">
+                  <div className="footer-widget footer-menu">
+                    <h5 className="footer-title">حساب کاربری</h5>
+                    {!isAuthenticated ? (
+                      <>
+                        <ul>
+                          <li>
+                            <Link to={all_routes.login}>ورود</Link>
+                          </li>
+                          <li>
+                            <Link to={all_routes.register}>ثبت نام</Link>
+                          </li>
+                        </ul>
+                      </>
+                    ) : (
+                      <>
+                        {user?.roleId === 1 && (
+                          <ul>
+                            <li>
+                              <Link to={all_routes.studentDashboard}>
+                                پنل دانشجو
+                              </Link>
+                            </li>
+                          </ul>
+                        )}
+
+                        {user?.roleId === 2 && (
+                          <ul>
+                            <li>
+                              <Link to={all_routes.instructorDashboard}>
+                                پنل مدرس
+                              </Link>
+                            </li>
+                          </ul>
+                        )}
+
+                        {user?.roleId === 3 && (
+                          <ul>
+                            <li>
+                              <Link to={all_routes.adminDashboard}>
+                                پنل مدیریت
+                              </Link>
+                            </li>
+                          </ul>
+                        )}
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-        <div className="footer-bottom">
-          <div className="container">
-            <div className="row row-gap-2">
-              <div className="col-md-6">
-                <div className="text-center text-md-start">
-                  <p className="text-white">
-                    Copyright © 2025 DreamsLMS. All rights reserved.
+            <div className="col-lg-3">
+              <div className="footer-widget footer-contact">
+                <h5 className="footer-title">ارتباط با ما</h5>
+
+                <div className="footer-newsletter">
+                  <p>
+                    در صورت داشتن هرگونه سوال یا پیشنهاد با ما در ارتباط باشید.
                   </p>
-                </div>
-              </div>
-              <div className="col-md-6">
-                <div>
-                  <ul className="d-flex align-items-center justify-content-center justify-content-md-end footer-link">
-                    <li>
-                      <Link to={all_routes.termsConditions}>
-                        Terms &amp; Conditions
-                      </Link>
+
+                  <ul className="list-unstyled">
+                    <li className="mb-3">
+                      <i className="isax isax-call me-2"></i>
+                      <a
+                        href="tel:+982188772460"
+                        dir="ltr"
+                        className="text-gray-5 text-primary-hover text-decoration-underline"
+                      >
+                        ۰۲۱-۸۸۷۷-۲۴۶۰
+                      </a>
                     </li>
-                    <li>
-                      <Link to={all_routes.privacyPolicy}>Privacy Policy</Link>
+
+                    <li className="mb-3">
+                      <i className="isax isax-sms me-2"></i>
+                      <a
+                        href="mailto:info@mentorito.example"
+                        dir="ltr"
+                        className="text-gray-5 text-primary-hover text-decoration-underline"
+                      >
+                        info@mentorito.example
+                      </a>
                     </li>
                   </ul>
                 </div>
@@ -177,9 +154,19 @@ const Footer = () => {
             </div>
           </div>
         </div>
-      </footer>
-      {/* /Footer */}
-    </>
+      </div>
+      <div className="footer-bottom">
+        <div className="container">
+          <div className="row row-gap-2">
+            <div className="col-lg-5">
+              <div className="text-center text-lg-start">
+                <p>© 2026 سامانه مدیریت یادگیری - تمامی حقوق محفوظ است.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
   );
 };
 
