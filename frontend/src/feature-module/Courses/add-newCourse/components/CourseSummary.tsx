@@ -5,7 +5,7 @@ import courseService, {
   Section,
 } from "../../../../services/course.service";
 import quizService from "../../../../services/quiz.service";
-
+import "./coursesummary.scss";
 interface CourseSummaryProps {
   courseId: number;
   onPublished: () => void;
@@ -34,12 +34,14 @@ const CourseSummary: React.FC<CourseSummaryProps> = ({
 
   const fetchData = useCallback(async () => {
     setLoading(true);
+
     try {
       const [courseData, sectionsData, quizData] = await Promise.all([
         courseService.getCourse(courseId),
         courseService.getSections(courseId),
         quizService.getQuiz(courseId).catch(() => null),
       ]);
+
       setCourse(courseData);
       setSections(sectionsData);
       setQuiz(quizData);
@@ -47,6 +49,7 @@ const CourseSummary: React.FC<CourseSummaryProps> = ({
       const msg =
         err?.response?.data?.message ||
         "بارگذاری اطلاعات دوره با خطا مواجه شد.";
+
       toast.error(Array.isArray(msg) ? msg[0] : msg);
     } finally {
       setLoading(false);
@@ -58,41 +61,54 @@ const CourseSummary: React.FC<CourseSummaryProps> = ({
   }, [fetchData]);
 
   const totalLessons = sections.reduce(
-    (sum, s) => sum + (s.Lessons?.length || 0),
+    (sum, section) => sum + (section.Lessons?.length || 0),
     0,
   );
 
   const totalFiles = sections.reduce(
-    (sum, s) =>
+    (sum, section) =>
       sum +
-      (s.Lessons?.reduce((lSum, l) => lSum + (l.LessonFiles?.length || 0), 0) ||
-        0),
+      (section.Lessons?.reduce(
+        (lessonSum, lesson) => lessonSum + (lesson.LessonFiles?.length || 0),
+        0,
+      ) || 0),
     0,
   );
 
   const totalQuizScore =
-    quiz?.QuizQuestions?.reduce((sum, q) => sum + Number(q.Score || 1), 0) || 0;
+    quiz?.QuizQuestions?.reduce(
+      (sum, question) => sum + Number(question.Score || 1),
+      0,
+    ) || 0;
 
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return "-";
-    const d = new Date(dateStr);
-    const datePart = d.toLocaleDateString("fa-IR");
-    const timePart = d.toLocaleTimeString("fa-IR", {
+
+    const date = new Date(dateStr);
+
+    const datePart = date.toLocaleDateString("fa-IR");
+
+    const timePart = date.toLocaleTimeString("fa-IR", {
       hour: "2-digit",
       minute: "2-digit",
     });
+
     return `${datePart} - ${timePart}`;
   };
 
   const handlePublish = async () => {
     setPublishing(true);
+
     try {
       await courseService.publishCourse(courseId);
+
       toast.success("دوره با موفقیت منتشر شد.");
+
       onPublished();
     } catch (err: any) {
       const msg =
         err?.response?.data?.message || "انتشار دوره با خطا مواجه شد.";
+
       toast.error(Array.isArray(msg) ? msg[0] : msg);
     } finally {
       setPublishing(false);
@@ -101,269 +117,366 @@ const CourseSummary: React.FC<CourseSummaryProps> = ({
 
   if (loading) {
     return (
-      <div className="d-flex flex-column align-items-center justify-content-center py-5">
+      <div className="course-summary-loading">
         <div className="spinner-border text-primary mb-3" role="status" />
+
         <p className="text-muted mb-0">در حال بارگذاری اطلاعات دوره...</p>
       </div>
     );
   }
 
-  if (!course) return null;
+  if (!course) {
+    return null;
+  }
 
   return (
-    <div className="card border-0 shadow-sm">
-      {/* Header */}
-      <div
-        className="card-header border-0 py-4"
-        style={{
-          background: "linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)",
-          borderRadius: "0.5rem 0.5rem 0 0",
-        }}
-      >
-        <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
-          <div className="d-flex align-items-center gap-2">
-            <i className="fas fa-clipboard-list text-white fs-5" />
-            <h5 className="mb-0 text-white">خلاصه دوره</h5>
-          </div>
-          {course.IsPublished ? (
-            <span className="badge bg-white text-success px-3 py-2 rounded-pill">
-              <i className="fas fa-check-circle me-1" /> منتشر شده
-            </span>
-          ) : (
-            <span className="badge bg-white text-primary px-3 py-2 rounded-pill">
-              <i className="fas fa-pen me-1" /> پیش‌نویس
-            </span>
-          )}
-        </div>
-      </div>
+    <div className="course-summary">
+      <div className="course-summary-card">
+        {/* =====================================================
+            Header
+        ====================================================== */}
 
-      <div className="card-body p-4">
-        {/* Info cards */}
-        <div className="row g-3 mb-4">
-          <div className="col-md-6">
-            <div className="bg-light rounded-3 p-3 h-100">
-              <h6
-                className="text-muted text-uppercase mb-3"
-                style={{ fontSize: 12, letterSpacing: 0.5 }}
-              >
-                اطلاعات کلی
-              </h6>
-              <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
-                <span className="text-muted small">عنوان</span>
-                <strong className="text-end">{course.Title}</strong>
+        <div className="course-summary-header">
+          <div className="course-summary-header-content">
+            <div className="course-summary-title">
+              <div className="course-summary-title-icon">
+                <i className="fas fa-clipboard-list" />
               </div>
-              <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
-                <span className="text-muted small">دسته‌بندی</span>
-                <span>{course.Category?.Title || "-"}</span>
-              </div>
-              <div className="d-flex justify-content-between align-items-center py-2">
-                <span className="text-muted small">سطح</span>
-                <span>{course.Level?.LevelName || "تعیین نشده"}</span>
+
+              <div>
+                <h5>خلاصه دوره</h5>
+                <span>بررسی اطلاعات نهایی قبل از انتشار</span>
               </div>
             </div>
-          </div>
 
-          <div className="col-md-6">
-            <div className="bg-light rounded-3 p-3 h-100">
-              <h6
-                className="text-muted text-uppercase mb-3"
-                style={{ fontSize: 12, letterSpacing: 0.5 }}
-              >
-                قیمت‌گذاری
-              </h6>
-              <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
-                <span className="text-muted small">قیمت</span>
-                <strong className="text-primary">
-                  {Number(course.Price).toLocaleString("fa-IR")} ریال
-                </strong>
-              </div>
-              <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
-                <span className="text-muted small">قیمت با تخفیف</span>
-                <span>
-                  {course.DiscountPrice != null
-                    ? `${course.DiscountPrice.toLocaleString("fa-IR")} ریال`
-                    : "تعیین نشده"}
-                </span>
-              </div>
-              <div className="d-flex justify-content-between align-items-center py-2">
-                <span className="text-muted small">وضعیت</span>
-                {course.IsPublished ? (
-                  <span className="badge bg-success-subtle text-success">
-                    منتشر شده
+            {course.IsPublished ? (
+              <span className="course-summary-status published">
+                <i className="fas fa-check-circle" />
+                منتشر شده
+              </span>
+            ) : (
+              <span className="course-summary-status draft">
+                <i className="fas fa-pen" />
+                پیش‌نویس
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* =====================================================
+            Body
+        ====================================================== */}
+
+        <div className="course-summary-body">
+          {/* ===================================================
+              Course Information
+          ==================================================== */}
+
+          <div className="row g-3 mb-4">
+            {/* General Information */}
+
+            <div className="col-lg-6">
+              <div className="summary-info-box h-100">
+                <div className="summary-section-title">
+                  <span className="summary-section-icon">
+                    <i className="fas fa-info-circle" />
                   </span>
-                ) : (
-                  <span className="badge bg-warning-subtle text-warning">
-                    پیش‌نویس
+
+                  <span>اطلاعات کلی</span>
+                </div>
+
+                <div className="summary-info-row">
+                  <span className="summary-info-label">عنوان</span>
+
+                  <strong className="summary-info-value">{course.Title}</strong>
+                </div>
+
+                <div className="summary-info-row">
+                  <span className="summary-info-label">دسته‌بندی</span>
+
+                  <span className="summary-info-value">
+                    {course.Category?.Title || "-"}
                   </span>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+                </div>
 
-        {/* Stats */}
-        <div className="row g-3 mb-4">
-          <div className="col-md-3">
-            <div className="d-flex align-items-center gap-3 border rounded-3 p-3 h-100">
-              <div
-                className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
-                style={{
-                  width: 48,
-                  height: 48,
-                  backgroundColor: "#EEF2FF",
-                  color: "#4f46e5",
-                }}
-              >
-                <i className="fas fa-layer-group" />
-              </div>
-              <div>
-                <h4 className="mb-0">{sections.length}</h4>
-                <small className="text-muted">سرفصل‌ها</small>
-              </div>
-            </div>
-          </div>
-          <div className="col-md-3">
-            <div className="d-flex align-items-center gap-3 border rounded-3 p-3 h-100">
-              <div
-                className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
-                style={{
-                  width: 48,
-                  height: 48,
-                  backgroundColor: "#ECFDF5",
-                  color: "#10b981",
-                }}
-              >
-                <i className="fas fa-play-circle" />
-              </div>
-              <div>
-                <h4 className="mb-0">{totalLessons}</h4>
-                <small className="text-muted">دروس</small>
-              </div>
-            </div>
-          </div>
-          <div className="col-md-3">
-            <div className="d-flex align-items-center gap-3 border rounded-3 p-3 h-100">
-              <div
-                className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
-                style={{
-                  width: 48,
-                  height: 48,
-                  backgroundColor: "#FFF7ED",
-                  color: "#f97316",
-                }}
-              >
-                <i className="fas fa-paperclip" />
-              </div>
-              <div>
-                <h4 className="mb-0">{totalFiles}</h4>
-                <small className="text-muted">فایل‌ها</small>
-              </div>
-            </div>
-          </div>
-          <div className="col-md-3">
-            <div className="d-flex align-items-center gap-3 border rounded-3 p-3 h-100">
-              <div
-                className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
-                style={{
-                  width: 48,
-                  height: 48,
-                  backgroundColor: "#FEF2F2",
-                  color: "#ef4444",
-                }}
-              >
-                <i className="fas fa-question-circle" />
-              </div>
-              <div>
-                <h4 className="mb-0">{quiz?.QuizQuestions?.length || 0}</h4>
-                <small className="text-muted">سوالات آزمون</small>
-              </div>
-            </div>
-          </div>
-        </div>
+                <div className="summary-info-row">
+                  <span className="summary-info-label">سطح دوره</span>
 
-        {/* Quiz detail */}
-        <div className="bg-light rounded-3 p-3 mb-4">
-          <h6
-            className="text-muted text-uppercase mb-3"
-            style={{ fontSize: 12, letterSpacing: 0.5 }}
+                  <span className="summary-info-value">
+                    {course.Level?.LevelName || "تعیین نشده"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Pricing Information */}
+
+            <div className="col-lg-6">
+              <div className="summary-info-box h-100">
+                <div className="summary-section-title">
+                  <span className="summary-section-icon">
+                    <i className="fas fa-tag" />
+                  </span>
+
+                  <span>قیمت‌گذاری</span>
+                </div>
+
+                <div className="summary-info-row">
+                  <span className="summary-info-label">قیمت</span>
+
+                  <strong className="summary-info-value primary">
+                    {Number(course.Price).toLocaleString("fa-IR")} ریال
+                  </strong>
+                </div>
+
+                <div className="summary-info-row">
+                  <span className="summary-info-label">قیمت با تخفیف</span>
+
+                  <span className="summary-info-value">
+                    {course.DiscountPrice != null
+                      ? `${Number(course.DiscountPrice).toLocaleString(
+                          "fa-IR",
+                        )} ریال`
+                      : "تعیین نشده"}
+                  </span>
+                </div>
+
+                <div className="summary-info-row">
+                  <span className="summary-info-label">وضعیت دوره</span>
+
+                  {course.IsPublished ? (
+                    <span className="summary-status-badge success">
+                      <i className="fas fa-check-circle" />
+                      منتشر شده
+                    </span>
+                  ) : (
+                    <span className="summary-status-badge warning">
+                      <i className="fas fa-clock" />
+                      پیش‌نویس
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ===================================================
+              Statistics
+          ==================================================== */}
+
+          <div className="row g-3 mb-4">
+            {/* Sections */}
+
+            <div className="col-xl-3 col-md-6">
+              <div className="summary-stat-card">
+                <div className="summary-stat-icon">
+                  <i className="fas fa-layer-group" />
+                </div>
+
+                <div className="summary-stat-content">
+                  <h4>{sections.length}</h4>
+                  <span>سرفصل‌ها</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Lessons */}
+
+            <div className="col-xl-3 col-md-6">
+              <div className="summary-stat-card">
+                <div className="summary-stat-icon">
+                  <i className="fas fa-play-circle" />
+                </div>
+
+                <div className="summary-stat-content">
+                  <h4>{totalLessons}</h4>
+                  <span>دروس</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Files */}
+
+            <div className="col-xl-3 col-md-6">
+              <div className="summary-stat-card">
+                <div className="summary-stat-icon">
+                  <i className="fas fa-paperclip" />
+                </div>
+
+                <div className="summary-stat-content">
+                  <h4>{totalFiles}</h4>
+                  <span>فایل‌های آموزشی</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Questions */}
+
+            <div className="col-xl-3 col-md-6">
+              <div className="summary-stat-card">
+                <div className="summary-stat-icon">
+                  <i className="fas fa-question-circle" />
+                </div>
+
+                <div className="summary-stat-content">
+                  <h4>{quiz?.QuizQuestions?.length || 0}</h4>
+
+                  <span>سوالات آزمون</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ===================================================
+              Quiz Summary
+          ==================================================== */}
+
+          <div className="summary-quiz-box">
+            <div className="summary-quiz-header">
+              <span className="summary-section-icon">
+                <i className="fas fa-clipboard-check" />
+              </span>
+
+              <span>آزمون دوره</span>
+            </div>
+
+            {quiz ? (
+              <div className="summary-quiz-content">
+                <div className="summary-info-row">
+                  <span className="summary-info-label">عنوان آزمون</span>
+
+                  <strong className="summary-info-value">{quiz.Title}</strong>
+                </div>
+
+                <div className="summary-info-row">
+                  <span className="summary-info-label">زمان شروع</span>
+
+                  <span className="summary-info-value">
+                    {formatDate(quiz.StartAt)}
+                  </span>
+                </div>
+
+                <div className="summary-info-row">
+                  <span className="summary-info-label">زمان پایان</span>
+
+                  <span className="summary-info-value">
+                    {formatDate(quiz.EndAt)}
+                  </span>
+                </div>
+
+                <div className="summary-info-row">
+                  <span className="summary-info-label">مدت زمان آزمون</span>
+
+                  <span className="summary-info-value">
+                    {quiz.DurationMinutes ?? "-"} دقیقه
+                  </span>
+                </div>
+
+                <div className="summary-info-row">
+                  <span className="summary-info-label">
+                    تعداد سوال نمایش داده‌شده به هر کاربر
+                  </span>
+
+                  <span className="summary-info-value">
+                    {quiz.QuestionsToShow}
+                  </span>
+                </div>
+
+                <div className="summary-info-row">
+                  <span className="summary-info-label">
+                    تعداد کل سوالات بانک
+                  </span>
+
+                  <span className="summary-info-value">
+                    {quiz.QuizQuestions?.length || 0}
+                  </span>
+                </div>
+
+                <div className="summary-info-row">
+                  <span className="summary-info-label">
+                    مجموع نمره بانک سوالات
+                  </span>
+
+                  <span className="summary-info-value">{totalQuizScore}</span>
+                </div>
+
+                <div className="summary-info-row">
+                  <span className="summary-info-label">نمره قبولی</span>
+
+                  <strong className="summary-info-value primary">
+                    {quiz.PassScore}
+                  </strong>
+                </div>
+              </div>
+            ) : (
+              <div className="summary-quiz-empty">
+                <div className="summary-empty-icon">
+                  <i className="fas fa-exclamation-circle" />
+                </div>
+
+                <p className="mb-0">
+                  هنوز آزمونی برای این دوره تعریف نشده است.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* ===================================================
+              Publish Section
+          ==================================================== */}
+
+          <div
+            className={`summary-publish-box ${
+              course.IsPublished ? "published" : ""
+            }`}
           >
-            آزمون دوره
-          </h6>
-          {quiz ? (
-            <>
-              <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
-                <span className="text-muted small">عنوان آزمون</span>
-                <strong>{quiz.Title}</strong>
-              </div>
-              <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
-                <span className="text-muted small">زمان شروع</span>
-                <span>{formatDate(quiz.StartAt)}</span>
-              </div>
-              <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
-                <span className="text-muted small">زمان پایان</span>
-                <span>{formatDate(quiz.EndAt)}</span>
-              </div>
-              <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
-                <span className="text-muted small">مدت زمان آزمون</span>
-                <span>{quiz.DurationMinutes ?? "-"} دقیقه</span>
-              </div>
-              <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
-                <span className="text-muted small">
-                  تعداد سوال نمایش داده‌شده به هر کاربر
-                </span>
-                <span>{quiz.QuestionsToShow}</span>
-              </div>
-              <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
-                <span className="text-muted small">مجموع نمره بانک سوالات</span>
-                <span>{totalQuizScore}</span>
-              </div>
-              <div className="d-flex justify-content-between align-items-center py-2">
-                <span className="text-muted small">نمره قبولی</span>
-                <strong className="text-primary">{quiz.PassScore}</strong>
-              </div>
-            </>
-          ) : (
-            <div className="text-center text-muted py-3">
-              <i className="fas fa-exclamation-circle me-1" />
-              هنوز آزمونی برای این دوره تعریف نشده است.
-            </div>
-          )}
-        </div>
+            {course.IsPublished ? (
+              <div className="summary-publish-content">
+                <div className="summary-publish-icon">
+                  <i className="fas fa-check" />
+                </div>
 
-        {/* Publish section */}
-        <div
-          className="text-center rounded-3 p-4"
-          style={{
-            backgroundColor: course.IsPublished ? "#ECFDF5" : "#F8FAFC",
-            border: `1px dashed ${course.IsPublished ? "#10b981" : "#cbd5e1"}`,
-          }}
-        >
-          {course.IsPublished ? (
-            <div className="py-2">
-              <i className="fas fa-check-circle fa-2x text-success mb-2" />
-              <p className="text-muted mb-0">
-                این دوره قبلاً منتشر شده و برای دانشجویان قابل مشاهده است.
-              </p>
-            </div>
-          ) : (
-            <div className="py-2">
-              <p className="text-muted mb-3">
-                دوره شما آماده انتشار است. با انتشار، دوره برای دانشجویان قابل
-                مشاهده و ثبت‌نام خواهد بود.
-              </p>
-              <button
-                className="btn btn-success btn-lg px-5 rounded-pill"
-                onClick={handlePublish}
-                disabled={publishing}
-              >
-                {publishing && (
-                  <span className="spinner-border spinner-border-sm me-2" />
-                )}
-                <i className="fas fa-rocket me-2" />
-                انتشار دوره
-              </button>
-            </div>
-          )}
+                <h6 className="summary-publish-title">دوره منتشر شده است</h6>
+
+                <p className="summary-publish-text">
+                  این دوره قبلاً منتشر شده و برای دانشجویان قابل مشاهده و
+                  ثبت‌نام است.
+                </p>
+              </div>
+            ) : (
+              <div className="summary-publish-content">
+                <div className="summary-publish-icon">
+                  <i className="fas fa-rocket" />
+                </div>
+
+                <h6 className="summary-publish-title">دوره آماده انتشار است</h6>
+
+                <p className="summary-publish-text">
+                  اطلاعات دوره را بررسی کردید؟ با انتشار دوره، دانشجویان
+                  می‌توانند آن را مشاهده و ثبت‌نام کنند.
+                </p>
+
+                <button
+                  type="button"
+                  className="summary-publish-btn"
+                  onClick={handlePublish}
+                  disabled={publishing}
+                >
+                  {publishing ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" />
+                      در حال انتشار...
+                    </>
+                  ) : (
+                    <>
+                      <i className="fas fa-rocket me-2" />
+                      انتشار دوره
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

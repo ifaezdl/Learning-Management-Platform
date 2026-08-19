@@ -1,0 +1,350 @@
+/* =========================================================
+   Course Summary / Final Step
+   ========================================================= */
+@import "../../../../../src/style/scss/utils/variables";
+
+.course-summary {
+  direction: rtl;
+}
+
+/* Main Card */
+.course-summary-card {
+  border: 1px solid rgba($primary, 0.08);
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+}
+
+/* =========================================================
+   Header
+   ========================================================= */
+
+.course-summary-header {
+  background: linear-gradient(135deg, $primary 0%, darken($primary, 10%) 100%);
+  padding: 22px 24px;
+  color: #fff;
+}
+
+.course-summary-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.course-summary-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.course-summary-title i {
+  font-size: 20px;
+}
+
+.course-summary-title h5 {
+  margin: 0;
+  color: #fff;
+  font-weight: 600;
+}
+
+.course-summary-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 30px;
+  background: #47007a;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* =========================================================
+   Body
+   ========================================================= */
+
+.course-summary-body {
+  padding: 24px;
+}
+
+/* =========================================================
+   Information Sections
+   ========================================================= */
+
+.summary-info-box {
+  height: 100%;
+  padding: 18px;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  background: #fff;
+  transition: all 0.25s ease;
+}
+
+.summary-info-box:hover {
+  border-color: rgba($primary, 0.25);
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.04);
+}
+
+.summary-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+  color: $primary;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.summary-section-title i {
+  font-size: 15px;
+}
+
+.summary-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 11px 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+}
+
+.summary-info-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.summary-info-row:first-of-type {
+  padding-top: 0;
+}
+
+.summary-info-label {
+  color: #777;
+  white-space: nowrap;
+}
+
+.summary-info-value {
+  color: #212529;
+  font-weight: 500;
+  text-align: left;
+}
+
+.summary-info-value.primary {
+  color: $primary;
+  font-weight: 700;
+}
+
+/* =========================================================
+   Status Badges
+   ========================================================= */
+
+.summary-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.summary-status-badge.success {
+  background: rgba(#198754, 0.1);
+  color: #198754;
+}
+
+.summary-status-badge.warning {
+  background: rgba($secondary, 0.13);
+  color: darken($secondary, 12%);
+}
+
+.summary-status-badge.primary {
+  background: rgba($primary, 0.1);
+  color: $primary;
+}
+
+/* =========================================================
+   Statistics
+   ========================================================= */
+
+.summary-stat-card {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  background: #fff;
+  transition: all 0.25s ease;
+}
+
+.summary-stat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba($primary, 0.2);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+}
+
+.summary-stat-icon {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: rgba($primary, 0.1);
+  color: $primary;
+  font-size: 18px;
+}
+
+.summary-stat-content h4 {
+  margin: 0 0 3px;
+  color: #212529;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.summary-stat-content span {
+  color: #777;
+  font-size: 13px;
+}
+
+/* =========================================================
+   Quiz Section
+   ========================================================= */
+
+.summary-quiz-box {
+  margin-top: 22px;
+  padding: 18px;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.summary-quiz-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+  color: $primary;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.summary-quiz-header i {
+  font-size: 16px;
+}
+
+.summary-quiz-empty {
+  padding: 25px 15px;
+  text-align: center;
+  color: #8a8a8a;
+  background: #f8f9fa;
+  border-radius: 10px;
+}
+
+/* =========================================================
+   Publish Section
+   ========================================================= */
+
+.summary-publish-box {
+  margin-top: 22px;
+  padding: 28px 20px;
+  text-align: center;
+  border: 1px dashed rgba($primary, 0.3);
+  border-radius: 12px;
+  background: rgba($primary, 0.035);
+}
+
+.summary-publish-box.published {
+  border-color: rgba(#198754, 0.35);
+  background: rgba(#198754, 0.05);
+}
+
+.summary-publish-icon {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba($primary, 0.1);
+  color: $primary;
+  font-size: 24px;
+}
+
+.summary-publish-box.published .summary-publish-icon {
+  background: rgba(#198754, 0.1);
+  color: #198754;
+}
+
+.summary-publish-text {
+  margin-bottom: 18px;
+  color: #6c757d;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.summary-publish-btn {
+  min-width: 190px;
+  padding: 11px 25px;
+  border: 0;
+  border-radius: 8px;
+  background: $primary;
+  color: #fff;
+  font-weight: 500;
+  transition: all 0.25s ease;
+}
+
+.summary-publish-btn:hover {
+  background: darken($primary, 8%);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba($primary, 0.2);
+}
+
+.summary-publish-btn:disabled {
+  opacity: 0.65;
+  transform: none;
+  box-shadow: none;
+}
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+
+@media (max-width: 767px) {
+  .course-summary-header {
+    padding: 18px;
+  }
+
+  .course-summary-body {
+    padding: 16px;
+  }
+
+  .summary-info-box {
+    padding: 15px;
+  }
+
+  .summary-info-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .summary-info-value {
+    text-align: right;
+  }
+
+  .summary-stat-card {
+    padding: 14px;
+  }
+
+  .summary-publish-box {
+    padding: 22px 15px;
+  }
+}

@@ -44,14 +44,6 @@ const Footer = () => {
                       <li>
                         <Link to={all_routes.courseGrid}>دوره‌ها</Link>
                       </li>
-
-                      <li>
-                        <Link to={all_routes.courseCategory}>دسته‌بندی‌ها</Link>
-                      </li>
-
-                      <li>
-                        <Link to={all_routes.instructorList}>مدرسین</Link>
-                      </li>
                     </ul>
                   </div>
                 </div>
@@ -79,37 +71,45 @@ const Footer = () => {
                     <h5 className="footer-title">حساب کاربری</h5>
                     {!isAuthenticated ? (
                       <>
-                        <li>
-                          <Link to={all_routes.login}>ورود</Link>
-                        </li>
-                        <li>
-                          <Link to={all_routes.register}>ثبت نام</Link>
-                        </li>
+                        <ul>
+                          <li>
+                            <Link to={all_routes.login}>ورود</Link>
+                          </li>
+                          <li>
+                            <Link to={all_routes.register}>ثبت نام</Link>
+                          </li>
+                        </ul>
                       </>
                     ) : (
                       <>
-                        {user?.Role_Id === 1 && (
-                          <li>
-                            <Link to={all_routes.studentDashboard}>
-                              پنل دانشجو
-                            </Link>
-                          </li>
+                        {user?.roleId === 1 && (
+                          <ul>
+                            <li>
+                              <Link to={all_routes.studentDashboard}>
+                                پنل دانشجو
+                              </Link>
+                            </li>
+                          </ul>
                         )}
 
-                        {user.Role_Id === 2 && (
-                          <li>
-                            <Link to={all_routes.instructorDashboard}>
-                              پنل مدرس
-                            </Link>
-                          </li>
+                        {user?.roleId === 2 && (
+                          <ul>
+                            <li>
+                              <Link to={all_routes.instructorDashboard}>
+                                پنل مدرس
+                              </Link>
+                            </li>
+                          </ul>
                         )}
 
-                        {user.Role_Id === 3 && (
-                          <li>
-                            <Link to={all_routes.adminDashboard}>
-                              پنل مدیریت
-                            </Link>
-                          </li>
+                        {user?.roleId === 3 && (
+                          <ul>
+                            <li>
+                              <Link to={all_routes.adminDashboard}>
+                                پنل مدیریت
+                              </Link>
+                            </li>
+                          </ul>
                         )}
                       </>
                     )}
@@ -129,17 +129,24 @@ const Footer = () => {
                   <ul className="list-unstyled">
                     <li className="mb-3">
                       <i className="isax isax-call me-2"></i>
-                      021-12345678
+                      <a
+                        href="tel:+982188772460"
+                        dir="ltr"
+                        className="text-gray-5 text-primary-hover text-decoration-underline"
+                      >
+                        ۰۲۱-۸۸۷۷-۲۴۶۰
+                      </a>
                     </li>
 
                     <li className="mb-3">
                       <i className="isax isax-sms me-2"></i>
-                      info@lms.com
-                    </li>
-
-                    <li>
-                      <i className="isax isax-location me-2"></i>
-                      تهران، ایران
+                      <a
+                        href="mailto:info@mentorito.example"
+                        dir="ltr"
+                        className="text-gray-5 text-primary-hover text-decoration-underline"
+                      >
+                        info@mentorito.example
+                      </a>
                     </li>
                   </ul>
                 </div>
@@ -155,17 +162,6 @@ const Footer = () => {
               <div className="text-center text-lg-start">
                 <p>© 2026 سامانه مدیریت یادگیری - تمامی حقوق محفوظ است.</p>
               </div>
-            </div>
-            <div className="col-lg-4">
-              <ul className="d-flex align-items-center justify-content-center footer-link">
-                <li>
-                  <Link to={all_routes.termsConditions}>قوانین و مقررات</Link>
-                </li>
-
-                <li>
-                  <Link to={all_routes.privacyPolicy}>حریم خصوصی</Link>
-                </li>
-              </ul>
             </div>
           </div>
         </div>
