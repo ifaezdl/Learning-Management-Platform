@@ -59,7 +59,7 @@ const StudentDashboard = () => {
         <ProfileCard />
         <div className="row">
           <StudentSidebar />
-          <div className="col-lg-9">
+          <div className="col-lg-12">
             {summary?.inProgressAttempt && (
               <div className="card bg-light quiz-ans-card">
                 <ImageWithBasePath

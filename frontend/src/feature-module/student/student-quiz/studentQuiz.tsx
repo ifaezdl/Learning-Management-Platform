@@ -60,7 +60,7 @@ const StudentQuiz = () => {
         <ProfileCard />
         <div className="row">
           <StudentSidebar />
-          <div className="col-lg-9">
+          <div className="col-lg-12">
             <div className="page-title d-flex align-items-center justify-content-between">
               <h5>آزمون های من</h5>
             </div>

@@ -49,64 +49,31 @@ const InstructorEnrolledCourse = () => {
             <div className="col-lg-9">
               <div className="page-title d-flex flex-wrap gap-3 align-items-center justify-content-between">
                 <h5>دوره های من</h5>
-                <div className="tab-list">
-                  <ul className="nav mb-0 gap-2" role="tablist">
-                    <li className="nav-item mb-0" role="presentation">
-                      <Link
-                        to="#"
-                        className="active"
-                        data-bs-toggle="tab"
-                        data-bs-target="#enroll-courses"
-                        aria-selected="true"
-                        role="tab"
-                      >
-                        Enrolled (
-                        {enrolledCourses.length.toString().padStart(2, "0")})
-                      </Link>
-                    </li>
-                    {/* Active / Completed tabs need a "progress" or "completedAt" field
-                        on the Enrollments model to split real data into these buckets.
-                        Left as-is until that's available. */}
-                    <li className="nav-item mb-0" role="presentation">
-                      <Link
-                        to="#"
-                        data-bs-toggle="tab"
-                        data-bs-target="#active-courses"
-                        aria-selected="false"
-                        role="tab"
-                        tabIndex={-1}
-                      >
-                        Active
-                      </Link>
-                    </li>
-                    <li className="nav-item mb-0" role="presentation">
-                      <Link
-                        to="#"
-                        data-bs-toggle="tab"
-                        data-bs-target="#complete-courses"
-                        aria-selected="false"
-                        role="tab"
-                        tabIndex={-1}
-                      >
-                        Completed
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
               </div>
 
-              <div className="tab-content">
-                <div
-                  className="tab-pane fade active show"
-                  id="enroll-courses"
-                  role="tabpanel"
-                >
-                  {loading && <p>در حال بارگزاری دوره ها</p>}
+              <div>
+                  {loading && (
+                    <div
+                      className="d-flex justify-content-center align-items-center"
+                      style={{ minHeight: "300px" }}
+                    >
+                      <span className="fw-semibold text-muted">
+                        در حال بارگذاری دوره‌ها...
+                      </span>
+                    </div>
+                  )}
 
                   {!loading && error && <p className="text-danger">{error}</p>}
 
                   {!loading && !error && enrolledCourses.length === 0 && (
-                    <p>دوره ای یافت نشد</p>
+                    <div
+                      className="d-flex justify-content-center align-items-center"
+                      style={{ minHeight: "300px" }}
+                    >
+                      <span className="fw-semibold text-muted">
+                        دوره‌ای یافت نشد.
+                      </span>
+                    </div>
                   )}
 
                   {!loading && !error && enrolledCourses.length > 0 && (
@@ -185,27 +152,6 @@ const InstructorEnrolledCourse = () => {
                       ))}
                     </div>
                   )}
-                </div>
-
-                <div
-                  className="tab-pane fade"
-                  id="active-courses"
-                  role="tabpanel"
-                >
-                  <p className="text-muted">
-                    Progress tracking not wired up yet.
-                  </p>
-                </div>
-
-                <div
-                  className="tab-pane fade"
-                  id="complete-courses"
-                  role="tabpanel"
-                >
-                  <p className="text-muted">
-                    Completion tracking not wired up yet.
-                  </p>
-                </div>
               </div>
             </div>
           </div>

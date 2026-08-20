@@ -256,7 +256,7 @@ const CourseGrid = () => {
                 </div>
               </div>
               {/* /Filter */}
-              <div className="row">
+              <div className="row g-3">
                 {courses?.map((course) => {
                   return (
                     <div key={course.Id} className="col-xl-4 col-md-6">

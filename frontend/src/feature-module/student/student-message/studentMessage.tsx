@@ -69,7 +69,7 @@ const StudentMessage = () => {
             {/* sidebar */}
             <StudentSidebar />
             {/* sidebar */}
-            <div className="col-lg-9">
+            <div className="col-lg-12">
               <div className="instructor-message">
                 <h5 className="page-title">Messages</h5>
                 <div className="row">

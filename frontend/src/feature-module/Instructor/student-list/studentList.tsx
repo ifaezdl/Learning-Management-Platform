@@ -176,7 +176,7 @@ const StudentList = () => {
           <ProfileCard />
           <div className="row">
             <InstructorSidebar />
-            <div className="col-lg-9">
+            <div className="col-lg-12">
               <div className="page-title d-flex align-items-center justify-content-between">
                 <h5 className="fw-bold">دانشجوهای من</h5>
               </div>

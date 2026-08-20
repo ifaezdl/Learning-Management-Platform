@@ -18,7 +18,7 @@ export const adminSidebarData = [
   },
   {
     title: "مدیریت دوره‌ها",
-    icon: "isax isax-book1",
+    icon: "isax isax-book-1",
     route: all_routes.adminCourseManagement,
   },
   {

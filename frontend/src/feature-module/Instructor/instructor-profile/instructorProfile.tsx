@@ -71,7 +71,25 @@ const StudentProfile = () => {
     }
   };
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <>
+        {" "}
+        <div className="content mt-5">
+          <div className="container">
+            <ProfileCard />
+            <InstructorSidebar />
+            <div
+              className="d-flex justify-content-center align-items-center"
+              style={{ minHeight: "300px" }}
+            >
+              <span className="fw-semibold text-muted">
+                در حال دریافت اطلاعات پروفایل...
+              </span>
+            </div>
+          </div>
+        </div>
+      </>
+    );
   }
   return (
     <>
@@ -84,10 +102,12 @@ const StudentProfile = () => {
             {/* sidebar */}
             <InstructorSidebar />
             {/* sidebar */}
-            <div className="col-lg-9">
+
+            <div className="col-lg-12">
               <div className="page-title d-flex align-items-center justify-content-between">
                 <h5 className="fw-bold">پروفایل من</h5>
               </div>
+
               <div className="card mb-0">
                 <div className="card-body">
                   <h6 className="fs-18 page-title fw-bold">اطلاعات شخصی</h6>

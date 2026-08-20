@@ -73,7 +73,7 @@ const StudentWishlist = () => {
             {/* sidebar */}
             <StudentSidebar />
             {/* sidebar */}
-            <div className="col-lg-9">
+            <div className="col-lg-12">
               <div className="page-title d-flex align-items-center justify-content-between">
                 <h5>Wishlist</h5>
                 <Link

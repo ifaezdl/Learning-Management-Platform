@@ -137,7 +137,7 @@ const StudentTickets = () => {
             {/* sidebar */}
             <StudentSidebar />
             {/* sidebar */}
-            <div className="col-lg-9">
+            <div className="col-lg-12">
               <div className="tickets">
                 <div className="d-flex align-items-center justify-content-between flex-wrap page-title">
                   <h5>Support Tickets</h5>
