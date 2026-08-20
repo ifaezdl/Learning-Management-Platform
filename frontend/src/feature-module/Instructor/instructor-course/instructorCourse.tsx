@@ -191,7 +191,7 @@ const InstructorCourse = () => {
           <ProfileCard />
           <div className="row">
             <InstructorSidebar />
-            <div className="col-lg-9">
+            <div className="col-lg-12">
               {/* Stat cards — one accent color, white background, no rainbow */}
               <div className="row">
                 {stats.map((s) => (

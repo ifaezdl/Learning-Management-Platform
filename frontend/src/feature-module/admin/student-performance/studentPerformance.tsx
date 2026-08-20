@@ -104,7 +104,7 @@ const StudentPerformance = () => {
           <ProfileCard />
           <div className="row">
             <AdminSidebar />
-            <div className="col-lg-9">
+            <div className="col-lg-12">
               <div className="page-title d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
                 <h5 className="fw-bold mb-0">عملکرد دانشجویان</h5>
                 <div style={{ minWidth: 300, maxWidth: 420 }}>

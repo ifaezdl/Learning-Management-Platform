@@ -124,7 +124,7 @@ const ContactMessages = () => {
           <ProfileCard />
           <div className="row">
             <AdminSidebar />
-            <div className="col-lg-9">
+            <div className="col-lg-12">
               <div className="page-title d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
                 <h5 className="fw-bold mb-0">پیام‌های کاربران</h5>
                 <div className="d-flex align-items-center gap-2 flex-wrap">

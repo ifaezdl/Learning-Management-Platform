@@ -231,7 +231,7 @@ const InstructorDashboard = () => {
             {/* Sidebar */}
             <InstructorSidebar />
             {/* /Sidebar */}
-            <div className="col-lg-9">
+            <div className="col-lg-12">
               <div className="row">
                 <div className="col-md-6 col-xl-4">
                   <div className="card">

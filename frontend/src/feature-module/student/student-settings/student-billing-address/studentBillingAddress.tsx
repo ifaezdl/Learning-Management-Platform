@@ -19,7 +19,7 @@ const StudentBillingAddress = () => {
             {/* Sidebar */}
             <StudentSidebar />
             {/* Sidebar */}
-            <div className="col-lg-9">
+            <div className="col-lg-12">
               <div className="mb-3">
                 <h5>Settings</h5>
               </div>

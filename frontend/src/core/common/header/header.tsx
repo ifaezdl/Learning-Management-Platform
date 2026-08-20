@@ -84,14 +84,6 @@ const Header = () => {
     <div className="icon-btn">
       <Link
         to="#"
-        id="dark-mode-toggle"
-        className={`theme-toggle ${dataTheme === "light" && "activate"}`}
-        onClick={() => handleDataThemeChange("dark-mode")}
-      >
-        <i className="isax isax-sun-15" />
-      </Link>
-      <Link
-        to="#"
         id="light-mode-toggle"
         className={`theme-toggle ${dataTheme === "dark-mode" && "activate"}`}
         onClick={() => handleDataThemeChange("light")}

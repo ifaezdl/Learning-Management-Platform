@@ -73,7 +73,7 @@ const StudentCertificates = () => {
             {/* Sidebar */}
             <StudentSidebar />
             {/* sidebar */}
-            <div className="col-lg-9">
+            <div className="col-lg-12">
               <div className="page-title d-flex align-items-center justify-content-between">
                 <h5>گواهینامه‌های من</h5>
               </div>

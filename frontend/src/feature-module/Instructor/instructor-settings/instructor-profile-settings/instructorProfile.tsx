@@ -230,6 +230,8 @@ const InstructorProfileSettings = () => {
       <>
         <div className="content mt-5">
           <div className="container">
+            <ProfileCard />
+            <InstructorSidebar />
             <div className="text-center py-5">
               <div className="spinner-border text-primary" role="status">
                 <span className="visually-hidden">در حال بارگذاری...</span>
@@ -248,7 +250,7 @@ const InstructorProfileSettings = () => {
           <ProfileCard />
           <div className="row">
             <InstructorSidebar />
-            <div className="col-lg-9">
+            <div className="col-lg-12">
               <div className="mb-3">
                 <h5>تنظیمات</h5>
               </div>

@@ -198,7 +198,7 @@ const AdminDashboard = () => {
             {/* sidebar */}
             <AdminSidebar />
             {/* sidebar */}
-            <div className="col-lg-9">
+            <div className="col-lg-12">
               {error && (
                 <div className="alert alert-danger mb-4" role="alert">
                   {error}
