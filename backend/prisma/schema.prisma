@@ -51,6 +51,9 @@ model Courses {
   AverageRating          Decimal                  @default(0, map: "DF_Courses_AverageRating") @db.Decimal(3, 2)
   Carts                  Carts[]
   Certificates           Certificates[]
+  ChatMessages           ChatMessages[]
+  ChatPolls              ChatPolls[]
+  ChatReads              ChatReads[]
   CourseLearningOutcomes CourseLearningOutcomes[]
   CoursePrequisties      CoursePrequisties[]
   CourseProgress         CourseProgress[]
@@ -63,9 +66,6 @@ model Courses {
   Payments               Payments[]
   Quizzes                Quizzes[]
   Reviews                Reviews[]
-  ChatMessages           ChatMessages[]
-  ChatReads              ChatReads[]
-  ChatPolls              ChatPolls[]
 
   @@index([CategoryId], map: "IX_Courses_CategoryId")
   @@index([Teacher_Id], map: "IX_Courses_TeacherId")
@@ -173,40 +173,40 @@ model sysdiagrams {
 }
 
 model Users {
-  Id                                                      Int                  @id(map: "PK__Users__3214EC0739C89C87") @default(autoincrement())
-  FirstName                                               String?              @db.NVarChar(50)
-  LastName                                                String?              @db.NVarChar(50)
-  UserName                                                String?              @unique(map: "UQ__Users__C9F2845634423FCD") @db.NVarChar(50)
-  NationalCode                                            String?              @db.NVarChar(10)
+  Id                                                      Int                    @id(map: "PK__Users__3214EC0739C89C87") @default(autoincrement())
+  FirstName                                               String?                @db.NVarChar(50)
+  LastName                                                String?                @db.NVarChar(50)
+  UserName                                                String?                @unique(map: "UQ__Users__C9F2845634423FCD") @db.NVarChar(50)
+  NationalCode                                            String?                @db.NVarChar(10)
   Sex_Id                                                  Int?
-  PasswordHash                                            String               @db.NVarChar(500)
+  PasswordHash                                            String                 @db.NVarChar(500)
   Role_Id                                                 Int
-  CreatedAt                                               DateTime             @default(now(), map: "DF__Users__CreatedAt__208CD6FA")
+  CreatedAt                                               DateTime               @default(now(), map: "DF__Users__CreatedAt__208CD6FA")
   UpdatedAt                                               DateTime?
-  Avatar                                                  String?              @db.NVarChar(Max)
-  Email                                                   String?              @unique(map: "UQ__Users__A9D105346030AC18") @db.NVarChar(200)
-  Mobile                                                  String?              @unique(map: "UQ__Users__6FAE07828EE36961") @db.NVarChar(11)
-  IsActive                                                Boolean              @default(true, map: "DF__Users__IsActive__2180FB33")
-  LastLogin                                               DateTime?            @db.DateTime
+  Avatar                                                  String?                @db.NVarChar(Max)
+  Email                                                   String?                @unique(map: "UQ__Users__A9D105346030AC18") @db.NVarChar(200)
+  Mobile                                                  String?                @unique(map: "UQ__Users__6FAE07828EE36961") @db.NVarChar(11)
+  IsActive                                                Boolean                @default(true, map: "DF__Users__IsActive__2180FB33")
+  LastLogin                                               DateTime?              @db.DateTime
   Carts                                                   Carts[]
   Certificates                                            Certificates[]
+  ChatMessageReactions                                    ChatMessageReactions[]
+  ChatMessages                                            ChatMessages[]
+  ChatPolls                                               ChatPolls[]
+  ChatPollVotes                                           ChatPollVotes[]
+  ChatReads                                               ChatReads[]
+  ContactMessages                                         ContactMessages[]
   CourseProgress                                          CourseProgress[]
   Courses                                                 Courses[]
   Enrollments                                             Enrollments[]
-  InstructorRequests_InstructorRequests_ReviewedByToUsers InstructorRequests[] @relation("InstructorRequests_ReviewedByToUsers")
-  InstructorRequests_InstructorRequests_User_IdToUsers    InstructorRequests[] @relation("InstructorRequests_User_IdToUsers")
+  InstructorRequests_InstructorRequests_ReviewedByToUsers InstructorRequests[]   @relation("InstructorRequests_ReviewedByToUsers")
+  InstructorRequests_InstructorRequests_User_IdToUsers    InstructorRequests[]   @relation("InstructorRequests_User_IdToUsers")
   Payments                                                Payments[]
   QuizAttempts                                            QuizAttempts[]
   RefreshTokens                                           RefreshTokens[]
   Reviews                                                 Reviews[]
-  ChatMessages                                            ChatMessages[]
-  ChatReads                                               ChatReads[]
-  ContactMessages                                         ContactMessages[]
-  ChatMessageReactions                                    ChatMessageReactions[]
-  ChatPolls                                               ChatPolls[]
-  ChatPollVotes                                           ChatPollVotes[]
-  Roles                                                   Roles                @relation(fields: [Role_Id], references: [Id], onUpdate: NoAction, map: "FK_users_Roles")
-  Sex                                                     Sex?                 @relation(fields: [Sex_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_users_Sex")
+  Roles                                                   Roles                  @relation(fields: [Role_Id], references: [Id], onUpdate: NoAction, map: "FK_users_Roles")
+  Sex                                                     Sex?                   @relation(fields: [Sex_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_users_Sex")
 }
 
 model Level {
@@ -387,21 +387,21 @@ model Certificates {
 }
 
 model ChatMessages {
-  Id                Int                   @id(map: "PK_ChatMessages") @default(autoincrement())
-  Course_Id         Int
-  Sender_Id         Int
-  Content           String?               @db.NVarChar(Max)
-  AttachmentUrl     String?               @db.NVarChar(500)
-  AttachmentName    String?               @db.NVarChar(250)
-  AttachmentType    String?               @db.NVarChar(50)
-  AttachmentSize    BigInt?
-  ReplyTo_Id        Int?
-  CreatedAt         DateTime              @default(now()) @db.DateTime
-  Courses           Courses               @relation(fields: [Course_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ChatMessages_Courses")
-  Sender            Users                 @relation(fields: [Sender_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ChatMessages_Users")
-  ReplyTo           ChatMessages?         @relation("ChatMessageReplies", fields: [ReplyTo_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ChatMessages_ReplyTo")
-  Replies           ChatMessages[]        @relation("ChatMessageReplies")
-  Reactions         ChatMessageReactions[]
+  Id             Int                    @id(map: "PK_ChatMessages") @default(autoincrement())
+  Course_Id      Int
+  Sender_Id      Int
+  Content        String?                @db.NVarChar(Max)
+  AttachmentUrl  String?                @db.NVarChar(500)
+  AttachmentName String?                @db.NVarChar(250)
+  AttachmentType String?                @db.NVarChar(50)
+  AttachmentSize BigInt?
+  ReplyTo_Id     Int?
+  CreatedAt      DateTime               @default(now()) @db.DateTime
+  Reactions      ChatMessageReactions[]
+  Courses        Courses                @relation(fields: [Course_Id], references: [Id], onUpdate: NoAction, map: "FK_ChatMessages_Courses")
+  ReplyTo        ChatMessages?          @relation("ChatMessageReplies", fields: [ReplyTo_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ChatMessages_ReplyTo")
+  Replies        ChatMessages[]         @relation("ChatMessageReplies")
+  Sender         Users                  @relation(fields: [Sender_Id], references: [Id], onUpdate: NoAction, map: "FK_ChatMessages_Users")
 
   @@index([Course_Id], map: "IX_ChatMessages_Course")
   @@index([Sender_Id], map: "IX_ChatMessages_Sender")
@@ -414,36 +414,36 @@ model ChatReads {
   Course_Id          Int
   LastReadMessage_Id Int
   UpdatedAt          DateTime @default(now()) @db.DateTime
-  Users              Users    @relation(fields: [User_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ChatReads_Users")
-  Courses            Courses  @relation(fields: [Course_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ChatReads_Courses")
+  Courses            Courses  @relation(fields: [Course_Id], references: [Id], onUpdate: NoAction, map: "FK_ChatReads_Courses")
+  Users              Users    @relation(fields: [User_Id], references: [Id], onUpdate: NoAction, map: "FK_ChatReads_Users")
 
   @@unique([User_Id, Course_Id], map: "UQ_ChatReads_UserCourse")
   @@index([Course_Id], map: "IX_ChatReads_Course")
 }
 
 model ChatMessageReactions {
-  Id          Int          @id(map: "PK_ChatMessageReactions") @default(autoincrement())
-  Message_Id  Int
-  User_Id     Int
-  Reaction    String       @db.NVarChar(10)
-  CreatedAt   DateTime     @default(now()) @db.DateTime
-  ChatMessages ChatMessages @relation(fields: [Message_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ChatReactions_Message")
-  Users       Users        @relation(fields: [User_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ChatReactions_User")
+  Id           Int          @id(map: "PK_ChatMessageReactions") @default(autoincrement())
+  Message_Id   Int
+  User_Id      Int
+  Reaction     String       @db.NVarChar(10)
+  CreatedAt    DateTime     @default(now()) @db.DateTime
+  ChatMessages ChatMessages @relation(fields: [Message_Id], references: [Id], onUpdate: NoAction, map: "FK_ChatReactions_Message")
+  Users        Users        @relation(fields: [User_Id], references: [Id], onUpdate: NoAction, map: "FK_ChatReactions_User")
 
   @@unique([Message_Id, User_Id], map: "UQ_ChatReactions_MessageUser")
   @@index([User_Id], map: "IX_ChatReactions_User")
 }
 
 model ChatPolls {
-  Id         Int                @id(map: "PK_ChatPolls") @default(autoincrement())
+  Id         Int               @id(map: "PK_ChatPolls") @default(autoincrement())
   Course_Id  Int
   Creator_Id Int
-  Question   String             @db.NVarChar(300)
-  IsActive   Boolean            @default(true)
-  CreatedAt  DateTime           @default(now()) @db.DateTime
-  Courses    Courses            @relation(fields: [Course_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ChatPolls_Courses")
-  Users      Users              @relation(fields: [Creator_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ChatPolls_Creator")
+  Question   String            @db.NVarChar(300)
+  IsActive   Boolean           @default(true)
+  CreatedAt  DateTime          @default(now()) @db.DateTime
   Options    ChatPollOptions[]
+  Courses    Courses           @relation(fields: [Course_Id], references: [Id], onUpdate: NoAction, map: "FK_ChatPolls_Courses")
+  Users      Users             @relation(fields: [Creator_Id], references: [Id], onUpdate: NoAction, map: "FK_ChatPolls_Creator")
 
   @@index([Course_Id], map: "IX_ChatPolls_Course")
 }
@@ -452,19 +452,19 @@ model ChatPollOptions {
   Id         Int             @id(map: "PK_ChatPollOptions") @default(autoincrement())
   Poll_Id    Int
   OptionText String          @db.NVarChar(150)
-  ChatPolls  ChatPolls       @relation(fields: [Poll_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ChatPollOptions_Poll")
+  ChatPolls  ChatPolls       @relation(fields: [Poll_Id], references: [Id], onUpdate: NoAction, map: "FK_ChatPollOptions_Poll")
   Votes      ChatPollVotes[]
 
   @@index([Poll_Id], map: "IX_ChatPollOptions_Poll")
 }
 
 model ChatPollVotes {
-  Id              Int              @id(map: "PK_ChatPollVotes") @default(autoincrement())
+  Id              Int             @id(map: "PK_ChatPollVotes") @default(autoincrement())
   Option_Id       Int
   User_Id         Int
-  CreatedAt       DateTime         @default(now()) @db.DateTime
-  ChatPollOptions ChatPollOptions  @relation(fields: [Option_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ChatPollVotes_Option")
-  Users           Users            @relation(fields: [User_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ChatPollVotes_User")
+  CreatedAt       DateTime        @default(now()) @db.DateTime
+  ChatPollOptions ChatPollOptions @relation(fields: [Option_Id], references: [Id], onUpdate: NoAction, map: "FK_ChatPollVotes_Option")
+  Users           Users           @relation(fields: [User_Id], references: [Id], onUpdate: NoAction, map: "FK_ChatPollVotes_User")
 
   @@unique([Option_Id, User_Id], map: "UQ_ChatPollVotes_OptionUser")
   @@index([User_Id], map: "IX_ChatPollVotes_User")
