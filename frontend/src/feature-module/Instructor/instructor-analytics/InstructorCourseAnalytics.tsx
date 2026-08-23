@@ -4,10 +4,13 @@ import { ApexOptions } from "apexcharts";
 import { Link } from "react-router-dom";
 import ProfileCard from "../common/profileCard";
 import InstructorSidebar from "../common/instructorSidebar";
+import { useAuth } from "../../../context/AuthContext";
 import analyticsService, {
   CourseStudentAnalytic,
   SkillStat,
+  StudentTrendSummary,
 } from "../../../services/analytics.service";
+import TrendBadge from "./TrendBadge";
 import courseService from "../../../services/course.service";
 
 // ---------------------------------------------------------------------------
@@ -328,6 +331,7 @@ function ClassSkillRadar({ students }: { students: CourseStudentAnalytic[] }) {
 // Main page component
 // ---------------------------------------------------------------------------
 const InstructorCourseAnalytics: React.FC = () => {
+  const { user } = useAuth();
   interface CourseOption {
     id: number;
     title: string;
@@ -338,6 +342,8 @@ const InstructorCourseAnalytics: React.FC = () => {
   const [students, setStudents] = useState<CourseStudentAnalytic[]>([]);
   const [loading, setLoading] = useState(false);
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
+  // Map از studentId به اطلاعات روند
+  const [trendMap, setTrendMap] = useState<Map<number, StudentTrendSummary>>(new Map());
 
   // Load instructor's courses for the filter dropdown
   useEffect(() => {
@@ -356,15 +362,27 @@ const InstructorCourseAnalytics: React.FC = () => {
     setSelectedCourse(val === "" ? "" : Number(val));
     setStudents([]);
     setExpandedRow(null);
+    setTrendMap(new Map());
 
     if (!val) return;
 
     setLoading(true);
     try {
-      const data = await analyticsService.getCourseStudentAnalytics(
-        Number(val),
-      );
+      // دریافت موازی داده‌های دانشجویان و روند
+      const [data, trendOverview] = await Promise.all([
+        analyticsService.getCourseStudentAnalytics(Number(val)),
+        analyticsService.getCourseTrendOverview(Number(val)).catch(() => null),
+      ]);
       setStudents(data);
+
+      // ساختن map از studentId به اطلاعات روند
+      if (trendOverview?.students) {
+        const map = new Map<number, StudentTrendSummary>();
+        for (const t of trendOverview.students) {
+          map.set(t.studentId, t);
+        }
+        setTrendMap(map);
+      }
     } catch {
       setStudents([]);
     } finally {
@@ -438,11 +456,21 @@ const InstructorCourseAnalytics: React.FC = () => {
                       <i className="isax isax-chart-2 text-white" style={{ fontSize: 28 }} />
                     </div>
                     <div>
-                      <h4 className="mb-1 text-white fw-bold">
-                        داشبورد تحلیل یادگیری دانشجویان
-                      </h4>
-                      <p className="mb-0 text-white-50 small">
-                        بررسی عملکرد و پیشرفت دانشجویان در هر دوره
+                      <div className="d-flex align-items-center gap-2 mb-1">
+                        <h4 className="mb-0 text-white fw-bold">
+                          داشبورد تحلیل یادگیری دانشجویان
+                        </h4>
+                        <span className="badge px-3 py-1" style={{ background: "rgba(255,255,255,0.25)", color: "#fff", fontSize: 12 }}>
+                          <i className="isax isax-teacher me-1" style={{ fontSize: 11 }} />
+                          مدرس
+                        </span>
+                      </div>
+                      <p className="mb-1 text-white small">
+                        <i className="isax isax-user me-1" style={{ fontSize: 13 }} />
+                        {user?.firstName} {user?.lastName}
+                      </p>
+                      <p className="mb-0 text-white-50" style={{ fontSize: 12 }}>
+                        بررسی عملکرد و پیشرفت دانشجویان در هر دوره • {courses.length} دوره فعال
                       </p>
                     </div>
                   </div>
@@ -698,6 +726,7 @@ const InstructorCourseAnalytics: React.FC = () => {
                             <th className="border-0 px-4 py-3">دانشجو</th>
                             <th className="text-center border-0 px-4 py-3">پیشرفت دوره</th>
                             <th className="text-center border-0 px-4 py-3">نمره آزمون</th>
+                            <th className="text-center border-0 px-4 py-3">روند یادگیری</th>
                             <th className="text-center border-0 px-4 py-3">وضعیت</th>
                             <th className="text-center border-0 px-4 py-3">گواهینامه</th>
                           </tr>
@@ -833,7 +862,19 @@ const InstructorCourseAnalytics: React.FC = () => {
                                   )}
                                 </td>
 
-                                {/* Certificate */}
+                                {/* Trend — ستون روند یادگیری */}
+                                <td className="text-center px-4 py-3">
+                                  {trendMap.has(s.studentId) ? (
+                                    <TrendBadge
+                                      trendStatus={trendMap.get(s.studentId)!.trendStatus}
+                                      slope={trendMap.get(s.studentId)!.slope}
+                                      studentName={fullName(s)}
+                                    />
+                                  ) : (
+                                    <span className="text-muted small">—</span>
+                                  )}
+                                </td>
+
                                 <td className="text-center px-4 py-3">
                                   {s.certificate ? (
                                     <span className="badge bg-primary-subtle text-primary">
@@ -849,7 +890,7 @@ const InstructorCourseAnalytics: React.FC = () => {
                               {/* Expanded skill row */}
                               {expandedRow === s.studentId && (
                                 <tr style={{ background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)" }} className="border-bottom">
-                                  <td colSpan={6} className="px-5 py-4">
+                                  <td colSpan={7} className="px-5 py-4">
                                     <div
                                       className="d-flex flex-wrap gap-4"
                                       style={{ direction: "rtl" }}

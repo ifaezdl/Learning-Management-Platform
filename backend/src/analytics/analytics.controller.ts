@@ -137,4 +137,53 @@ export class AnalyticsController {
   ) {
     return this.analyticsService.getCourseStudentAnalytics(courseId, user);
   }
+
+  // -------------------------------------------------------------------------
+  // Endpoint 6: روند یادگیری یک دانشجو (برای مدرس / ادمین / خود دانشجو)
+  // -------------------------------------------------------------------------
+  @Get('students/:studentId/trend')
+  @Roles(1, 2, 3)
+  @ApiOperation({
+    summary: 'تحلیل روند یادگیری یک دانشجو (صعودی/نزولی/ثابت)',
+    description:
+      'بر اساس رگرسیون خطی روی نمرات آزمون‌ها، وضعیت روند را مشخص می‌کند.',
+  })
+  @ApiQuery({ name: 'courseId', required: false, type: Number })
+  @ApiResponse({
+    status: 200,
+    description: 'وضعیت روند (status) و شیب (slope) به همراه توضیح',
+  })
+  async getStudentTrend(
+    @Param('studentId', ParseIntPipe) studentId: number,
+    @Query('courseId') courseId: string | undefined,
+    @CurrentUser() user: any,
+  ) {
+    return this.analyticsService.getStudentTrend(
+      studentId,
+      user,
+      courseId ? Number(courseId) : undefined,
+    );
+  }
+
+  // -------------------------------------------------------------------------
+  // Endpoint 7: روند همه دانشجویان یک دوره (برای مدرس / ادمین)
+  // -------------------------------------------------------------------------
+  @Get('courses/:courseId/trend-overview')
+  @Roles(2, 3)
+  @ApiOperation({
+    summary: 'خلاصه روند یادگیری تمام دانشجویان یک دوره',
+    description:
+      'لیست دانشجویان دوره به همراه وضعیت روند و شیب، مرتب از نزولی‌ترین به صعودی‌ترین.',
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      'آرایه دانشجویان با studentId, name, trendStatus, slope, quizScores[]',
+  })
+  async getCourseTrendOverview(
+    @Param('courseId', ParseIntPipe) courseId: number,
+    @CurrentUser() user: any,
+  ) {
+    return this.analyticsService.getCourseTrendOverview(courseId, user);
+  }
 }

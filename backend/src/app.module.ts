@@ -19,6 +19,7 @@ import { CertificatesModule } from '../certificates/certificates.module';
 import { ChatModule } from './chat/chat.module';
 import { ContactMessagesModule } from './contact-messages/contact-messages.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { RecommendationsModule } from './recommendations/recommendations.module';
 import { StudentDashboardController } from './student-dashboard.controller';
 import { InstructorDashboardController } from './instructor-dashboard.controller';
 
@@ -42,6 +43,7 @@ import { InstructorDashboardController } from './instructor-dashboard.controller
     ChatModule,
     ContactMessagesModule,
     AnalyticsModule,
+    RecommendationsModule,
   ],
   controllers: [AppController, StudentDashboardController, InstructorDashboardController],
   providers: [AppService],

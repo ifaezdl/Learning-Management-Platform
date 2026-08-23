@@ -6,8 +6,10 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { GenerateQuizDto } from './dto/generate-quiz.dto';
-import { SaveQuizDto } from './dto/save-quiz.dto';
+import { CreateQuizDto } from './dto/create-quiz.dto';
+import { UpdateQuizDto } from './dto/update-quiz.dto';
 import { SubmitQuizDto } from './dto/submit-quiz.dto';
+import { RecommendationsService } from '../recommendations/recommendations.service';
 
 interface AiChoice {
   text: string;
@@ -21,9 +23,17 @@ export interface AiQuestion {
 
 @Injectable()
 export class QuizService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private recommendationsService: RecommendationsService,
+  ) {}
 
-  private async verifyOwnership(courseId: number, user: any) {
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Ownership helpers — دقیقاً همان الگوی CourseSectionsService
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /** مالکیت دوره را بررسی می‌کند — برای عملیات روی کل دوره */
+  private async verifyCourseOwnership(courseId: number, user: any) {
     const course = await this.prisma.courses.findUnique({
       where: { Id: courseId },
       include: {
@@ -37,13 +47,42 @@ export class QuizService {
         },
       },
     });
-    if (!course) throw new NotFoundException('Course not found');
-    // Admins (role 3) can manage any course
+    if (!course) throw new NotFoundException('دوره یافت نشد.');
     if (user?.roleId !== 3 && course.Teacher_Id !== user?.id) {
-      throw new ForbiddenException('You can only manage your own courses');
+      throw new ForbiddenException('شما فقط می‌توانید دوره‌های خود را مدیریت کنید.');
     }
     return course;
   }
+
+  /** مالکیت آزمون را بررسی می‌کند — برای عملیات روی یک آزمون خاص */
+  private async verifyQuizOwnership(quizId: number, user: any) {
+    const quiz = await this.prisma.quizzes.findUnique({
+      where: { Id: quizId },
+      include: {
+        Courses: {
+          include: {
+            Category: true,
+            Level: true,
+            CourseLearningOutcomes: { orderBy: { DisplayOrder: 'asc' } },
+            CoursePrequisties: { orderBy: { DisplayOrder: 'asc' } },
+            CourseSections: {
+              orderBy: { DisplayOrder: 'asc' },
+              include: { Lessons: { orderBy: { SortOrder: 'asc' } } },
+            },
+          },
+        },
+      },
+    });
+    if (!quiz) throw new NotFoundException('آزمون یافت نشد.');
+    if (user?.roleId !== 3 && quiz.Courses.Teacher_Id !== user?.id) {
+      throw new ForbiddenException('شما فقط می‌توانید آزمون‌های دوره‌های خود را مدیریت کنید.');
+    }
+    return quiz;
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // AI helpers
+  // ─────────────────────────────────────────────────────────────────────────────
 
   private buildPrompt(
     course: any,
@@ -80,7 +119,6 @@ export class QuizService {
 
   private extractJsonArray(raw: string, fallbackTag?: string): AiQuestion[] {
     let text = raw.trim();
-    // strip ```json ... ``` fences if the model added them anyway
     text = text
       .replace(/^```(?:json)?/i, '')
       .replace(/```$/, '')
@@ -115,7 +153,6 @@ export class QuizService {
       )
       .map((q) => ({
         questionText: q.questionText.trim(),
-        // Use the model's skillTag if present, fall back to the course category, then empty string
         skillTag:
           typeof q.skillTag === 'string' && q.skillTag.trim()
             ? q.skillTag.trim()
@@ -127,12 +164,233 @@ export class QuizService {
       }));
   }
 
+  // ─────────────────────────────────────────────────────────────────────────────
+  // CRUD — چندآزمونی (الگوی CourseSections)
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /**
+   * لیست خلاصه همه آزمون‌های یک دوره، همراه با تعداد سوال و شرکت‌کننده.
+   * GET /courses/:courseId/quizzes
+   */
+  async listQuizzesByCourse(courseId: number, user: any) {
+    await this.verifyCourseOwnership(courseId, user);
+
+    return this.prisma.quizzes.findMany({
+      where: { Course_Id: courseId },
+      orderBy: { Id: 'asc' },
+      include: {
+        _count: {
+          select: {
+            QuizQuestions: true,
+            QuizAttempts: true,
+          },
+        },
+      },
+    });
+  }
+
+  /**
+   * ایجاد یک آزمون جدید برای دوره — همیشه رکورد جدید (نه جایگزینی).
+   * POST /courses/:courseId/quizzes
+   */
+  async createQuiz(courseId: number, user: any, dto: CreateQuizDto) {
+    await this.verifyCourseOwnership(courseId, user);
+
+    return this.prisma.quizzes.create({
+      data: {
+        Course_Id: courseId,
+        Title: dto.title ?? 'آزمون دوره',
+        StartAt: new Date(dto.startAt),
+        EndAt: new Date(dto.endAt),
+        DurationMinutes: dto.durationMinutes,
+        ScorePerQuestion: dto.scorePerQuestion ?? 1,
+        PassScore: dto.passScore,
+        QuestionsToShow: dto.questionsToShow,
+        ShowAllQuestions: dto.showAllQuestions ?? false,
+        AllowPreviousQuestion: dto.allowPreviousQuestion ?? true,
+        IsPublished: false,
+      },
+    });
+  }
+
+  /**
+   * جزئیات کامل یک آزمون + بانک سوالات، برای فرم ویرایش.
+   * GET /quizzes/:quizId
+   */
+  async getQuizById(quizId: number, user: any) {
+    const quiz = await this.verifyQuizOwnership(quizId, user);
+
+    return this.prisma.quizzes.findUnique({
+      where: { Id: quizId },
+      include: {
+        QuizQuestions: {
+          orderBy: { DisplayOrder: 'asc' },
+          include: { QuizChoices: { orderBy: { DisplayOrder: 'asc' } } },
+        },
+        _count: {
+          select: { QuizAttempts: true },
+        },
+      },
+    });
+  }
+
+  /**
+   * ویرایش تنظیمات و/یا بانک سوالات یک آزمون خاص.
+   * اگر questions ارسال شود، بانک سوالات همین آزمون کاملاً بازنویسی می‌شود
+   * بدون اینکه آزمون‌های دیگر دوره دست‌خورده شوند.
+   * PUT /quizzes/:quizId
+   */
+  async updateQuiz(quizId: number, user: any, dto: UpdateQuizDto) {
+    await this.verifyQuizOwnership(quizId, user);
+
+    if (dto.questions !== undefined) {
+      // اعتبارسنجی بانک سوالات
+      if (dto.questionsToShow !== undefined && dto.questionsToShow > dto.questions.length) {
+        throw new BadRequestException(
+          'تعداد سوالات نمایشی نمی‌تواند از تعداد کل سوالات بانک بیشتر باشد.',
+        );
+      }
+
+      let totalMaxScore = 0;
+      for (const q of dto.questions) {
+        const correctCount = q.choices.filter((c) => c.isCorrect).length;
+        if (correctCount !== 1) {
+          throw new BadRequestException(
+            `سوال "${q.questionText}" باید دقیقاً یک گزینه صحیح داشته باشد.`,
+          );
+        }
+        totalMaxScore += q.score ?? 1;
+      }
+
+      if (dto.passScore !== undefined && dto.passScore > totalMaxScore) {
+        throw new BadRequestException(
+          'نمره قبولی نمی‌تواند از مجموع نمرات سوالات بیشتر باشد.',
+        );
+      }
+    }
+
+    return this.prisma.$transaction(
+      async (tx) => {
+        // به‌روزرسانی تنظیمات آزمون
+        const updateData: any = {};
+        if (dto.title !== undefined) updateData.Title = dto.title;
+        if (dto.startAt !== undefined) updateData.StartAt = new Date(dto.startAt);
+        if (dto.endAt !== undefined) updateData.EndAt = new Date(dto.endAt);
+        if (dto.durationMinutes !== undefined) updateData.DurationMinutes = dto.durationMinutes;
+        if (dto.scorePerQuestion !== undefined) updateData.ScorePerQuestion = dto.scorePerQuestion;
+        if (dto.passScore !== undefined) updateData.PassScore = dto.passScore;
+        if (dto.questionsToShow !== undefined) updateData.QuestionsToShow = dto.questionsToShow;
+        if (dto.showAllQuestions !== undefined) updateData.ShowAllQuestions = dto.showAllQuestions;
+        if (dto.allowPreviousQuestion !== undefined) updateData.AllowPreviousQuestion = dto.allowPreviousQuestion;
+
+        await tx.quizzes.update({ where: { Id: quizId }, data: updateData });
+
+        // بازنویسی بانک سوالات — فقط اگر questions ارسال شده باشد
+        if (dto.questions !== undefined) {
+          const oldQuestions = await tx.quizQuestions.findMany({
+            where: { Quiz_Id: quizId },
+            select: { Id: true },
+          });
+          const oldIds = oldQuestions.map((q) => q.Id);
+          if (oldIds.length > 0) {
+            await tx.quizChoices.deleteMany({ where: { Question_Id: { in: oldIds } } });
+            await tx.quizQuestions.deleteMany({ where: { Id: { in: oldIds } } });
+          }
+
+          for (let i = 0; i < dto.questions.length; i++) {
+            const q = dto.questions[i];
+            const question = await tx.quizQuestions.create({
+              data: {
+                Quiz_Id: quizId,
+                QuestionText: q.questionText,
+                DisplayOrder: i + 1,
+                Source: !!q.isAiGenerated,
+                Score: q.score ?? 1,
+                SkillTag: q.skillTag ?? null,
+              },
+            });
+            await tx.quizChoices.createMany({
+              data: q.choices.map((c, ci) => ({
+                Question_Id: question.Id,
+                ChoiceText: c.text,
+                IsCorrect: c.isCorrect,
+                DisplayOrder: ci + 1,
+              })),
+            });
+          }
+        }
+
+        return tx.quizzes.findUnique({
+          where: { Id: quizId },
+          include: {
+            QuizQuestions: {
+              orderBy: { DisplayOrder: 'asc' },
+              include: { QuizChoices: { orderBy: { DisplayOrder: 'asc' } } },
+            },
+          },
+        });
+      },
+      { maxWait: 10000, timeout: 30000 },
+    );
+  }
+
+  /**
+   * Toggle وضعیت انتشار آزمون.
+   * PUT /quizzes/:quizId/publish
+   */
+  async publishQuiz(quizId: number, user: any) {
+    const quiz = await this.verifyQuizOwnership(quizId, user);
+
+    const updated = await this.prisma.quizzes.update({
+      where: { Id: quizId },
+      data: { IsPublished: !quiz.IsPublished },
+    });
+    return { quizId: updated.Id, isPublished: updated.IsPublished };
+  }
+
+  /**
+   * حذف آزمون با قانون حفاظت از داده‌های یادگیری:
+   * - اگر هیچ attempt ثبت‌شده‌ای نداشته باشد → حذف واقعی
+   * - اگر attempt دارد → حذف ممنوع؛ فقط غیرفعال‌سازی نرم پیشنهاد می‌شود
+   * DELETE /quizzes/:quizId
+   */
+  async deleteQuiz(quizId: number, user: any) {
+    await this.verifyQuizOwnership(quizId, user);
+
+    const attemptCount = await this.prisma.quizAttempts.count({
+      where: { Quiz_Id: quizId },
+    });
+
+    if (attemptCount > 0) {
+      // غیرفعال‌سازی نرم به‌جای حذف قطعی — تاریخچه یادگیری دانشجو حفظ می‌شود
+      await this.prisma.quizzes.update({
+        where: { Id: quizId },
+        data: { IsPublished: false },
+      });
+      throw new BadRequestException(
+        'این آزمون دارای شرکت‌کننده است و قابل حذف کامل نیست؛ می‌توانید آن را غیرفعال کنید.',
+      );
+    }
+
+    // حذف واقعی — Prisma cascade روی QuizQuestions/QuizChoices پاک می‌کند
+    await this.prisma.quizzes.delete({ where: { Id: quizId } });
+    return { message: 'آزمون با موفقیت حذف شد.' };
+  }
+
+  /**
+   * تولید سوال با AI برای یک آزمون خاص (preview — ذخیره نمی‌شود تا PUT بعدی).
+   * context پرامپت از رابطه Quiz → Course گرفته می‌شود.
+   * POST /quizzes/:quizId/generate
+   */
   async generateQuestions(
-    courseId: number,
+    quizId: number,
     currentUser: any,
     dto: GenerateQuizDto,
   ) {
-    const course = await this.verifyOwnership(courseId, currentUser);
+    const quiz = await this.verifyQuizOwnership(quizId, currentUser);
+    // course و همه روابط مورد نیاز پرامپت از verifyQuizOwnership (include Courses) آمده
+    const course = quiz.Courses;
+
     const { system, user } = this.buildPrompt(course, dto.count);
 
     const apiUrl =
@@ -143,26 +401,18 @@ export class QuizService {
     try {
       response = await fetch(apiUrl, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model,
           messages: [
-            {
-              role: 'system',
-              content: system,
-            },
-            {
-              role: 'user',
-              content: user,
-            },
+            { role: 'system', content: system },
+            { role: 'user', content: user },
           ],
           temperature: 0.7,
           chat_template_kwargs: { enable_thinking: false },
         }),
       });
-    } catch (e) {
+    } catch {
       throw new BadRequestException('اتصال به سرویس هوش مصنوعی برقرار نشد.');
     }
 
@@ -185,125 +435,10 @@ export class QuizService {
     return questions;
   }
 
-  async getQuiz(courseId: number, user: any) {
-    await this.verifyOwnership(courseId, user);
-    const quiz = await this.prisma.quizzes.findFirst({
-      where: { Course_Id: courseId },
-      include: {
-        QuizQuestions: {
-          orderBy: { DisplayOrder: 'asc' },
-          include: { QuizChoices: { orderBy: { DisplayOrder: 'asc' } } },
-        },
-      },
-    });
-    return quiz;
-  }
-  async saveQuiz(courseId: number, user: any, dto: SaveQuizDto) {
-    await this.verifyOwnership(courseId, user);
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Student-facing methods — بدون تغییر در امضا (student-quiz.controller.ts)
+  // ─────────────────────────────────────────────────────────────────────────────
 
-    if (dto.questionsToShow > dto.questions.length) {
-      throw new BadRequestException(
-        'تعداد سوالات نمایشی نمی‌تواند از تعداد کل سوالات بانک بیشتر باشد.',
-      );
-    }
-
-    let totalMaxScore = 0;
-    for (const q of dto.questions) {
-      const correctCount = q.choices.filter((c) => c.isCorrect).length;
-
-      if (correctCount !== 1) {
-        throw new BadRequestException(
-          `سوال "${q.questionText}" باید دقیقاً یک گزینه صحیح داشته باشد.`,
-        );
-      }
-      totalMaxScore += q.score ?? 1;
-    }
-
-    if (dto.passScore > totalMaxScore) {
-      throw new BadRequestException(
-        'نمره قبولی نمی‌تواند از مجموع نمرات سوالات بیشتر باشد.',
-      );
-    }
-
-    return this.prisma.$transaction(
-      async (tx) => {
-        const existing = await tx.quizzes.findFirst({
-          where: { Course_Id: courseId },
-        });
-
-        if (existing) {
-          const oldQuestions = await tx.quizQuestions.findMany({
-            where: { Quiz_Id: existing.Id },
-            select: { Id: true },
-          });
-
-          const questionIds = oldQuestions.map((q) => q.Id);
-
-          if (questionIds.length > 0) {
-            await tx.quizChoices.deleteMany({
-              where: { Question_Id: { in: questionIds } },
-            });
-            await tx.quizQuestions.deleteMany({
-              where: { Id: { in: questionIds } },
-            });
-          }
-
-          await tx.quizzes.delete({ where: { Id: existing.Id } });
-        }
-
-        const quiz = await tx.quizzes.create({
-          data: {
-            Course_Id: courseId,
-            Title: dto.title || 'آزمون دوره',
-            StartAt: new Date(dto.startAt),
-            EndAt: new Date(dto.endAt),
-            DurationMinutes: dto.durationMinutes,
-            ScorePerQuestion: dto.scorePerQuestion ?? 1,
-            PassScore: dto.passScore,
-            QuestionsToShow: dto.questionsToShow,
-            ShowAllQuestions: dto.showAllQuestions ?? false,
-            AllowPreviousQuestion: dto.allowPreviousQuestion ?? true,
-            IsPublished: true,
-          },
-        });
-
-        for (let i = 0; i < dto.questions.length; i++) {
-          const q = dto.questions[i];
-
-          const question = await tx.quizQuestions.create({
-            data: {
-              Quiz_Id: quiz.Id,
-              QuestionText: q.questionText,
-              DisplayOrder: i + 1,
-              Source: !!q.isAiGenerated,
-              Score: q.score ?? 1,
-              SkillTag: q.skillTag ?? null,
-            },
-          });
-
-          await tx.quizChoices.createMany({
-            data: q.choices.map((c, ci) => ({
-              Question_Id: question.Id,
-              ChoiceText: c.text,
-              IsCorrect: c.isCorrect,
-              DisplayOrder: ci + 1,
-            })),
-          });
-        }
-
-        return tx.quizzes.findUnique({
-          where: { Id: quiz.Id },
-          include: {
-            QuizQuestions: {
-              orderBy: { DisplayOrder: 'asc' },
-              include: { QuizChoices: { orderBy: { DisplayOrder: 'asc' } } },
-            },
-          },
-        });
-      },
-      { maxWait: 10000, timeout: 30000 },
-    );
-  }
   async listMyQuizzes(studentId: number) {
     const enrollments = await this.prisma.enrollments.findMany({
       where: { Student_Id: studentId },
@@ -358,19 +493,26 @@ export class QuizService {
     });
   }
 
-  async startQuiz(courseId: number, studentId: number) {
+  /**
+   * شروع آزمون توسط دانشجو — حالا با quizId (نه courseId).
+   * POST /quizzes/:quizId/start
+   */
+  async startQuiz(quizId: number, studentId: number) {
+    const quiz = await this.prisma.quizzes.findUnique({
+      where: { Id: quizId },
+      include: { QuizQuestions: { include: { QuizChoices: true } } },
+    });
+    if (!quiz) throw new NotFoundException('آزمون یافت نشد.');
+
+    if (!quiz.IsPublished) {
+      throw new BadRequestException('این آزمون هنوز منتشر نشده است.');
+    }
+
     const enrolled = await this.prisma.enrollments.findFirst({
-      where: { Course_Id: courseId, Student_Id: studentId },
+      where: { Course_Id: quiz.Course_Id, Student_Id: studentId },
     });
     if (!enrolled)
       throw new ForbiddenException('شما در این دوره ثبت‌نام نکرده‌اید.');
-
-    const quiz = await this.prisma.quizzes.findFirst({
-      where: { Course_Id: courseId },
-      include: { QuizQuestions: { include: { QuizChoices: true } } },
-    });
-    if (!quiz)
-      throw new NotFoundException('آزمونی برای این دوره تعریف نشده است.');
 
     const now = new Date();
     if (quiz.StartAt && now < quiz.StartAt) {
@@ -392,7 +534,6 @@ export class QuizService {
       if (now > existing.DeadlineAt) {
         throw new BadRequestException('زمان آزمون شما به پایان رسیده است.');
       }
-      // resume an in-progress attempt (e.g. after a page refresh)
       return this.buildAttemptResponse(quiz, existing);
     }
 
@@ -434,7 +575,6 @@ export class QuizService {
       allowPreviousQuestion: quiz.AllowPreviousQuestion,
       passScore: Number(quiz.PassScore),
       deadlineAt: attempt.DeadlineAt,
-      // never send IsCorrect to the client
       questions: questions.map((q: any) => ({
         id: q.Id,
         questionText: q.QuestionText,
@@ -516,6 +656,17 @@ export class QuizService {
       }
     });
 
+    if (isPassed) {
+      this.recommendationsService
+        .refresh(studentId, 5)
+        .catch((err) =>
+          console.warn(
+            `Failed to refresh recommendations for student ${studentId}:`,
+            err,
+          ),
+        );
+    }
+
     return this.getResult(attempt.Id, studentId);
   }
 
@@ -533,11 +684,11 @@ export class QuizService {
       maxScore: Number(attempt.MaxScore),
       isPassed: attempt.IsPassed,
       totalQuestions: attempt.QuizAttemptAnswers.length,
-      correctCount: attempt.QuizAttemptAnswers.filter((a) => a.IsCorrect)
-        .length,
+      correctCount: attempt.QuizAttemptAnswers.filter((a) => a.IsCorrect).length,
       wrongCount: attempt.QuizAttemptAnswers.filter((a) => !a.IsCorrect).length,
     };
   }
+
   async getInProgressAttempt(studentId: number) {
     const attempt = await this.prisma.quizAttempts.findFirst({
       where: {

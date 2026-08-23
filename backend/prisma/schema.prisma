@@ -57,6 +57,7 @@ model Courses {
   CourseLearningOutcomes CourseLearningOutcomes[]
   CoursePrequisties      CoursePrequisties[]
   CourseProgress         CourseProgress[]
+  CourseRecommendations  CourseRecommendations[]
   Category               Category                 @relation(fields: [CategoryId], references: [Id], onUpdate: NoAction, map: "FK_Courses_Categories")
   Level                  Level?                   @relation(fields: [Level_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Courses_Level")
   Users                  Users                    @relation(fields: [Teacher_Id], references: [Id], onUpdate: NoAction, map: "FK_Courses_Teachers")
@@ -197,6 +198,7 @@ model Users {
   ChatReads                                               ChatReads[]
   ContactMessages                                         ContactMessages[]
   CourseProgress                                          CourseProgress[]
+  CourseRecommendations                                   CourseRecommendations[]
   Courses                                                 Courses[]
   Enrollments                                             Enrollments[]
   InstructorRequests_InstructorRequests_ReviewedByToUsers InstructorRequests[]   @relation("InstructorRequests_ReviewedByToUsers")
@@ -484,4 +486,20 @@ model ContactMessages {
 
   @@index([User_Id], map: "IX_ContactMessages_User")
   @@index([IsRead], map: "IX_ContactMessages_IsRead")
+}
+
+model CourseRecommendations {
+  Id               Int      @id(map: "PK_CourseRecommendations") @default(autoincrement())
+  Student_Id       Int
+  Course_Id        Int
+  Score            Decimal  @db.Decimal(5, 2)
+  Reason           String?  @db.NVarChar(500)
+  MatchedSkillTags String?  @db.NVarChar(500)
+  Status           String   @default("Active", map: "DF_CourseRecommendations_Status") @db.NVarChar(20)
+  GeneratedAt      DateTime @default(now(), map: "DF_CourseRecommendations_GeneratedAt") @db.DateTime
+  Users            Users    @relation(fields: [Student_Id], references: [Id], onUpdate: NoAction, map: "FK_CourseRecommendations_Users")
+  Courses          Courses  @relation(fields: [Course_Id], references: [Id], onUpdate: NoAction, map: "FK_CourseRecommendations_Courses")
+
+  @@unique([Student_Id, Course_Id], map: "UQ_CourseRecommendations_Student_Course")
+  @@index([Student_Id], map: "IX_CourseRecommendations_Student")
 }

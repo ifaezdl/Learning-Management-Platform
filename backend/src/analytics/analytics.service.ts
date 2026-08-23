@@ -34,6 +34,12 @@ export interface ProgressTrendResult {
   courseCompletion: CompletionPoint[];
 }
 
+export interface TrendClassification {
+  status: 'صعودی' | 'نزولی' | 'ثابت' | 'داده کافی نیست';
+  slope: number;
+  description?: string;
+}
+
 @Injectable()
 export class AnalyticsService {
   constructor(private prisma: PrismaService) {}
@@ -70,6 +76,95 @@ export class AnalyticsService {
     // Weakest first
     result.sort((a, b) => a.percentage - b.percentage);
     return result;
+  }
+
+  // -----------------------------------------------------------------------
+  // Trend classification — Pure function (قابل تست بدون دیتابیس)
+  // رگرسیون خطی ساده (least squares) برای تشخیص روند یادگیری
+  // -----------------------------------------------------------------------
+  classifyTrend(
+    scores: { date: Date; percentage: number }[],
+  ): TrendClassification {
+    // حداقل 2 نقطه برای محاسبه شیب لازم است
+    if (scores.length < 2) {
+      return {
+        status: 'داده کافی نیست',
+        slope: 0,
+        description: 'حداقل دو آزمون برای تحلیل روند لازم است.',
+      };
+    }
+
+    // مرتب‌سازی بر اساس تاریخ (صعودی)
+    const sorted = [...scores].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+    );
+
+    const n = sorted.length;
+
+    // اگر همه نمرات یکسان باشند، روند ثابت است
+    const allSame = sorted.every((s) => s.percentage === sorted[0].percentage);
+    if (allSame) {
+      return {
+        status: 'ثابت',
+        slope: 0,
+        description: `نمره در ${sorted[0].percentage}٪ ثابت مانده است.`,
+      };
+    }
+
+    // محاسبه رگرسیون خطی: y = mx + b
+    // x: شماره آزمون (0, 1, 2, ...)
+    // y: درصد نمره
+    let sumX = 0;
+    let sumY = 0;
+    let sumXY = 0;
+    let sumX2 = 0;
+
+    for (let i = 0; i < n; i++) {
+      const x = i;
+      const y = sorted[i].percentage;
+      sumX += x;
+      sumY += y;
+      sumXY += x * y;
+      sumX2 += x * x;
+    }
+
+    // فرمول شیب: m = (n*sumXY - sumX*sumY) / (n*sumX2 - sumX^2)
+    const numerator = n * sumXY - sumX * sumY;
+    const denominator = n * sumX2 - sumX * sumX;
+
+    if (denominator === 0) {
+      // Edge case: نمرات روند خطی ندارند (نباید اتفاق بیفتد با n >= 2 و x های متفاوت)
+      return {
+        status: 'ثابت',
+        slope: 0,
+        description: 'روند نامشخص است.',
+      };
+    }
+
+    const slope = numerator / denominator;
+
+    // آستانه‌ها برای تصمیم‌گیری (قابل تنظیم)
+    // شیب مثبت > +2: صعودی
+    // شیب منفی < -2: نزولی
+    // در محدوده [-2, +2]: ثابت
+    const POSITIVE_THRESHOLD = 2;
+    const NEGATIVE_THRESHOLD = -2;
+
+    let status: TrendClassification['status'];
+    let description: string;
+
+    if (slope > POSITIVE_THRESHOLD) {
+      status = 'صعودی';
+      description = `روند یادگیری صعودی است (شیب: ${slope.toFixed(2)} واحد درصد به ازای هر آزمون).`;
+    } else if (slope < NEGATIVE_THRESHOLD) {
+      status = 'نزولی';
+      description = `روند یادگیری نزولی است (شیب: ${slope.toFixed(2)} واحد درصد به ازای هر آزمون). نیاز به توجه بیشتر دارد.`;
+    } else {
+      status = 'ثابت';
+      description = `روند یادگیری نسبتاً ثابت است (شیب: ${slope.toFixed(2)} واحد درصد به ازای هر آزمون).`;
+    }
+
+    return { status, slope, description };
   }
 
   // -----------------------------------------------------------------------
@@ -455,5 +550,153 @@ export class AnalyticsService {
         skillBreakdown: this.groupBySkill(answersByStudent.get(sid) ?? []),
       };
     });
+  }
+
+  // -----------------------------------------------------------------------
+  // Endpoint 6 — روند یادگیری یک دانشجو
+  // -----------------------------------------------------------------------
+  async getStudentTrend(
+    studentId: number,
+    currentUser: any,
+    courseId?: number,
+  ) {
+    // Ownership check
+    const isOwner = currentUser.id === studentId;
+    const isAdmin = currentUser.roleId === 3;
+
+    // اگر مدرس است، باید مالک دوره باشد
+    if (currentUser.roleId === 2 && courseId) {
+      const course = await this.prisma.courses.findUnique({
+        where: { Id: courseId },
+        select: { Teacher_Id: true },
+      });
+      if (!course || course.Teacher_Id !== currentUser.id) {
+        throw new ForbiddenException('دسترسی مجاز نیست.');
+      }
+    } else if (currentUser.roleId === 2 && !courseId) {
+      // مدرس باید courseId را مشخص کند
+      throw new ForbiddenException('مدرس باید courseId را مشخص کند.');
+    }
+
+    if (!isOwner && !isAdmin && currentUser.roleId !== 2) {
+      throw new ForbiddenException('دسترسی مجاز نیست.');
+    }
+
+    // دریافت نمرات آزمون‌ها
+    const { quizScores } = await this.getProgressTrend(studentId, courseId);
+
+    const trend = this.classifyTrend(quizScores);
+
+    return {
+      studentId,
+      courseId: courseId ?? null,
+      trend,
+      quizScores: quizScores.map((q) => ({
+        date: q.date,
+        percentage: q.percentage,
+        courseTitle: q.courseTitle,
+      })),
+    };
+  }
+
+  // -----------------------------------------------------------------------
+  // Endpoint 7 — روند همه دانشجویان یک دوره
+  // -----------------------------------------------------------------------
+  async getCourseTrendOverview(courseId: number, currentUser: any) {
+    // Ownership check
+    const course = await this.prisma.courses.findUnique({
+      where: { Id: courseId },
+      select: { Teacher_Id: true },
+    });
+    if (!course) throw new NotFoundException('دوره یافت نشد.');
+    if (currentUser.roleId !== 3 && course.Teacher_Id !== currentUser.id) {
+      throw new ForbiddenException('دسترسی مجاز نیست.');
+    }
+
+    // دریافت لیست دانشجویان ثبت‌نام‌شده
+    const enrollments = await this.prisma.enrollments.findMany({
+      where: { Course_Id: courseId },
+      include: {
+        Users: {
+          select: {
+            Id: true,
+            FirstName: true,
+            LastName: true,
+            Avatar: true,
+          },
+        },
+      },
+    });
+
+    if (enrollments.length === 0) {
+      return { courseId, students: [] };
+    }
+
+    const studentIds = enrollments.map((e) => e.Student_Id);
+
+    // آزمون‌های این دوره
+    const quizzes = await this.prisma.quizzes.findMany({
+      where: { Course_Id: courseId },
+      select: { Id: true },
+    });
+    const quizIds = quizzes.map((q) => q.Id);
+
+    // همه آزمون‌های ثبت‌شده دانشجویان
+    const attempts =
+      quizIds.length > 0
+        ? await this.prisma.quizAttempts.findMany({
+            where: {
+              Quiz_Id: { in: quizIds },
+              Student_Id: { in: studentIds },
+              SubmittedAt: { not: null },
+            },
+            select: {
+              Student_Id: true,
+              Score: true,
+              MaxScore: true,
+              SubmittedAt: true,
+            },
+            orderBy: { SubmittedAt: 'asc' },
+          })
+        : [];
+
+    // گروه‌بندی بر اساس دانشجو
+    const attemptsByStudent = new Map<
+      number,
+      { date: Date; percentage: number }[]
+    >();
+    for (const a of attempts) {
+      const list = attemptsByStudent.get(a.Student_Id) ?? [];
+      const percentage =
+        Number(a.MaxScore) > 0
+          ? Math.round((Number(a.Score) / Number(a.MaxScore)) * 100)
+          : 0;
+      list.push({ date: a.SubmittedAt!, percentage });
+      attemptsByStudent.set(a.Student_Id, list);
+    }
+
+    // محاسبه روند هر دانشجو
+    const results = enrollments.map((enrollment) => {
+      const sid = enrollment.Student_Id;
+      const scores = attemptsByStudent.get(sid) ?? [];
+      const trend = this.classifyTrend(scores);
+
+      return {
+        studentId: sid,
+        firstName: enrollment.Users.FirstName,
+        lastName: enrollment.Users.LastName,
+        avatar: enrollment.Users.Avatar,
+        trendStatus: trend.status,
+        slope: trend.slope,
+        quizCount: scores.length,
+        latestScore:
+          scores.length > 0 ? scores[scores.length - 1].percentage : null,
+      };
+    });
+
+    // مرتب‌سازی از نزولی‌ترین (slope کمترین) به صعودی‌ترین (slope بیشترین)
+    results.sort((a, b) => a.slope - b.slope);
+
+    return { courseId, students: results };
   }
 }

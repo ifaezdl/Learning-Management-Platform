@@ -12,14 +12,14 @@ import Stepper from "./components/Stepper";
 import CourseInformation from "./components/CourseInformation";
 import SectionManager from "./components/SectionManager";
 import CourseSummary from "./components/CourseSummary";
-import InstructorQuizQuestions from "../../Instructor/instructor-quiz-question/instructorQuizQuestions";
+import QuizManager from "./components/QuizManager";
 
 const STEPS = [
   { label: "اطلاعات دوره", icon: "fas fa-info-circle" },
   { label: "سرفصل ها", icon: "fas fa-layer-group" },
   { label: "دروس", icon: "fas fa-book" },
   { label: "فایل های دروس", icon: "fas fa-paperclip" },
-  { label: "آزمون", icon: "fas fa-question-circle" },
+  { label: "آزمون‌ها", icon: "fas fa-question-circle" },
   { label: "انتشار", icon: "fas fa-rocket" },
 ];
 
@@ -287,8 +287,10 @@ const AddNewCourse = () => {
                 </div>
 
                 <div>
-                  <h5>آزمون دوره</h5>
-                  <p>سوالات آزمون دوره را ایجاد و مدیریت کنید.</p>
+                  <h5>آزمون‌های دوره</h5>
+                  <p>
+                    چند آزمون مستقل برای این دوره بسازید — هرکدام با بانک سوالات و تنظیمات خودش.
+                  </p>
                 </div>
               </div>
 
@@ -303,14 +305,14 @@ const AddNewCourse = () => {
             </div>
 
             <div className="course-wizard-content">
-              {courseId && (
-                <InstructorQuizQuestions
-                  courseId={courseId}
-                  onPrev={() => goToStep(3)}
-                  onNext={() => goToStep(5)}
-                />
-              )}
+              {courseId && <QuizManager courseId={courseId} />}
             </div>
+
+            {renderNavigation({
+              prevStep: 3,
+              nextStep: 5,
+              nextText: "بعدی: انتشار دوره",
+            })}
           </div>
         );
 

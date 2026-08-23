@@ -63,6 +63,39 @@ export interface CourseStudentAnalytic {
   skillBreakdown: SkillStat[];
 }
 
+export interface TrendClassification {
+  status: "صعودی" | "نزولی" | "ثابت" | "داده کافی نیست";
+  slope: number;
+  description?: string;
+}
+
+export interface StudentTrendResponse {
+  studentId: number;
+  courseId: number | null;
+  trend: TrendClassification;
+  quizScores: Array<{
+    date: string;
+    percentage: number;
+    courseTitle: string;
+  }>;
+}
+
+export interface StudentTrendSummary {
+  studentId: number;
+  firstName: string | null;
+  lastName: string | null;
+  avatar: string | null;
+  trendStatus: TrendClassification["status"];
+  slope: number;
+  quizCount: number;
+  latestScore: number | null;
+}
+
+export interface CourseTrendOverviewResponse {
+  courseId: number;
+  students: StudentTrendSummary[];
+}
+
 // ---------------------------------------------------------------------------
 // Service class
 // ---------------------------------------------------------------------------
@@ -117,6 +150,30 @@ class AnalyticsService {
     courseId: number,
   ): Promise<CourseStudentAnalytic[]> {
     const res = await api.get(`/analytics/courses/${courseId}/students`);
+    return res.data;
+  }
+
+  /**
+   * Endpoint 6 — روند یادگیری یک دانشجو
+   */
+  async getStudentTrend(
+    studentId: number,
+    courseId?: number,
+  ): Promise<StudentTrendResponse> {
+    const params = courseId ? { courseId } : {};
+    const res = await api.get(`/analytics/students/${studentId}/trend`, {
+      params,
+    });
+    return res.data;
+  }
+
+  /**
+   * Endpoint 7 — روند همه دانشجویان یک دوره
+   */
+  async getCourseTrendOverview(
+    courseId: number,
+  ): Promise<CourseTrendOverviewResponse> {
+    const res = await api.get(`/analytics/courses/${courseId}/trend-overview`);
     return res.data;
   }
 }
