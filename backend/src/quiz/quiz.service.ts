@@ -15,6 +15,7 @@ interface AiChoice {
 }
 export interface AiQuestion {
   questionText: string;
+  skillTag: string;
   choices: AiChoice[];
 }
 
@@ -60,8 +61,8 @@ export class QuizService {
 
     const system = `تو یک طراح آزمون حرفه‌ای هستی. باید فقط و فقط یک آرایه JSON معتبر برگردانی، بدون هیچ توضیح اضافه، بدون Markdown، بدون backtick.
 هر آیتم آرایه باید این ساختار را داشته باشد:
-{"questionText": "متن سوال", "choices": [{"text":"گزینه", "isCorrect": true}, {"text":"گزینه", "isCorrect": false}, {"text":"گزینه", "isCorrect": false}, {"text":"گزینه", "isCorrect": false}]}
-هر سوال دقیقاً باید ۴ گزینه داشته باشد و فقط یکی از آن‌ها isCorrect:true باشد. سوالات باید تک‌گزینه‌ای (single choice) باشند و مستقیماً بر اساس محتوای دوره زیر طراحی شوند، نه اطلاعات عمومی نامرتبط.`;
+{"questionText": "متن سوال", "skillTag": "برچسب مهارت (۲ تا ۴ کلمه فارسی، مثلاً 'مدیریت حافظه' یا 'حلقه‌های تکرار')", "choices": [{"text":"گزینه", "isCorrect": true}, {"text":"گزینه", "isCorrect": false}, {"text":"گزینه", "isCorrect": false}, {"text":"گزینه", "isCorrect": false}]}
+هر سوال دقیقاً باید ۴ گزینه داشته باشد و فقط یکی از آن‌ها isCorrect:true باشد. سوالات باید تک‌گزینه‌ای (single choice) باشند و مستقیماً بر اساس محتوای دوره زیر طراحی شوند، نه اطلاعات عمومی نامرتبط. برچسب مهارت باید مفهوم اصلی که سوال آن را می‌سنجد را در ۲ تا ۴ کلمه فارسی توصیف کند و با اهداف یادگیری دوره هم‌راستا باشد.`;
 
     const user = `عنوان دوره: ${course.Title}
 دسته‌بندی: ${course.Category?.Title ?? ''}
@@ -77,7 +78,7 @@ export class QuizService {
     return { system, user };
   }
 
-  private extractJsonArray(raw: string): AiQuestion[] {
+  private extractJsonArray(raw: string, fallbackTag?: string): AiQuestion[] {
     let text = raw.trim();
     // strip ```json ... ``` fences if the model added them anyway
     text = text
@@ -114,6 +115,11 @@ export class QuizService {
       )
       .map((q) => ({
         questionText: q.questionText.trim(),
+        // Use the model's skillTag if present, fall back to the course category, then empty string
+        skillTag:
+          typeof q.skillTag === 'string' && q.skillTag.trim()
+            ? q.skillTag.trim()
+            : (fallbackTag ?? ''),
         choices: q.choices.map((c: any) => ({
           text: String(c.text).trim(),
           isCorrect: !!c.isCorrect,
@@ -172,7 +178,7 @@ export class QuizService {
       throw new BadRequestException('پاسخی از هوش مصنوعی دریافت نشد.');
     }
 
-    const questions = this.extractJsonArray(content);
+    const questions = this.extractJsonArray(content, course.Category?.Title);
     if (questions.length === 0) {
       throw new BadRequestException('هیچ سوال معتبری تولید نشد.');
     }
@@ -271,6 +277,7 @@ export class QuizService {
               DisplayOrder: i + 1,
               Source: !!q.isAiGenerated,
               Score: q.score ?? 1,
+              SkillTag: q.skillTag ?? null,
             },
           });
 
