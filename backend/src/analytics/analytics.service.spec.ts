@@ -357,4 +357,113 @@ describe('AnalyticsService', () => {
       expect(result.skills[1].percentage).toBe(100);
     });
   });
+
+  // =========================================================================
+  // classifyTrend — pure function (رگرسیون خطی ساده)
+  // =========================================================================
+  describe('classifyTrend', () => {
+    const d = (days: number) =>
+      new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+
+    it('returns "داده کافی نیست" when array is empty', () => {
+      const result = service.classifyTrend([]);
+      expect(result.status).toBe('داده کافی نیست');
+      expect(result.slope).toBe(0);
+    });
+
+    it('returns "داده کافی نیست" when array has only one entry', () => {
+      const result = service.classifyTrend([
+        { date: d(0), percentage: 50 },
+      ]);
+      expect(result.status).toBe('داده کافی نیست');
+      expect(result.slope).toBe(0);
+    });
+
+    it('returns "ثابت" when all scores are identical (slope = 0)', () => {
+      const result = service.classifyTrend([
+        { date: d(0), percentage: 60 },
+        { date: d(1), percentage: 60 },
+        { date: d(2), percentage: 60 },
+        { date: d(3), percentage: 60 },
+      ]);
+      expect(result.status).toBe('ثابت');
+      expect(result.slope).toBe(0);
+    });
+
+    it('returns "صعودی" for a clearly ascending series (slope > +2)', () => {
+      // نمرات: 20, 40, 60, 80, 100 — شیب = +20 به ازای هر آزمون
+      const result = service.classifyTrend([
+        { date: d(0), percentage: 20 },
+        { date: d(1), percentage: 40 },
+        { date: d(2), percentage: 60 },
+        { date: d(3), percentage: 80 },
+        { date: d(4), percentage: 100 },
+      ]);
+      expect(result.status).toBe('صعودی');
+      expect(result.slope).toBeGreaterThan(2);
+    });
+
+    it('returns "نزولی" for a clearly descending series (slope < -2)', () => {
+      // نمرات: 100, 80, 60, 40, 20 — شیب = -20 به ازای هر آزمون
+      const result = service.classifyTrend([
+        { date: d(0), percentage: 100 },
+        { date: d(1), percentage: 80 },
+        { date: d(2), percentage: 60 },
+        { date: d(3), percentage: 40 },
+        { date: d(4), percentage: 20 },
+      ]);
+      expect(result.status).toBe('نزولی');
+      expect(result.slope).toBeLessThan(-2);
+    });
+
+    it('returns "ثابت" for a nearly flat series (|slope| <= 2)', () => {
+      // نمرات: 50, 51, 49, 50 — شیب کوچک
+      const result = service.classifyTrend([
+        { date: d(0), percentage: 50 },
+        { date: d(1), percentage: 51 },
+        { date: d(2), percentage: 49 },
+        { date: d(3), percentage: 50 },
+      ]);
+      expect(result.status).toBe('ثابت');
+      expect(Math.abs(result.slope)).toBeLessThanOrEqual(2);
+    });
+
+    it('sorts by date before computing trend (regardless of input order)', () => {
+      // ورودی از آخر به اول — باید پس از مرتب‌سازی صعودی محاسبه شود
+      const ascending = service.classifyTrend([
+        { date: d(4), percentage: 100 },
+        { date: d(0), percentage: 20 },
+        { date: d(2), percentage: 60 },
+        { date: d(1), percentage: 40 },
+        { date: d(3), percentage: 80 },
+      ]);
+      const inOrder = service.classifyTrend([
+        { date: d(0), percentage: 20 },
+        { date: d(1), percentage: 40 },
+        { date: d(2), percentage: 60 },
+        { date: d(3), percentage: 80 },
+        { date: d(4), percentage: 100 },
+      ]);
+      // هر دو باید نتیجه یکسان بدهند
+      expect(ascending.status).toBe(inOrder.status);
+      expect(ascending.slope).toBeCloseTo(inOrder.slope, 5);
+    });
+
+    it('works correctly with exactly two data points', () => {
+      // دو نقطه کافی برای محاسبه شیب است
+      const up = service.classifyTrend([
+        { date: d(0), percentage: 30 },
+        { date: d(1), percentage: 90 },
+      ]);
+      expect(up.status).toBe('صعودی');
+      expect(up.slope).toBeGreaterThan(2);
+
+      const down = service.classifyTrend([
+        { date: d(0), percentage: 90 },
+        { date: d(1), percentage: 30 },
+      ]);
+      expect(down.status).toBe('نزولی');
+      expect(down.slope).toBeLessThan(-2);
+    });
+  });
 });
