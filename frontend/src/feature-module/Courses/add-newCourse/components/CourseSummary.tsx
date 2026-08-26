@@ -4,22 +4,12 @@ import courseService, {
   Course,
   Section,
 } from "../../../../services/course.service";
-import quizService from "../../../../services/quiz.service";
+import quizService, { QuizSummary } from "../../../../services/quiz.service";
 import "./coursesummary.scss";
+
 interface CourseSummaryProps {
   courseId: number;
   onPublished: () => void;
-}
-
-interface QuizSummary {
-  Id: number;
-  Title: string;
-  StartAt: string | null;
-  EndAt: string | null;
-  DurationMinutes: number | null;
-  PassScore: number;
-  QuestionsToShow: number;
-  QuizQuestions: { Id: number; Score: number }[];
 }
 
 const CourseSummary: React.FC<CourseSummaryProps> = ({
@@ -28,7 +18,8 @@ const CourseSummary: React.FC<CourseSummaryProps> = ({
 }) => {
   const [course, setCourse] = useState<Course | null>(null);
   const [sections, setSections] = useState<Section[]>([]);
-  const [quiz, setQuiz] = useState<QuizSummary | null>(null);
+  // چندآزمونی: همه آزمون‌های دوره را نگه می‌داریم (نه فقط یکی)
+  const [quizzes, setQuizzes] = useState<QuizSummary[]>([]);
   const [loading, setLoading] = useState(false);
   const [publishing, setPublishing] = useState(false);
 
@@ -36,15 +27,15 @@ const CourseSummary: React.FC<CourseSummaryProps> = ({
     setLoading(true);
 
     try {
-      const [courseData, sectionsData, quizData] = await Promise.all([
+      const [courseData, sectionsData, quizzesData] = await Promise.all([
         courseService.getCourse(courseId),
         courseService.getSections(courseId),
-        quizService.getQuiz(courseId).catch(() => null),
+        quizService.listByCourse(courseId).catch(() => []),
       ]);
 
       setCourse(courseData);
       setSections(sectionsData);
-      setQuiz(quizData);
+      setQuizzes(quizzesData);
     } catch (err: any) {
       const msg =
         err?.response?.data?.message ||
@@ -75,11 +66,13 @@ const CourseSummary: React.FC<CourseSummaryProps> = ({
     0,
   );
 
-  const totalQuizScore =
-    quiz?.QuizQuestions?.reduce(
-      (sum, question) => sum + Number(question.Score || 1),
-      0,
-    ) || 0;
+  // مجموع سوالات همه آزمون‌ها (از _count که API برمی‌گرداند)
+  const totalQuizQuestions = quizzes.reduce(
+    (sum, q) => sum + (q._count?.QuizQuestions ?? 0),
+    0,
+  );
+
+  const publishedQuizCount = quizzes.filter((q) => q.IsPublished).length;
 
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return "-";
@@ -310,7 +303,7 @@ const CourseSummary: React.FC<CourseSummaryProps> = ({
               </div>
             </div>
 
-            {/* Questions */}
+            {/* Quizzes */}
 
             <div className="col-xl-3 col-md-6">
               <div className="summary-stat-card">
@@ -319,16 +312,15 @@ const CourseSummary: React.FC<CourseSummaryProps> = ({
                 </div>
 
                 <div className="summary-stat-content">
-                  <h4>{quiz?.QuizQuestions?.length || 0}</h4>
-
-                  <span>سوالات آزمون</span>
+                  <h4>{quizzes.length}</h4>
+                  <span>آزمون‌ها ({totalQuizQuestions} سوال)</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* ===================================================
-              Quiz Summary
+              Quiz Summary — چندآزمونی
           ==================================================== */}
 
           <div className="summary-quiz-box">
@@ -337,75 +329,39 @@ const CourseSummary: React.FC<CourseSummaryProps> = ({
                 <i className="fas fa-clipboard-check" />
               </span>
 
-              <span>آزمون دوره</span>
+              <span>آزمون‌های دوره</span>
             </div>
 
-            {quiz ? (
+            {quizzes.length > 0 ? (
               <div className="summary-quiz-content">
                 <div className="summary-info-row">
-                  <span className="summary-info-label">عنوان آزمون</span>
-
-                  <strong className="summary-info-value">{quiz.Title}</strong>
+                  <span className="summary-info-label">تعداد آزمون‌ها</span>
+                  <strong className="summary-info-value">{quizzes.length}</strong>
                 </div>
 
                 <div className="summary-info-row">
-                  <span className="summary-info-label">زمان شروع</span>
-
-                  <span className="summary-info-value">
-                    {formatDate(quiz.StartAt)}
-                  </span>
+                  <span className="summary-info-label">آزمون‌های منتشرشده</span>
+                  <span className="summary-info-value">{publishedQuizCount}</span>
                 </div>
 
                 <div className="summary-info-row">
-                  <span className="summary-info-label">زمان پایان</span>
-
-                  <span className="summary-info-value">
-                    {formatDate(quiz.EndAt)}
-                  </span>
+                  <span className="summary-info-label">مجموع سوالات</span>
+                  <span className="summary-info-value">{totalQuizQuestions}</span>
                 </div>
 
-                <div className="summary-info-row">
-                  <span className="summary-info-label">مدت زمان آزمون</span>
-
-                  <span className="summary-info-value">
-                    {quiz.DurationMinutes ?? "-"} دقیقه
-                  </span>
-                </div>
-
-                <div className="summary-info-row">
-                  <span className="summary-info-label">
-                    تعداد سوال نمایش داده‌شده به هر کاربر
-                  </span>
-
-                  <span className="summary-info-value">
-                    {quiz.QuestionsToShow}
-                  </span>
-                </div>
-
-                <div className="summary-info-row">
-                  <span className="summary-info-label">
-                    تعداد کل سوالات بانک
-                  </span>
-
-                  <span className="summary-info-value">
-                    {quiz.QuizQuestions?.length || 0}
-                  </span>
-                </div>
-
-                <div className="summary-info-row">
-                  <span className="summary-info-label">
-                    مجموع نمره بانک سوالات
-                  </span>
-
-                  <span className="summary-info-value">{totalQuizScore}</span>
-                </div>
-
-                <div className="summary-info-row">
-                  <span className="summary-info-label">نمره قبولی</span>
-
-                  <strong className="summary-info-value primary">
-                    {quiz.PassScore}
-                  </strong>
+                <div className="summary-quizzes-list mt-3">
+                  {quizzes.map((q, idx) => (
+                    <div key={q.Id} className="summary-quiz-item">
+                      <span className="summary-quiz-index">{idx + 1}</span>
+                      <span className="summary-quiz-title">{q.Title || `آزمون ${idx + 1}`}</span>
+                      <span className={`summary-quiz-status ${q.IsPublished ? "published" : "draft"}`}>
+                        {q.IsPublished ? "منتشرشده" : "پیش‌نویس"}
+                      </span>
+                      <span className="summary-quiz-count">
+                        {q._count?.QuizQuestions ?? 0} سوال
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
             ) : (
@@ -415,7 +371,7 @@ const CourseSummary: React.FC<CourseSummaryProps> = ({
                 </div>
 
                 <p className="mb-0">
-                  هنوز آزمونی برای این دوره تعریف نشده است.
+                  هنوز آزمونی برای این دوره تعریف نشده است. می‌توانید بدون آزمون هم دوره را منتشر کنید.
                 </p>
               </div>
             )}
