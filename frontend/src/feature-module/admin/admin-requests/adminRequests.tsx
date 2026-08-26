@@ -6,6 +6,8 @@ import toast from "react-hot-toast";
 import ProfileCard from "../common/profileCard";
 import AdminSidebar from "../common/adminSidebar";
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+
 const PAGE_SIZE = 10;
 
 const AdminRequests = () => {
@@ -149,7 +151,7 @@ const AdminRequests = () => {
                             <td>
                               {req.ResumeUrl ? (
                                 <a
-                                  href={req.ResumeUrl}
+                                  href={`${API_BASE_URL}${req.ResumeUrl}`}
                                   target="_blank"
                                   rel="noreferrer"
                                   className="btn btn-outline-primary btn-sm"
@@ -260,7 +262,7 @@ const RequestModal = ({
 
             {request.ResumeUrl && (
               <a
-                href={request.ResumeUrl}
+                href={`${API_BASE_URL}${request.ResumeUrl}`}
                 target="_blank"
                 rel="noreferrer"
                 className="btn btn-outline-primary btn-sm"

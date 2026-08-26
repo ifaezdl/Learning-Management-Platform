@@ -321,71 +321,92 @@ const CourseDetails = () => {
                                     {lessons.map((lesson) => (
                                       <li
                                         key={lesson.Id}
-                                        className="p-4 px-3 d-flex justify-content-between align-items-center"
+                                        className="p-4 px-3"
                                       >
-                                        <div>
-                                          <ImageWithBasePath
-                                            className="me-2"
-                                            src="./assets/img/icons/play.svg"
-                                            alt=""
-                                          />
-                                          {lesson.Title}
-                                        </div>
-
-                                        <div className="d-flex gap-4 align-items-center">
-                                          {isEnrolled && (
-                                            <input
-                                              type="checkbox"
-                                              className="form-check-input"
-                                              checked={completedLessonIds.includes(
-                                                lesson.Id,
-                                              )}
-                                              disabled={
-                                                togglingLessonId === lesson.Id
-                                              }
-                                              onChange={(e) =>
-                                                handleToggleLessonComplete(
-                                                  lesson.Id,
-                                                  e.target.checked,
-                                                )
-                                              }
-                                              title="علامت‌گذاری به‌عنوان تکمیل‌شده"
+                                        <div className="d-flex justify-content-between align-items-center">
+                                          <div>
+                                            <ImageWithBasePath
+                                              className="me-2"
+                                              src="./assets/img/icons/play.svg"
+                                              alt=""
                                             />
-                                          )}
-                                          {isEnrolled ? (
-                                            <button
-                                              type="button"
-                                              className="preview-link btn btn-link p-0"
-                                              onClick={() =>
-                                                handleOpenModal(
-                                                  (lesson as any).VideoUrl,
-                                                )
-                                              }
-                                            >
-                                              شروع
-                                            </button>
-                                          ) : lesson.IsFreePreview ? (
-                                            <button
-                                              type="button"
-                                              className="preview-link btn btn-link p-0"
-                                              onClick={() =>
-                                                handleOpenModal(
-                                                  (lesson as any).VideoUrl,
-                                                )
-                                              }
-                                            >
-                                              پیش نمایش
-                                            </button>
-                                          ) : (
-                                            <span className="text-muted">
-                                              <i className="fas fa-lock me-1"></i>
-                                              قفل
+                                            {lesson.Title}
+                                          </div>
+
+                                          <div className="d-flex gap-4 align-items-center">
+                                            {isEnrolled && (
+                                              <input
+                                                type="checkbox"
+                                                className="form-check-input"
+                                                checked={completedLessonIds.includes(
+                                                  lesson.Id,
+                                                )}
+                                                disabled={
+                                                  togglingLessonId === lesson.Id
+                                                }
+                                                onChange={(e) =>
+                                                  handleToggleLessonComplete(
+                                                    lesson.Id,
+                                                    e.target.checked,
+                                                  )
+                                                }
+                                                title="علامت‌گذاری به‌عنوان تکمیل‌شده"
+                                              />
+                                            )}
+                                            {isEnrolled ? (
+                                              <button
+                                                type="button"
+                                                className="preview-link btn btn-link p-0"
+                                                onClick={() =>
+                                                  handleOpenModal(
+                                                    (lesson as any).VideoUrl,
+                                                  )
+                                                }
+                                              >
+                                                شروع
+                                              </button>
+                                            ) : lesson.IsFreePreview ? (
+                                              <button
+                                                type="button"
+                                                className="preview-link btn btn-link p-0"
+                                                onClick={() =>
+                                                  handleOpenModal(
+                                                    (lesson as any).VideoUrl,
+                                                  )
+                                                }
+                                              >
+                                                پیش نمایش
+                                              </button>
+                                            ) : (
+                                              <span className="text-muted">
+                                                <i className="fas fa-lock me-1"></i>
+                                                قفل
+                                              </span>
+                                            )}
+                                            <span>
+                                              {lesson.DurationMinutes ?? 0} دقیقه
                                             </span>
-                                          )}
-                                          <span>
-                                            {lesson.DurationMinutes ?? 0} دقیقه
-                                          </span>
+                                          </div>
                                         </div>
+                                        {lesson.LessonFiles && lesson.LessonFiles.length > 0 && (
+                                          <div className="mt-2 ms-4 ps-2 border-start">
+                                            {lesson.LessonFiles.map((file) => (
+                                              <a
+                                                key={file.Id}
+                                                href={`${api_base_url}${file.FileUrl}`}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="d-inline-flex align-items-center text-decoration-none text-primary fs-13 me-3 mt-1"
+                                              >
+                                                <i className="fas fa-paperclip me-1"></i>
+                                                {file.FileName}
+                                                {file.FileExtension && (
+                                                  <span className="text-muted ms-1">({file.FileExtension})</span>
+                                                )}
+                                              </a>
+                                            ))}
+                                          </div>
+                                        )}
                                       </li>
                                     ))}
                                   </ul>
