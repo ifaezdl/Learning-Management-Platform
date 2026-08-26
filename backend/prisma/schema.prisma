@@ -307,6 +307,7 @@ model QuizQuestions {
   Source             Boolean              @default(false, map: "DF_QuizQuestions_Source")
   CreatedAt          DateTime             @default(now(), map: "DF_QuizQuestions_CreatedAt") @db.DateTime
   Score              Decimal              @default(1, map: "DF_QuizQuestions_Score") @db.Decimal(5, 2)
+  SkillTag           String?              @db.NVarChar(200)
   QuizAttemptAnswers QuizAttemptAnswers[]
   QuizChoices        QuizChoices[]
   Quizzes            Quizzes              @relation(fields: [Quiz_Id], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_QuizQuestions_Quizzes")

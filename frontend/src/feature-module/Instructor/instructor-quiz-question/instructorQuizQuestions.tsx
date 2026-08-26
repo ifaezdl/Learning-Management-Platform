@@ -38,6 +38,7 @@ const InstructorQuizQuestions: React.FC<Props> = ({
   const [modalOpen, setModalOpen] = useState(false);
   const [editingClientId, setEditingClientId] = useState<string | null>(null);
   const [formText, setFormText] = useState("");
+  const [formSkillTag, setFormSkillTag] = useState("");
   const [formChoices, setFormChoices] = useState<QuizChoice[]>(emptyChoices());
   const [formScore, setFormScore] = useState(1);
 
@@ -78,6 +79,7 @@ const InstructorQuizQuestions: React.FC<Props> = ({
               clientId: makeClientId(),
               Id: q.Id,
               questionText: q.QuestionText,
+              skillTag: q.SkillTag ?? "",
               isAiGenerated: q.Source,
               score: Number(q.Score) || 1,
               choices: q.QuizChoices.map((c: any) => ({
@@ -127,6 +129,7 @@ const InstructorQuizQuestions: React.FC<Props> = ({
   const openAddModal = () => {
     setEditingClientId(null);
     setFormText("");
+    setFormSkillTag("");
     setFormChoices(emptyChoices());
     setFormScore(1);
     setModalOpen(true);
@@ -135,6 +138,7 @@ const InstructorQuizQuestions: React.FC<Props> = ({
   const openEditModal = (q: QuizQuestionItem) => {
     setEditingClientId(q.clientId);
     setFormText(q.questionText);
+    setFormSkillTag(q.skillTag ?? "");
     setFormChoices(q.choices.map((c) => ({ ...c })));
     setFormScore(q.score ?? 1);
     setModalOpen(true);
@@ -218,6 +222,7 @@ const InstructorQuizQuestions: React.FC<Props> = ({
             ? {
                 ...q,
                 questionText: text,
+                skillTag: formSkillTag.trim(),
                 choices,
                 score: formScore,
               }
@@ -230,6 +235,7 @@ const InstructorQuizQuestions: React.FC<Props> = ({
         {
           clientId: makeClientId(),
           questionText: text,
+          skillTag: formSkillTag.trim(),
           choices,
           score: formScore,
           isAiGenerated: false,
@@ -258,6 +264,7 @@ const InstructorQuizQuestions: React.FC<Props> = ({
       const mapped: QuizQuestionItem[] = generated.map((q) => ({
         clientId: makeClientId(),
         questionText: q.questionText,
+        skillTag: q.skillTag ?? "",
         choices: q.choices,
         score: 1,
         isAiGenerated: true,
@@ -337,6 +344,7 @@ const InstructorQuizQuestions: React.FC<Props> = ({
         allowPreviousQuestion: settings.allowPreviousQuestion,
         questions: questions.map((q) => ({
           questionText: q.questionText,
+          skillTag: q.skillTag ?? "",
           isAiGenerated: q.isAiGenerated,
           score: q.score ?? 1,
           choices: q.choices.map((c) => ({
@@ -461,6 +469,13 @@ const InstructorQuizQuestions: React.FC<Props> = ({
                         <i className="fas fa-star" />
                         {q.score ?? 1} نمره
                       </span>
+
+                      {q.skillTag && (
+                        <span className="quiz-skill-badge">
+                          <i className="fas fa-tag" />
+                          {q.skillTag}
+                        </span>
+                      )}
 
                       {q.isAiGenerated && (
                         <span className="quiz-ai-badge">
@@ -828,6 +843,26 @@ const InstructorQuizQuestions: React.FC<Props> = ({
                     onChange={(e) => setFormText(e.target.value)}
                     placeholder="متن سوال را وارد کنید..."
                   />
+                </div>
+
+                <div className="quiz-modal-field">
+                  <label className="form-label">
+                    برچسب مهارتی
+                    <span className="text-muted fs-12 ms-1">(اختیاری)</span>
+                  </label>
+
+                  <input
+                    type="text"
+                    className="form-control"
+                    maxLength={200}
+                    value={formSkillTag}
+                    onChange={(e) => setFormSkillTag(e.target.value)}
+                    placeholder="مثلاً: حلقه‌های تکرار، مدیریت حافظه، شی‌گرایی"
+                  />
+
+                  <small className="text-muted">
+                    این برچسب برای تحلیل شکاف مهارتی دانشجو استفاده می‌شود.
+                  </small>
                 </div>
 
                 <div className="quiz-modal-score">

@@ -27,4 +27,9 @@ export const instructorSidebarData = [
     icon: "isax isax-message-text-1",
     route: all_routes.chat,
   },
+  {
+    title: "تحلیل یادگیری دانشجویان",
+    icon: "isax isax-chart-2",
+    route: all_routes.instructorAnalytics,
+  },
 ];

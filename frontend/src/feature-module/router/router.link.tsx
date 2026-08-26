@@ -96,6 +96,8 @@ import AdminProfileSettings from "../admin/admin-setting/adminSetting";
 import AdminChangePassword from "../admin/admin-change-password/adminChangePassword";
 import GoogleCallback from "../auth/Google/google-callback";
 import Register from "../auth/register/register";
+import LearningAnalytics from "../student/analytics/LearningAnalytics";
+import InstructorCourseAnalytics from "../Instructor/instructor-analytics/InstructorCourseAnalytics";
 const routes = all_routes;
 
 export const publicRoutes = [
@@ -602,6 +604,24 @@ export const publicRoutes = [
   {
     path: routes.studentNotification,
     element: <StudentNotification />,
+    route: Route,
+  },
+  {
+    path: routes.studentAnalytics,
+    element: (
+      <RoleRoute roles={[1]}>
+        <LearningAnalytics />
+      </RoleRoute>
+    ),
+    route: Route,
+  },
+  {
+    path: routes.instructorAnalytics,
+    element: (
+      <RoleRoute roles={[2, 3]}>
+        <InstructorCourseAnalytics />
+      </RoleRoute>
+    ),
     route: Route,
   },
   {

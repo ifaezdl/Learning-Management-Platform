@@ -459,7 +459,8 @@
   }
 
   .quiz-score-badge,
-  .quiz-ai-badge {
+  .quiz-ai-badge,
+  .quiz-skill-badge {
     display: inline-flex;
     align-items: center;
     gap: 4px;
@@ -477,6 +478,11 @@
   .quiz-ai-badge {
     background: rgba($secondary, 0.12);
     color: darken($secondary, 12%);
+  }
+
+  .quiz-skill-badge {
+    background: rgba(#059669, 0.1);
+    color: #059669;
   }
 
   .quiz-choices {
