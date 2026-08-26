@@ -10,6 +10,7 @@ export interface QuizQuestionItem {
   clientId: string;
   Id?: number;
   questionText: string;
+  skillTag?: string;
   choices: QuizChoice[];
   score?: number;
   isAiGenerated?: boolean;
@@ -27,6 +28,7 @@ export interface SaveQuizPayload {
   allowPreviousQuestion: boolean;
   questions: {
     questionText: string;
+    skillTag?: string;
     isAiGenerated?: boolean;
     score?: number;
     choices: { text: string; isCorrect: boolean }[];
@@ -82,7 +84,7 @@ class QuizService {
 
   async generateQuestions(courseId: number, count: number) {
     const res = await api.post(`/courses/${courseId}/quiz/generate`, { count });
-    return res.data as { questionText: string; choices: QuizChoice[] }[];
+    return res.data as { questionText: string; skillTag: string; choices: QuizChoice[] }[];
   }
 
   async saveQuiz(courseId: number, payload: SaveQuizPayload) {

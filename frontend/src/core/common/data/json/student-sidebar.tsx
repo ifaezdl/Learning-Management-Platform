@@ -31,6 +31,11 @@ export const studentSidebarData = [
     icon: "isax isax-teacher5",
     route: all_routes.studentCertificates,
   },
+  {
+    title: "تحلیل یادگیری",
+    icon: "isax isax-chart-2",
+    route: all_routes.studentAnalytics,
+  },
   // {
   //   title: "تاریخچه سفارشات",
   //   icon: "isax isax-shopping-cart5",

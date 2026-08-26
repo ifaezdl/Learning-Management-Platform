@@ -4,6 +4,9 @@ import StudentSidebar from "../common/studentSidebar";
 import certificateService, {
   Certificate,
 } from "../../../services/certificate.service";
+import analyticsService, {
+  SkillStat,
+} from "../../../services/analytics.service";
 import ProfileCard from "../common/profileCard";
 import { useAuth } from "../../../context/AuthContext";
 import {
@@ -12,10 +15,88 @@ import {
 } from "../../../core/common/certificate/certificateTemplate";
 import toast from "react-hot-toast";
 
+// Inline skill breakdown widget shown inside the certificate modal
+function SkillBreakdownWidget({ skills }: { skills: SkillStat[] }) {
+  if (skills.length === 0) return null;
+
+  // Only show skills below 70% mastery threshold in the alert
+  const weakSkills = skills.filter((s) => s.percentage < 70);
+  const weakest = weakSkills.slice(0, 3);
+
+  return (
+    <div
+      className="mt-4 p-3 rounded"
+      style={{
+        background: "#f8fafc",
+        border: "1px solid #e2e8f0",
+        direction: "rtl",
+      }}
+    >
+      <h6 className="mb-2" style={{ fontSize: 14 }}>
+        <i className="isax isax-chart-2 me-1 text-primary" />
+        تحلیل مهارتی این آزمون
+      </h6>
+
+      {/* Weakest tags alert */}
+      {weakest.length > 0 && (
+        <div
+          className="mb-3 px-3 py-2 rounded small"
+          style={{ background: "#fff7ed", border: "1px solid #fed7aa" }}
+        >
+          <span style={{ fontWeight: 600, color: "#c2410c" }}>
+            نیاز به مرور بیشتر در:{" "}
+          </span>
+          {weakest.map((s, i) => (
+            <span key={s.tag}>
+              <strong>{s.tag}</strong>
+              {` (${s.percentage}٪)`}
+              {i < weakest.length - 1 ? "، " : ""}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Mini bar chart via progress elements */}
+      <div className="d-flex flex-column gap-2">
+        {skills.map((s) => (
+          <div key={s.tag}>
+            <div className="d-flex justify-content-between small mb-1">
+              <span>{s.tag}</span>
+              <span className="text-muted">
+                {s.correct}/{s.total} ({s.percentage}٪)
+              </span>
+            </div>
+            <div
+              className="progress"
+              style={{ height: 6, borderRadius: 4 }}
+              role="progressbar"
+              aria-valuenow={s.percentage}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
+              <div
+                className={`progress-bar ${
+                  s.percentage >= 70
+                    ? "bg-success"
+                    : s.percentage >= 40
+                      ? "bg-warning"
+                      : "bg-danger"
+                }`}
+                style={{ width: `${s.percentage}%` }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 const StudentCertificates = () => {
   const { user } = useAuth();
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [viewingCert, setViewingCert] = useState<Certificate | null>(null);
+  const [skillBreakdown, setSkillBreakdown] = useState<SkillStat[]>([]);
   const [downloading, setDownloading] = useState(false);
   const [autoDownload, setAutoDownload] = useState(false);
   const certRef = useRef<HTMLDivElement>(null);
@@ -60,6 +141,18 @@ const StudentCertificates = () => {
   const openView = (cert: Certificate, download = false) => {
     setViewingCert(cert);
     setAutoDownload(download);
+    // Fetch the enriched certificate to get skillBreakdown
+    setSkillBreakdown([]);
+    certificateService
+      .getCertificate(cert.Id)
+      .then((enriched: any) => {
+        if (Array.isArray(enriched.skillBreakdown)) {
+          setSkillBreakdown(enriched.skillBreakdown);
+        }
+      })
+      .catch(() => {
+        // Non-fatal: skill breakdown is optional
+      });
   };
 
   return (
@@ -165,6 +258,8 @@ const StudentCertificates = () => {
                     studentName={studentName}
                   />
                 </div>
+                {/* Skill breakdown widget — shown below the certificate */}
+                <SkillBreakdownWidget skills={skillBreakdown} />
                 <div className="text-end mt-4">
                   <button
                     type="button"

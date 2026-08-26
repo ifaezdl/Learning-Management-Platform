@@ -18,11 +18,10 @@ import { QuizModule } from './quiz/quiz.module';
 import { CertificatesModule } from '../certificates/certificates.module';
 import { ChatModule } from './chat/chat.module';
 import { ContactMessagesModule } from './contact-messages/contact-messages.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 import { StudentDashboardController } from './student-dashboard.controller';
 import { InstructorDashboardController } from './instructor-dashboard.controller';
-// --- ADD to imports ---
 
-// --- ADD CartModule to the imports array, alongside your existing modules ---
 @Module({
   imports: [
     PrismaModule,
@@ -39,9 +38,10 @@ import { InstructorDashboardController } from './instructor-dashboard.controller
     CartModule,
     PaymentModule,
     QuizModule,
-    CertificatesModule, // ← add this
+    CertificatesModule,
     ChatModule,
     ContactMessagesModule,
+    AnalyticsModule,
   ],
   controllers: [AppController, StudentDashboardController, InstructorDashboardController],
   providers: [AppService],

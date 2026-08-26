@@ -25,6 +25,10 @@ export class QuizQuestionDto {
   questionText: string;
 
   @IsOptional()
+  @IsString()
+  skillTag?: string;
+
+  @IsOptional()
   @IsBoolean()
   isAiGenerated?: boolean;
 
