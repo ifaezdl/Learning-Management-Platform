@@ -31,16 +31,23 @@ export const getHeader = (roleId: number) => {
             showSubRoute: false,
             subMenus: [],
           },
-          // {
-          //   menuValue: "My Certificates",
-          //   route: all_routes.studentCertificates,
-          //   hasSubRoute: false,
-          //   showSubRoute: false,
-          //   subMenus: [],
-          // },
           {
-            menuValue: "تاریخچه سفارشات",
-            route: all_routes.studentOrderHistory,
+            menuValue: "تحلیل یادگیری",
+            route: all_routes.studentAnalytics,
+            hasSubRoute: false,
+            showSubRoute: false,
+            subMenus: [],
+          },
+          {
+            menuValue: "آزمون های پیش رو",
+            route: all_routes.studentQuiz,
+            hasSubRoute: false,
+            showSubRoute: false,
+            subMenus: [],
+          },
+          {
+            menuValue: "گواهینامه های صادر شده",
+            route: all_routes.studentCertificates,
             hasSubRoute: false,
             showSubRoute: false,
             subMenus: [],
@@ -101,6 +108,13 @@ export const getHeader = (roleId: number) => {
             subMenus: [],
           },
           {
+            menuValue: "تحلیل یادگیری دانشجویان",
+            route: all_routes.instructorAnalytics,
+            hasSubRoute: false,
+            showSubRoute: false,
+            subMenus: [],
+          },
+          {
             menuValue: "دانشجویان",
             route: all_routes.studentsList,
             hasSubRoute: false,
@@ -143,19 +157,76 @@ export const getHeader = (roleId: number) => {
       },
       {
         tittle: "داشبورد ادمین",
-        base: "instructor",
-        base2: "student",
-        showAsTab: false,
+        hasSubRoute: true,
+        showSubRoute: true,
+        base: "admin",
+        showAsTab2: false,
         separateRoute: false,
         menu: [
           {
-            menuValue: "مدیریت کاربران",
+            menuValue: "داشبورد",
             route: all_routes.adminDashboard,
             hasSubRoute: false,
             showSubRoute: false,
             subMenus: [],
           },
+          {
+            menuValue: "مدیریت کاربران",
+            route: all_routes.adminUserManagement,
+            hasSubRoute: false,
+            showSubRoute: false,
+            subMenus: [],
+          },
+          {
+            menuValue: "مدیریت دوره ها",
+            route: all_routes.adminCourseManagement,
+            hasSubRoute: false,
+            showSubRoute: false,
+            subMenus: [],
+          },
+          {
+            menuValue: "عملکرد دانشجویان",
+            route: all_routes.adminStudentPerformance,
+            hasSubRoute: false,
+            showSubRoute: false,
+            subMenus: [],
+          },
+          {
+            menuValue: "پیام های تماس",
+            route: all_routes.adminContactMessages,
+            hasSubRoute: false,
+            showSubRoute: false,
+            subMenus: [],
+          },
+          {
+            menuValue: "درخواست ها",
+            route: all_routes.AdminRequests,
+            hasSubRoute: false,
+            showSubRoute: false,
+            subMenus: [],
+          },
+          {
+            menuValue: "تنظیمات",
+            route: all_routes.AdminProfileSettings,
+            hasSubRoute: false,
+            showSubRoute: false,
+            subMenus: [],
+          },
         ],
+      },
+      {
+        tittle: "درباره ما",
+        route: all_routes.about_us,
+        hasSubRoute: false,
+        showSubRoute: false,
+        menu: [],
+      },
+      {
+        tittle: "تماس با ما",
+        route: all_routes.contactUs,
+        hasSubRoute: false,
+        showSubRoute: false,
+        menu: [],
       },
     ];
   }
@@ -178,6 +249,21 @@ export const getProfileMenu = (roleId: number) => {
         icon: "isax isax-teacher",
       },
       {
+        label: "تحلیل یادگیری",
+        route: all_routes.studentAnalytics,
+        icon: "isax isax-chart-2",
+      },
+      {
+        label: "آزمون های پیش رو",
+        route: all_routes.studentQuiz,
+        icon: "isax isax-clipboard-text",
+      },
+      {
+        label: "گواهینامه ها",
+        route: all_routes.studentCertificates,
+        icon: "isax isax-medal-star",
+      },
+      {
         label: "تنظیمات پروفایل",
         route: all_routes.studentSettings,
         icon: "isax isax-setting-2",
@@ -197,6 +283,11 @@ export const getProfileMenu = (roleId: number) => {
         icon: "isax isax-teacher",
       },
       {
+        label: "تحلیل یادگیری",
+        route: all_routes.instructorAnalytics,
+        icon: "isax isax-chart-2",
+      },
+      {
         label: "تنظیمات پروفایل",
         route: all_routes.instructorsettings,
         icon: "isax isax-setting-2",
@@ -206,9 +297,34 @@ export const getProfileMenu = (roleId: number) => {
   if (roleId === 3) {
     return [
       {
-        label: "مدیریت کاربران",
+        label: "داشبورد",
         route: all_routes.adminDashboard,
+        icon: "isax isax-category",
+      },
+      {
+        label: "پروفایل من",
+        route: all_routes.AdminProfile,
         icon: "isax isax-security-user",
+      },
+      {
+        label: "مدیریت کاربران",
+        route: all_routes.adminUserManagement,
+        icon: "isax isax-people",
+      },
+      {
+        label: "مدیریت دوره ها",
+        route: all_routes.adminCourseManagement,
+        icon: "isax isax-teacher",
+      },
+      {
+        label: "درخواست ها",
+        route: all_routes.AdminRequests,
+        icon: "isax isax-clipboard-text",
+      },
+      {
+        label: "تنظیمات",
+        route: all_routes.AdminProfileSettings,
+        icon: "isax isax-setting-2",
       },
     ];
   }

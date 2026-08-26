@@ -3,11 +3,13 @@ import ReactApexChart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import StudentSidebar from "../common/studentSidebar";
 import ProfileCard from "../common/profileCard";
+import { useAuth } from "../../../context/AuthContext";
 import analyticsService, {
   SkillStat,
   QuizScorePoint,
   CompletionPoint,
 } from "../../../services/analytics.service";
+import RecommendedCourses from "../recommendations/RecommendedCourses";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -367,6 +369,7 @@ function ProgressTrendChart({
 // Main page component
 // ---------------------------------------------------------------------------
 const LearningAnalytics: React.FC = () => {
+  const { user } = useAuth();
   const [skills, setSkills] = useState<SkillStat[]>([]);
   const [quizScores, setQuizScores] = useState<QuizScorePoint[]>([]);
   const [courseCompletion, setCourseCompletion] = useState<CompletionPoint[]>(
@@ -468,10 +471,20 @@ const LearningAnalytics: React.FC = () => {
                       <i className="isax isax-chart-2 text-white" style={{ fontSize: 28 }} />
                     </div>
                     <div>
-                      <h4 className="mb-1 text-white fw-bold">
-                        داشبورد تحلیل یادگیری
-                      </h4>
-                      <p className="mb-0 text-white-50 small">
+                      <div className="d-flex align-items-center gap-2 mb-1">
+                        <h4 className="mb-0 text-white fw-bold">
+                          داشبورد تحلیل یادگیری
+                        </h4>
+                        <span className="badge px-3 py-1" style={{ background: "rgba(255,255,255,0.25)", color: "#fff", fontSize: 12 }}>
+                          <i className="isax isax-profile-circle me-1" style={{ fontSize: 11 }} />
+                          دانشجو
+                        </span>
+                      </div>
+                      <p className="mb-1 text-white small">
+                        <i className="isax isax-user me-1" style={{ fontSize: 13 }} />
+                        {user?.firstName} {user?.lastName}
+                      </p>
+                      <p className="mb-0 text-white-50" style={{ fontSize: 12 }}>
                         تحلیل جامع عملکرد و پیشرفت تحصیلی شما
                       </p>
                     </div>
@@ -513,6 +526,11 @@ const LearningAnalytics: React.FC = () => {
             {!loadingSkills && skills.length > 0 && (
               <WeakSkillsSummary skills={skills} />
             )}
+
+            {/* ---- دوره‌های پیشنهادی ---- */}
+            <div className="mb-4">
+              <RecommendedCourses />
+            </div>
 
             <div className="row">
               {/* ---- Radar chart ---- */}

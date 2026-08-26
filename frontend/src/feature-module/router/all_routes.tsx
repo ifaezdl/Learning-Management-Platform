@@ -83,6 +83,8 @@ export const all_routes = {
 
   studentAnalytics: "/student/analytics",
 
+  studentRecommendations: "/student/recommendations",
+
   instructorAnalytics: "/instructor/instructor-analytics",
 
   chat: "/chat",

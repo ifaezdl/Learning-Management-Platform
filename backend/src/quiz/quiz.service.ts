@@ -8,6 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { GenerateQuizDto } from './dto/generate-quiz.dto';
 import { SaveQuizDto } from './dto/save-quiz.dto';
 import { SubmitQuizDto } from './dto/submit-quiz.dto';
+import { RecommendationsService } from '../recommendations/recommendations.service';
 
 interface AiChoice {
   text: string;
@@ -21,7 +22,10 @@ export interface AiQuestion {
 
 @Injectable()
 export class QuizService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private recommendationsService: RecommendationsService,
+  ) {}
 
   private async verifyOwnership(courseId: number, user: any) {
     const course = await this.prisma.courses.findUnique({
@@ -515,6 +519,19 @@ export class QuizService {
         });
       }
     });
+
+    // Trigger خودکار برای به‌روزرسانی پیشنهادها — خارج از تراکنش اصلی
+    // برای جلوگیری از افزایش زمان تراکنش، به‌صورت fire-and-forget اجرا می‌شود
+    if (isPassed) {
+      this.recommendationsService
+        .refresh(studentId, 5)
+        .catch((err) =>
+          console.warn(
+            `Failed to refresh recommendations for student ${studentId}:`,
+            err,
+          ),
+        );
+    }
 
     return this.getResult(attempt.Id, studentId);
   }
