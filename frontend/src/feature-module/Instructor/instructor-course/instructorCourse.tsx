@@ -97,14 +97,14 @@ const InstructorCourse = () => {
       render: (_: any, record: MyCourse) => record.Level?.LevelName ?? "-",
     },
     {
-      title: "هزینه (ریال)",
+      title: "هزینه",
       dataIndex: "Price",
-      render: (price: number) => `${Number(price).toLocaleString("fa-IR")}`,
+      render: (price: number) => `${Number(price).toLocaleString("fa-IR")} ریال`,
     },
     {
       title: "مبلغ با تخفیف",
       dataIndex: "DiscountPrice",
-      render: (price: number | null) => (price ? `$${price}` : "-"),
+      render: (price: number | null) => (price ? `${Number(price).toLocaleString("fa-IR")} ریال` : "-"),
     },
     {
       title: "وضعیت انتشار",
@@ -121,7 +121,7 @@ const InstructorCourse = () => {
     {
       title: "تاریخ ایجاد",
       dataIndex: "CreatedAt",
-      render: (date: string) => new Date(date).toLocaleDateString(),
+      render: (date: string) => new Date(date).toLocaleDateString("fa-IR"),
     },
     {
       title: "عملیات",
