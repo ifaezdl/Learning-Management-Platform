@@ -139,13 +139,44 @@ const StudentCourse = () => {
                                 <h5 className="text-secondary mb-0">
                                   {course.DiscountPrice ?? course.Price} ریال
                                 </h5>
-                                <Link
-                                  to={`${all_routes.courseDetails}/${course.Id}`}
-                                  className="btn btn-primary btn-sm d-inline-flex align-items-center"
-                                >
-                                  مشاهده دوره
-                                  <i className="isax isax-arrow-left-2 ms-1" />
-                                </Link>
+                                <div className="d-flex gap-2">
+                                  {course.AverageRating > 0 && (
+                                    <div className="d-flex align-items-center gap-1">
+                                      <span className="fw-semibold">
+                                        {Number(course.AverageRating).toFixed(1)}
+                                      </span>
+                                      <div className="rating">
+                                        {[1, 2, 3, 4, 5].map((star) => (
+                                          <i
+                                            key={star}
+                                            className={`fa-solid fa-star ${
+                                              star <=
+                                              Math.round(course.AverageRating)
+                                                ? "filled"
+                                                : ""
+                                            }`}
+                                            style={{
+                                              color:
+                                                star <=
+                                                Math.round(course.AverageRating)
+                                                  ? "#ffc107"
+                                                  : "#ddd",
+                                              marginRight: "2px",
+                                              fontSize: "0.75rem",
+                                            }}
+                                          />
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                  <Link
+                                    to={`${all_routes.courseDetails}/${course.Id}`}
+                                    className="btn btn-primary btn-sm d-inline-flex align-items-center"
+                                  >
+                                    مشاهده دوره
+                                    <i className="isax isax-arrow-left-2 ms-1" />
+                                  </Link>
+                                </div>
                               </div>
                             </div>
                           </div>

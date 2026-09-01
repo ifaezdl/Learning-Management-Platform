@@ -20,8 +20,10 @@ import { ChatModule } from './chat/chat.module';
 import { ContactMessagesModule } from './contact-messages/contact-messages.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { RecommendationsModule } from './recommendations/recommendations.module';
+import { ReviewsModule } from './reviews/reviews.module';
 import { StudentDashboardController } from './student-dashboard.controller';
 import { InstructorDashboardController } from './instructor-dashboard.controller';
+import { PracticeExamsModule } from './practice-exams/practice-exams.module';
 
 @Module({
   imports: [
@@ -44,6 +46,8 @@ import { InstructorDashboardController } from './instructor-dashboard.controller
     ContactMessagesModule,
     AnalyticsModule,
     RecommendationsModule,
+    ReviewsModule,
+    PracticeExamsModule,
   ],
   controllers: [AppController, StudentDashboardController, InstructorDashboardController],
   providers: [AppService],

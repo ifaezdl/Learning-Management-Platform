@@ -420,6 +420,22 @@ export class CoursesService {
       );
     }
 
+    // آزمون‌های دوره که سوال دارند را همراه با دوره publish می‌کنیم
+    const quizzesWithQuestions = await this.prisma.quizzes.findMany({
+      where: { Course_Id: id, IsPublished: false },
+      select: { Id: true, _count: { select: { QuizQuestions: true } } },
+    });
+    const publishableQuizIds = quizzesWithQuestions
+      .filter((q) => q._count.QuizQuestions > 0)
+      .map((q) => q.Id);
+
+    if (publishableQuizIds.length > 0) {
+      await this.prisma.quizzes.updateMany({
+        where: { Id: { in: publishableQuizIds } },
+        data: { IsPublished: true },
+      });
+    }
+
     return this.prisma.courses.update({
       where: { Id: id },
       data: { IsPublished: true, UpdatedAt: new Date() },

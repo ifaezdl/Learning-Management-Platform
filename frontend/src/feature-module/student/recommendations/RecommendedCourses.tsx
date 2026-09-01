@@ -4,6 +4,7 @@ import recommendationsService, {
   CourseRecommendation,
 } from "../../../services/recommendations.service";
 import { toast } from "react-toastify";
+import { api_base_url } from "../../../environment";
 
 const RecommendedCourses: React.FC = () => {
   const [recommendations, setRecommendations] = useState<
@@ -140,9 +141,7 @@ const RecommendedCourses: React.FC = () => {
             disabled={refreshing}
             title="به‌روزرسانی پیشنهادها"
           >
-            <i
-              className={`isax isax-refresh ${refreshing ? "fa-spin" : ""}`}
-            />
+            <i className={`isax isax-refresh ${refreshing ? "fa-spin" : ""}`} />
           </button>
         </div>
 
@@ -169,7 +168,7 @@ const RecommendedCourses: React.FC = () => {
                   <div className="col-4">
                     <img
                       src={
-                        rec.course.thumbnail ||
+                        `${api_base_url}/${rec.course.thumbnail}` ||
                         "/assets/img/course/course-default.jpg"
                       }
                       alt={rec.course.title}
@@ -225,18 +224,20 @@ const RecommendedCourses: React.FC = () => {
                             className="d-flex flex-wrap gap-1"
                             style={{ fontSize: "10px" }}
                           >
-                            {rec.matchedSkillTags.slice(0, 3).map((tag, idx) => (
-                              <span
-                                key={idx}
-                                className="badge bg-warning-subtle text-warning px-2 py-1"
-                              >
-                                <i
-                                  className="isax isax-tag-2 me-1"
-                                  style={{ fontSize: "9px" }}
-                                />
-                                {tag}
-                              </span>
-                            ))}
+                            {rec.matchedSkillTags
+                              .slice(0, 3)
+                              .map((tag, idx) => (
+                                <span
+                                  key={idx}
+                                  className="badge bg-warning-subtle text-warning px-2 py-1"
+                                >
+                                  <i
+                                    className="isax isax-tag-2 me-1"
+                                    style={{ fontSize: "9px" }}
+                                  />
+                                  {tag}
+                                </span>
+                              ))}
                           </div>
                         </div>
                       )}
@@ -263,7 +264,10 @@ const RecommendedCourses: React.FC = () => {
 
                       <div className="d-flex align-items-center justify-content-between mt-auto pt-2 border-top">
                         <div className="d-flex align-items-center gap-2">
-                          <span className="text-muted" style={{ fontSize: "11px" }}>
+                          <span
+                            className="text-muted"
+                            style={{ fontSize: "11px" }}
+                          >
                             <i className="isax isax-star1 text-warning me-1" />
                             {rec.course.averageRating.toFixed(1)}
                           </span>

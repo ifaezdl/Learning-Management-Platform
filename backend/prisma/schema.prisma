@@ -67,6 +67,7 @@ model Courses {
   ChatMessages           ChatMessages[]
   ChatReads              ChatReads[]
   ChatPolls              ChatPolls[]
+  PracticeExamResults    PracticeExamResults[]
 
   @@index([CategoryId], map: "IX_Courses_CategoryId")
   @@index([Teacher_Id], map: "IX_Courses_TeacherId")
@@ -207,6 +208,7 @@ model Users {
   ChatMessageReactions                                    ChatMessageReactions[]
   ChatPolls                                               ChatPolls[]
   ChatPollVotes                                           ChatPollVotes[]
+  PracticeExamResults                                     PracticeExamResults[]
   Roles                                                   Roles                @relation(fields: [Role_Id], references: [Id], onUpdate: NoAction, map: "FK_users_Roles")
   Sex                                                     Sex?                 @relation(fields: [Sex_Id], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_users_Sex")
 }
@@ -502,4 +504,22 @@ model CourseRecommendations {
 
   @@unique([Student_Id, Course_Id], map: "UQ_CourseRecommendations_Student_Course")
   @@index([Student_Id], map: "IX_CourseRecommendations_Student")
+}
+
+model PracticeExamResults {
+  Id               Int       @id(map: "PK_PracticeExamResults") @default(autoincrement())
+  Student_Id       Int
+  Course_Id        Int
+  SkillTag         String?   @db.NVarChar(200)
+  Score            Decimal   @db.Decimal(5, 2)
+  MaxScore         Decimal   @db.Decimal(5, 2)
+  CorrectCount     Int
+  TotalQuestions   Int
+  AnswerDetails    String    @db.NVarChar(Max)
+  CompletedAt      DateTime  @default(now(), map: "DF_PracticeExamResults_CompletedAt") @db.DateTime
+  Users            Users     @relation(fields: [Student_Id], references: [Id], onUpdate: NoAction, map: "FK_PracticeExamResults_Users")
+  Courses          Courses   @relation(fields: [Course_Id], references: [Id], onUpdate: NoAction, map: "FK_PracticeExamResults_Courses")
+
+  @@index([Student_Id], map: "IX_PracticeExamResults_Student")
+  @@index([Course_Id], map: "IX_PracticeExamResults_Course")
 }

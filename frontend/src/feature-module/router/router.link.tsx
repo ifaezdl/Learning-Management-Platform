@@ -98,6 +98,10 @@ import GoogleCallback from "../auth/Google/google-callback";
 import Register from "../auth/register/register";
 import LearningAnalytics from "../student/analytics/LearningAnalytics";
 import InstructorCourseAnalytics from "../Instructor/instructor-analytics/InstructorCourseAnalytics";
+import RecommendedCourses from "../student/recommendations/RecommendedCourses";
+import PracticeExams from "../student/practice-exams/PracticeExams";
+import PracticeExamTake from "../student/practice-exams/PracticeExamTake";
+import PracticeExamResult from "../student/practice-exams/PracticeExamResult";
 const routes = all_routes;
 
 export const publicRoutes = [
@@ -611,6 +615,42 @@ export const publicRoutes = [
     element: (
       <RoleRoute roles={[1]}>
         <LearningAnalytics />
+      </RoleRoute>
+    ),
+    route: Route,
+  },
+  {
+    path: routes.studentRecommendations,
+    element: (
+      <RoleRoute roles={[1]}>
+        <RecommendedCourses />
+      </RoleRoute>
+    ),
+    route: Route,
+  },
+  {
+    path: routes.studentPracticeExams,
+    element: (
+      <RoleRoute roles={[1]}>
+        <PracticeExams />
+      </RoleRoute>
+    ),
+    route: Route,
+  },
+  {
+    path: routes.studentPracticeExamsTake,
+    element: (
+      <RoleRoute roles={[1]}>
+        <PracticeExamTake />
+      </RoleRoute>
+    ),
+    route: Route,
+  },
+  {
+    path: routes.studentPracticeExamsResult,
+    element: (
+      <RoleRoute roles={[1]}>
+        <PracticeExamResult />
       </RoleRoute>
     ),
     route: Route,

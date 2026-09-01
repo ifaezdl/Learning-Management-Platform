@@ -1,5 +1,8 @@
 {
   "name": "learning-management-system",
   "private": true,
-  "description": "EduCore LMS - Monorepo root"
+  "description": "EduCore LMS - Monorepo root",
+  "dependencies": {
+    "@resvg/resvg-js": "^2.6.2"
+  }
 }
