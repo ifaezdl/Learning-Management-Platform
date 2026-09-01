@@ -9,6 +9,8 @@ import cartService from "../../../services/cart.service";
 import { useDispatch } from "react-redux";
 import { refreshCartCount } from "../../../core/redux/cartSlice";
 import { api_base_url } from "../../../environment";
+import ReviewForm from "../../student/reviews/ReviewForm";
+import ReviewsList from "../../student/reviews/ReviewsList";
 
 const CourseDetails = () => {
   const { id } = useParams();
@@ -578,6 +580,40 @@ const CourseDetails = () => {
         </div>
       </section>
       {/* /Course detail */}
+
+      {/* Reviews Section */}
+      <section className="mt-5 mb-5">
+        <div className="container">
+          {/* فرم ثبت نظر - فقط برای خریداران */}
+          {isEnrolled && (
+            <div className="row mb-5">
+              <div className="col-lg-8">
+                <h5 className="mb-4">نظر خود را ثبت کنید</h5>
+                <ReviewForm
+                  courseId={course?.Id || 0}
+                  courseTitle={course?.Title}
+                  onSubmitSuccess={() => {
+                    // می‌توانی اینجا صفحه رو ریفرش کنی یا لیست نظرات رو بروزرسانی کنی
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* لیست نظرات - برای همه */}
+          <div className="row">
+            <div className="col-lg-8">
+              <h5 className="mb-4">نظرات و نقدهای کاربران</h5>
+              <ReviewsList
+                courseId={course?.Id || 0}
+                maxReviews={10}
+                isEnrolled={isEnrolled}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+      {/* /Reviews Section */}
 
       {/* Video modal for enrolled / free-preview lessons */}
       <VideoModal

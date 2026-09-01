@@ -12,6 +12,10 @@
  */
 import React, { useState, useEffect, useCallback } from "react";
 import toast from "react-hot-toast";
+import DatePicker from "react-multi-date-picker";
+import DateObject from "react-date-object";
+import persian from "react-date-object/calendars/persian";
+import persian_fa from "react-date-object/locales/persian_fa";
 import quizService, {
   QuizSummary,
   CreateQuizPayload,
@@ -48,6 +52,10 @@ const QuizManager: React.FC<QuizManagerProps> = ({ courseId }) => {
     allowPreviousQuestion: true,
     scorePerQuestion: 1,
   });
+  const [startDateObj, setStartDateObj] = useState<DateObject | null>(null);
+  const [startTime, setStartTime] = useState("09:00");
+  const [endDateObj, setEndDateObj] = useState<DateObject | null>(null);
+  const [endTime, setEndTime] = useState("23:59");
 
   // Delete / deactivate confirm modal
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -74,23 +82,38 @@ const QuizManager: React.FC<QuizManagerProps> = ({ courseId }) => {
   }, [fetchQuizzes]);
 
   // ── create ─────────────────────────────────────────────
+  /** DateObject شمسی + "HH:MM" → ISO string میلادی */
+  const buildISO = (dateObj: DateObject | null, time: string): string => {
+    if (!dateObj) return "";
+    const d = dateObj.toDate();
+    const [h, m] = time.split(":").map(Number);
+    d.setHours(h, m, 0, 0);
+    return d.toISOString();
+  };
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title?.trim()) {
       toast.error("عنوان آزمون را وارد کنید.");
       return;
     }
-    if (!form.startAt || !form.endAt) {
+    if (!startDateObj || !endDateObj) {
       toast.error("تاریخ شروع و پایان را مشخص کنید.");
       return;
     }
-    if (new Date(form.endAt) <= new Date(form.startAt)) {
+    const startAt = buildISO(startDateObj, startTime);
+    const endAt = buildISO(endDateObj, endTime);
+    if (new Date(endAt) <= new Date(startAt)) {
       toast.error("زمان پایان باید بعد از زمان شروع باشد.");
       return;
     }
     setCreating(true);
     try {
-      const created = await quizService.create(courseId, form);
+      const created = await quizService.create(courseId, {
+        ...form,
+        startAt,
+        endAt,
+      });
       toast.success("آزمون با موفقیت ایجاد شد. اکنون سوالات را اضافه کنید.");
       setShowCreateModal(false);
       resetForm();
@@ -107,7 +130,7 @@ const QuizManager: React.FC<QuizManagerProps> = ({ courseId }) => {
     }
   };
 
-  const resetForm = () =>
+  const resetForm = () => {
     setForm({
       title: "",
       startAt: "",
@@ -119,6 +142,11 @@ const QuizManager: React.FC<QuizManagerProps> = ({ courseId }) => {
       allowPreviousQuestion: true,
       scorePerQuestion: 1,
     });
+    setStartDateObj(null);
+    setStartTime("09:00");
+    setEndDateObj(null);
+    setEndTime("23:59");
+  };
 
   // ── edit (open builder) ────────────────────────────────
   const handleEdit = (quiz: QuizSummary) => {
@@ -165,7 +193,9 @@ const QuizManager: React.FC<QuizManagerProps> = ({ courseId }) => {
     }
     try {
       const res = await quizService.togglePublish(quiz.Id);
-      toast.success(res.isPublished ? "آزمون منتشر شد." : "آزمون از انتشار خارج شد.");
+      toast.success(
+        res.isPublished ? "آزمون منتشر شد." : "آزمون از انتشار خارج شد.",
+      );
       fetchQuizzes();
     } catch (err: any) {
       const msg =
@@ -206,7 +236,10 @@ const QuizManager: React.FC<QuizManagerProps> = ({ courseId }) => {
             </div>
             <div>
               <h6>مدیریت آزمون‌ها</h6>
-              <p>آزمون‌های دوره را ایجاد کنید و بانک سوالات هر آزمون را مستقل مدیریت کنید.</p>
+              <p>
+                آزمون‌های دوره را ایجاد کنید و بانک سوالات هر آزمون را مستقل
+                مدیریت کنید.
+              </p>
             </div>
           </div>
           <button
@@ -226,7 +259,11 @@ const QuizManager: React.FC<QuizManagerProps> = ({ courseId }) => {
         <div className="quiz-manager-body">
           {loading ? (
             <div className="quiz-manager-loading">
-              <div className="spinner-border" role="status" aria-label="در حال بارگذاری" />
+              <div
+                className="spinner-border"
+                role="status"
+                aria-label="در حال بارگذاری"
+              />
               <span>در حال دریافت آزمون‌ها...</span>
             </div>
           ) : quizzes.length === 0 ? (
@@ -235,7 +272,10 @@ const QuizManager: React.FC<QuizManagerProps> = ({ courseId }) => {
                 <i className="isax isax-clipboard-text" />
               </div>
               <h6>هنوز آزمونی برای این دوره ساخته نشده است</h6>
-              <p>می‌توانید چند آزمون مستقل (مثلاً هفتگی یا بر اساس هر سرفصل) برای این دوره بسازید.</p>
+              <p>
+                می‌توانید چند آزمون مستقل (مثلاً هفتگی یا بر اساس هر سرفصل) برای
+                این دوره بسازید.
+              </p>
               <button
                 type="button"
                 className="quiz-manager-empty-btn"
@@ -267,7 +307,9 @@ const QuizManager: React.FC<QuizManagerProps> = ({ courseId }) => {
                     <tr key={quiz.Id}>
                       <td>{idx + 1}</td>
                       <td>
-                        <span className="quiz-manager-title">{quiz.Title || `آزمون ${idx + 1}`}</span>
+                        <span className="quiz-manager-title">
+                          {quiz.Title || `آزمون ${idx + 1}`}
+                        </span>
                       </td>
                       <td>
                         <span className="quiz-count-badge">
@@ -276,7 +318,9 @@ const QuizManager: React.FC<QuizManagerProps> = ({ courseId }) => {
                         </span>
                       </td>
                       <td>
-                        <span className={`quiz-attempt-badge ${quiz._count.QuizAttempts > 0 ? "has-attempts" : ""}`}>
+                        <span
+                          className={`quiz-attempt-badge ${quiz._count.QuizAttempts > 0 ? "has-attempts" : ""}`}
+                        >
                           <i className="isax isax-profile-2user" />
                           {quiz._count.QuizAttempts}
                         </span>
@@ -286,18 +330,38 @@ const QuizManager: React.FC<QuizManagerProps> = ({ courseId }) => {
                           type="button"
                           className={`quiz-status-badge ${quiz.IsPublished ? "published" : "draft"}`}
                           onClick={() => handleTogglePublish(quiz)}
-                          title={quiz.IsPublished ? "کلیک برای رفع انتشار" : "کلیک برای انتشار"}
+                          title={
+                            quiz.IsPublished
+                              ? "کلیک برای رفع انتشار"
+                              : "کلیک برای انتشار"
+                          }
                         >
-                          <i className={quiz.IsPublished ? "isax isax-eye" : "isax isax-eye-slash"} />
+                          <i
+                            className={
+                              quiz.IsPublished
+                                ? "isax isax-eye"
+                                : "isax isax-eye-slash"
+                            }
+                          />
                           {quiz.IsPublished ? "منتشرشده" : "پیش‌نویس"}
                         </button>
                       </td>
                       <td className="quiz-date-cell">
                         {quiz.StartAt ? (
                           <span className="quiz-date-range">
-                            <small>{new Date(quiz.StartAt).toLocaleDateString("fa-IR")}</small>
+                            <small>
+                              {new Date(quiz.StartAt).toLocaleDateString(
+                                "fa-IR",
+                              )}
+                            </small>
                             <i className="isax isax-arrow-left-3 mx-1" />
-                            <small>{quiz.EndAt ? new Date(quiz.EndAt).toLocaleDateString("fa-IR") : "—"}</small>
+                            <small>
+                              {quiz.EndAt
+                                ? new Date(quiz.EndAt).toLocaleDateString(
+                                    "fa-IR",
+                                  )
+                                : "—"}
+                            </small>
                           </span>
                         ) : (
                           <span className="text-muted">—</span>
@@ -316,7 +380,11 @@ const QuizManager: React.FC<QuizManagerProps> = ({ courseId }) => {
                           <button
                             type="button"
                             className="quiz-manager-action-btn delete"
-                            title={quiz._count.QuizAttempts > 0 ? "غیرفعال‌سازی (دارای شرکت‌کننده)" : "حذف آزمون"}
+                            title={
+                              quiz._count.QuizAttempts > 0
+                                ? "غیرفعال‌سازی (دارای شرکت‌کننده)"
+                                : "حذف آزمون"
+                            }
                             onClick={() => openDeleteModal(quiz)}
                           >
                             <i className="isax isax-trash" />
@@ -337,15 +405,23 @@ const QuizManager: React.FC<QuizManagerProps> = ({ courseId }) => {
       ============================================= */}
       {showCreateModal && (
         <div className="quiz-modal-backdrop">
-          <div className="quiz-modal" role="dialog" aria-modal="true" aria-labelledby="create-quiz-title">
+          <div
+            className="quiz-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="create-quiz-title"
+          >
             <div className="quiz-modal-header">
               <div className="quiz-modal-title-group">
                 <div className="quiz-modal-icon-box">
-                  <i className="isax isax-clipboard-add" />
+                  <i className="isax isax-clipboard-text" />
                 </div>
                 <div>
                   <h5 id="create-quiz-title">افزودن آزمون جدید</h5>
-                  <span>تنظیمات پایه آزمون را وارد کنید — سوالات در مرحله بعد اضافه می‌شوند</span>
+                  <span>
+                    تنظیمات پایه آزمون را وارد کنید — سوالات در مرحله بعد اضافه
+                    می‌شوند
+                  </span>
                 </div>
               </div>
               <button
@@ -362,12 +438,16 @@ const QuizManager: React.FC<QuizManagerProps> = ({ courseId }) => {
               <div className="quiz-modal-body">
                 <div className="quiz-form-row">
                   <div className="quiz-form-group full">
-                    <label>عنوان آزمون <span className="required">*</span></label>
+                    <label>
+                      <span className="required">*</span> عنوان آزمون
+                    </label>
                     <input
                       type="text"
                       className="quiz-form-control"
                       value={form.title}
-                      onChange={(e) => setForm({ ...form, title: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, title: e.target.value })
+                      }
                       placeholder="مثلاً: آزمون هفته اول"
                       disabled={creating}
                       autoFocus
@@ -377,22 +457,30 @@ const QuizManager: React.FC<QuizManagerProps> = ({ courseId }) => {
 
                 <div className="quiz-form-row two-col">
                   <div className="quiz-form-group">
-                    <label>تاریخ و ساعت شروع <span className="required">*</span></label>
-                    <input
-                      type="datetime-local"
-                      className="quiz-form-control"
-                      value={form.startAt}
-                      onChange={(e) => setForm({ ...form, startAt: e.target.value })}
+                    <label>
+                      <span className="required">*</span> تاریخ شروع
+                    </label>
+                    <DatePicker
+                      calendar={persian}
+                      locale={persian_fa}
+                      value={startDateObj}
+                      onChange={(val) => setStartDateObj(val as DateObject)}
+                      inputClass="quiz-form-control"
+                      calendarPosition="bottom-right"
+                      containerStyle={{ width: "100%" }}
                       disabled={creating}
+                      placeholder="انتخاب تاریخ"
                     />
                   </div>
                   <div className="quiz-form-group">
-                    <label>تاریخ و ساعت پایان <span className="required">*</span></label>
+                    <label>
+                      <span className="required">*</span> ساعت شروع
+                    </label>
                     <input
-                      type="datetime-local"
+                      type="time"
                       className="quiz-form-control"
-                      value={form.endAt}
-                      onChange={(e) => setForm({ ...form, endAt: e.target.value })}
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
                       disabled={creating}
                     />
                   </div>
@@ -400,25 +488,67 @@ const QuizManager: React.FC<QuizManagerProps> = ({ courseId }) => {
 
                 <div className="quiz-form-row two-col">
                   <div className="quiz-form-group">
-                    <label>مدت زمان (دقیقه) <span className="required">*</span></label>
+                    <label>
+                      <span className="required">*</span> تاریخ پایان
+                    </label>
+                    <DatePicker
+                      calendar={persian}
+                      locale={persian_fa}
+                      value={endDateObj}
+                      onChange={(val) => setEndDateObj(val as DateObject)}
+                      inputClass="quiz-form-control"
+                      calendarPosition="bottom-right"
+                      containerStyle={{ width: "100%" }}
+                      disabled={creating}
+                      placeholder="انتخاب تاریخ"
+                    />
+                  </div>
+                  <div className="quiz-form-group">
+                    <label>
+                      <span className="required">*</span> ساعت پایان
+                    </label>
+                    <input
+                      type="time"
+                      className="quiz-form-control"
+                      value={endTime}
+                      onChange={(e) => setEndTime(e.target.value)}
+                      disabled={creating}
+                    />
+                  </div>
+                </div>
+
+                <div className="quiz-form-row two-col">
+                  <div className="quiz-form-group">
+                    <label>
+                      مدت زمان (دقیقه) <span className="required">*</span>
+                    </label>
                     <input
                       type="number"
                       min={1}
                       className="quiz-form-control"
                       value={form.durationMinutes}
-                      onChange={(e) => setForm({ ...form, durationMinutes: Number(e.target.value) })}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          durationMinutes: Number(e.target.value),
+                        })
+                      }
                       disabled={creating}
                     />
                   </div>
                   <div className="quiz-form-group">
-                    <label>نمره قبولی <span className="required">*</span></label>
+                    <label>
+                      نمره قبولی <span className="required">*</span>
+                    </label>
                     <input
                       type="number"
                       min={0}
                       step={0.25}
                       className="quiz-form-control"
                       value={form.passScore}
-                      onChange={(e) => setForm({ ...form, passScore: Number(e.target.value) })}
+                      onChange={(e) =>
+                        setForm({ ...form, passScore: Number(e.target.value) })
+                      }
                       disabled={creating}
                     />
                   </div>
@@ -426,13 +556,21 @@ const QuizManager: React.FC<QuizManagerProps> = ({ courseId }) => {
 
                 <div className="quiz-form-row two-col">
                   <div className="quiz-form-group">
-                    <label>تعداد سوال برای هر دانشجو <span className="required">*</span></label>
+                    <label>
+                      تعداد سوال برای هر دانشجو{" "}
+                      <span className="required">*</span>
+                    </label>
                     <input
                       type="number"
                       min={1}
                       className="quiz-form-control"
                       value={form.questionsToShow}
-                      onChange={(e) => setForm({ ...form, questionsToShow: Number(e.target.value) })}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          questionsToShow: Number(e.target.value),
+                        })
+                      }
                       disabled={creating}
                     />
                     <small>پس از افزودن سوالات می‌توان تغییر داد</small>
@@ -445,7 +583,12 @@ const QuizManager: React.FC<QuizManagerProps> = ({ courseId }) => {
                       step={0.25}
                       className="quiz-form-control"
                       value={form.scorePerQuestion}
-                      onChange={(e) => setForm({ ...form, scorePerQuestion: Number(e.target.value) })}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          scorePerQuestion: Number(e.target.value),
+                        })
+                      }
                       disabled={creating}
                     />
                   </div>
@@ -473,8 +616,8 @@ const QuizManager: React.FC<QuizManagerProps> = ({ courseId }) => {
                     </>
                   ) : (
                     <>
-                      <i className="isax isax-arrow-left-2" />
                       ایجاد آزمون و افزودن سوالات
+                      <i className="isax isax-arrow-left-2" />
                     </>
                   )}
                 </button>
@@ -489,7 +632,11 @@ const QuizManager: React.FC<QuizManagerProps> = ({ courseId }) => {
       ============================================= */}
       {showDeleteModal && selectedQuiz && (
         <div className="quiz-modal-backdrop">
-          <div className="quiz-modal quiz-delete-modal" role="dialog" aria-modal="true">
+          <div
+            className="quiz-modal quiz-delete-modal"
+            role="dialog"
+            aria-modal="true"
+          >
             <div className="quiz-modal-header">
               <div className="quiz-modal-title-group">
                 <div className="quiz-modal-icon-box danger">
@@ -519,20 +666,25 @@ const QuizManager: React.FC<QuizManagerProps> = ({ courseId }) => {
                 <>
                   <p>
                     آزمون <strong>«{selectedQuiz.Title}»</strong> دارای{" "}
-                    <strong>{selectedQuiz._count.QuizAttempts} شرکت‌کننده</strong> است.
+                    <strong>
+                      {selectedQuiz._count.QuizAttempts} شرکت‌کننده
+                    </strong>{" "}
+                    است.
                   </p>
                   <div className="quiz-delete-warning">
                     <i className="isax isax-warning-2" />
                     <span>
-                      برای حفاظت از تاریخچه یادگیری دانشجویان، این آزمون <strong>قابل حذف کامل نیست</strong>.
-                      با تأیید، آزمون فقط <strong>غیرفعال</strong> می‌شود و از دید دانشجویان پنهان خواهد شد.
+                      برای حفاظت از تاریخچه یادگیری دانشجویان، این آزمون{" "}
+                      <strong>قابل حذف کامل نیست</strong>. با تأیید، آزمون فقط{" "}
+                      <strong>غیرفعال</strong> می‌شود و از دید دانشجویان پنهان
+                      خواهد شد.
                     </span>
                   </div>
                 </>
               ) : (
                 <p>
-                  آیا از حذف آزمون <strong>«{selectedQuiz.Title}»</strong> اطمینان دارید؟
-                  تمام سوالات این آزمون نیز حذف خواهند شد.
+                  آیا از حذف آزمون <strong>«{selectedQuiz.Title}»</strong>{" "}
+                  اطمینان دارید؟ تمام سوالات این آزمون نیز حذف خواهند شد.
                 </p>
               )}
             </div>

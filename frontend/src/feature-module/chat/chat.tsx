@@ -266,6 +266,8 @@ const ChatPage = () => {
   --------------------------------------------------------- */
 
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [polls, setPolls] = useState<ChatPoll[]>([]);
@@ -355,6 +357,19 @@ const ChatPage = () => {
 
     return merged.filter((chat) => chat.Title.toLowerCase().includes(query));
   }, [chatCtx.chats, chatCtx.lastMessages, chatCtx.unread, search]);
+
+  // Pagination calculations
+  const totalPages = Math.ceil(chatsList.length / ITEMS_PER_PAGE);
+  const paginatedChatsList = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    return chatsList.slice(startIndex, endIndex);
+  }, [chatsList, currentPage]);
+
+  // Reset page when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
 
   const selectedCourse = useMemo(
     () => chatsList.find((chat) => chat.Id === courseIdNum) ?? null,
@@ -956,65 +971,106 @@ const ChatPage = () => {
                       </span>
                     </div>
                   ) : (
-                    chatsList.map((chat) => {
-                      const last = chat.LastMessage;
+                    <>
+                      {paginatedChatsList.map((chat) => {
+                        const last = chat.LastMessage;
 
-                      const preview = last
-                        ? last.Content ||
-                          (last.AttachmentName
-                            ? `📎 ${last.AttachmentName}`
-                            : "پیوست")
-                        : "هنوز پیامی ارسال نشده";
+                        const preview = last
+                          ? last.Content ||
+                            (last.AttachmentName
+                              ? `📎 ${last.AttachmentName}`
+                              : "پیوست")
+                          : "هنوز پیامی ارسال نشده";
 
-                      const isActive = chat.Id === courseIdNum;
+                        const isActive = chat.Id === courseIdNum;
 
-                      return (
-                        <button
-                          key={chat.Id}
-                          type="button"
-                          className={`modern-conversation ${
-                            isActive ? "active" : ""
-                          }`}
-                          onClick={() => openChat(chat.Id)}
-                        >
-                          <div className="modern-conversation-avatar">
-                            <ChatAvatar
-                              src={
-                                chat.Thumbnail
-                                  ? `${api_base_url}${chat.Thumbnail}`
-                                  : null
-                              }
-                              firstName={chat.Title}
-                              size={46}
-                            />
+                        return (
+                          <button
+                            key={chat.Id}
+                            type="button"
+                            className={`modern-conversation ${
+                              isActive ? "active" : ""
+                            }`}
+                            onClick={() => openChat(chat.Id)}
+                          >
+                            <div className="modern-conversation-avatar">
+                              <ChatAvatar
+                                src={
+                                  chat.Thumbnail
+                                    ? `${api_base_url}${chat.Thumbnail}`
+                                    : null
+                                }
+                                firstName={chat.Title}
+                                size={46}
+                              />
 
-                            {isActive && (
-                              <span className="modern-conversation-active-dot" />
-                            )}
-                          </div>
-
-                          <div className="modern-conversation-content">
-                            <div className="modern-conversation-top">
-                              <strong>{chat.Title}</strong>
-
-                              <span>{listTime(last?.CreatedAt)}</span>
-                            </div>
-
-                            <div className="modern-conversation-bottom">
-                              <span>
-                                {last
-                                  ? `${fullName(last.Sender)}: ${preview}`
-                                  : preview}
-                              </span>
-
-                              {chat.UnreadCount > 0 && (
-                                <b>{faNum(chat.UnreadCount)}</b>
+                              {isActive && (
+                                <span className="modern-conversation-active-dot" />
                               )}
                             </div>
+
+                            <div className="modern-conversation-content">
+                              <div className="modern-conversation-top">
+                                <strong>{chat.Title}</strong>
+
+                                <span>{listTime(last?.CreatedAt)}</span>
+                              </div>
+
+                              <div className="modern-conversation-bottom">
+                                <span>
+                                  {last
+                                    ? `${fullName(last.Sender)}: ${preview}`
+                                    : preview}
+                                </span>
+
+                                {chat.UnreadCount > 0 && (
+                                  <b>{faNum(chat.UnreadCount)}</b>
+                                )}
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+
+                      {/* Pagination Controls */}
+                      {totalPages > 1 && (
+                        <div className="modern-chat-pagination">
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-secondary"
+                            onClick={() =>
+                              setCurrentPage((prev) => Math.max(1, prev - 1))
+                            }
+                            disabled={currentPage === 1}
+                            title="صفحهٔ قبلی"
+                          >
+                            <i className="fa-solid fa-chevron-right me-1"></i>
+                            قبلی
+                          </button>
+
+                          <div className="modern-chat-pagination-info">
+                            <span>
+                              صفحهٔ {faNum(currentPage)} از {faNum(totalPages)}
+                            </span>
                           </div>
-                        </button>
-                      );
-                    })
+
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-secondary"
+                            onClick={() =>
+                              setCurrentPage((prev) =>
+                                Math.min(totalPages, prev + 1)
+                              )
+                            }
+                            disabled={currentPage === totalPages}
+                            title="صفحهٔ بعدی"
+                          >
+                            بعدی
+                            <i className="fa-solid fa-chevron-left ms-1"></i>
+                          </button>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </aside>

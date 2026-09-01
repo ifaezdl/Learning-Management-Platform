@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import StudentSidebar from "../common/studentSidebar";
 import certificateService, {
   Certificate,
+  AnswerSheet,
 } from "../../../services/certificate.service";
 import analyticsService, {
   SkillStat,
@@ -100,6 +101,8 @@ const StudentCertificates = () => {
   const [downloading, setDownloading] = useState(false);
   const [autoDownload, setAutoDownload] = useState(false);
   const certRef = useRef<HTMLDivElement>(null);
+  const [answerSheet, setAnswerSheet] = useState<AnswerSheet | null>(null);
+  const [loadingAnswers, setLoadingAnswers] = useState(false);
 
   useEffect(() => {
     certificateService.myCertificates().then(setCertificates);
@@ -153,6 +156,34 @@ const StudentCertificates = () => {
       .catch(() => {
         // Non-fatal: skill breakdown is optional
       });
+  };
+
+  const openAnswerSheet = async (cert: Certificate) => {
+    try {
+      setLoadingAnswers(true);
+      const data = await certificateService.getAnswers(cert.Id);
+      setAnswerSheet(data);
+    } catch (err) {
+      console.error(err);
+      toast.error("خطا در دریافت پاسخنامه.");
+    } finally {
+      setLoadingAnswers(false);
+    }
+  };
+
+  const downloadAnswerSheet = () => {
+    if (!answerSheet) return;
+    const el = document.getElementById("answer-sheet-content");
+    if (!el) return;
+    import("html2canvas").then(({ default: html2canvas }) => {
+      html2canvas(el).then((canvas) => {
+        const link = document.createElement("a");
+        link.download = `pasokhnameh-${answerSheet.certificateCode || answerSheet.certificateId}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+        toast.success("پاسخنامه با موفقیت دانلود شد.");
+      });
+    });
   };
 
   return (
@@ -213,11 +244,20 @@ const StudentCertificates = () => {
                             </button>
                             <button
                               type="button"
-                              className="d-inline-flex fs-14 action-icon btn p-0 border-0 bg-transparent"
+                              className="d-inline-flex fs-14 me-2 action-icon btn p-0 border-0 bg-transparent"
                               onClick={() => openView(c, true)}
                               title="دانلود گواهینامه"
                             >
                               <i className="isax isax-import" />
+                            </button>
+                            <button
+                              type="button"
+                              className="d-inline-flex fs-14 action-icon btn p-0 border-0 bg-transparent"
+                              onClick={() => openAnswerSheet(c)}
+                              title="مشاهده پاسخنامه"
+                              disabled={loadingAnswers}
+                            >
+                              <i className="isax isax-document" />
                             </button>
                           </div>
                         </td>
@@ -277,6 +317,146 @@ const StudentCertificates = () => {
         </div>
       )}
       {/* /View Certificate */}
+
+      {/* Answer Sheet Modal */}
+      {answerSheet && (
+        <div
+          className="modal d-block"
+          tabIndex={-1}
+          style={{ background: "rgba(0,0,0,0.5)" }}
+        >
+          <div className="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="mb-0">پاسخنامه آزمون</h5>
+                <button
+                  type="button"
+                  className="btn-close custom-btn-close"
+                  onClick={() => setAnswerSheet(null)}
+                  aria-label="بستن"
+                >
+                  <i className="isax isax-close-circle5" />
+                </button>
+              </div>
+              <div className="modal-body">
+                <div id="answer-sheet-content" dir="rtl" style={{ fontFamily: 'Tahoma, Arial, sans-serif' }}>
+                  {/* Header */}
+                  <div className="text-center mb-4">
+                    <h4 style={{ color: '#1565C0', marginBottom: 4 }}>پاسخنامه آزمون</h4>
+                    <p style={{ fontSize: 14, color: '#666' }}>
+                      دوره: <strong>{answerSheet.courseTitle}</strong> | آزمون: <strong>{answerSheet.quizTitle}</strong>
+                    </p>
+                    <p style={{ fontSize: 14, color: '#666' }}>
+                      نمره: <strong>{answerSheet.score}</strong> از <strong>{answerSheet.maxScore}</strong>
+                      {' | '}تعداد سوالات صحیح: <strong>{answerSheet.correctCount}</strong> از <strong>{answerSheet.totalQuestions}</strong>
+                    </p>
+                  </div>
+
+                  {/* Questions */}
+                  <div className="d-flex flex-column gap-3">
+                    {answerSheet.questions.map((q, idx) => (
+                      <div
+                        key={q.questionId}
+                        className="p-3 rounded"
+                        style={{
+                          border: `2px solid ${q.isCorrect ? '#10b981' : '#ef4444'}`,
+                          background: q.isCorrect ? '#f0fdf4' : '#fef2f2',
+                        }}
+                      >
+                        {/* Question */}
+                        <div className="d-flex align-items-start mb-2">
+                          <span
+                            className="d-inline-flex align-items-center justify-content-center rounded-circle me-2 flex-shrink-0"
+                            style={{
+                              width: 28,
+                              height: 28,
+                              fontSize: 13,
+                              fontWeight: 700,
+                              color: '#fff',
+                              background: q.isCorrect ? '#10b981' : '#ef4444',
+                            }}
+                          >
+                            {idx + 1}
+                          </span>
+                          <div>
+                            <p className="mb-1" style={{ fontWeight: 600, fontSize: 14 }}>
+                              {q.questionText}
+                            </p>
+                            {q.skillTag && (
+                              <span
+                                className="badge rounded-pill"
+                                style={{ background: '#e0e7ff', color: '#3730a3', fontSize: 11 }}
+                              >
+                                {q.skillTag}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Choices */}
+                        <div className="d-flex flex-column gap-1 ms-5">
+                          {q.choices.map((choice) => {
+                            const isStudentChoice = choice.id === q.studentChoiceId;
+                            const isCorrectChoice = choice.isCorrect;
+                            let bg = '#fff';
+                            let border = '#e5e7eb';
+                            let textColor = '#374151';
+                            if (isCorrectChoice) {
+                              bg = '#dcfce7';
+                              border = '#86efac';
+                              textColor = '#166534';
+                            }
+                            if (isStudentChoice && !isCorrectChoice) {
+                              bg = '#fee2e2';
+                              border = '#fca5a5';
+                              textColor = '#991b1b';
+                            }
+                            return (
+                              <div
+                                key={choice.id}
+                                className="d-flex align-items-center px-3 py-2 rounded"
+                                style={{ background: bg, border: `1px solid ${border}`, color: textColor, fontSize: 13 }}
+                              >
+                                <span className="me-2">
+                                  {isCorrectChoice ? '✅' : isStudentChoice ? '❌' : '○'}
+                                </span>
+                                <span>{choice.text}</span>
+                                {isStudentChoice && (
+                                  <span className="me-auto badge" style={{ background: '#dbeafe', color: '#1e40af', fontSize: 10 }}>
+                                    پاسخ شما
+                                  </span>
+                                )}
+                                {isCorrectChoice && (
+                                  <span className="me-auto badge" style={{ background: '#dcfce7', color: '#166534', fontSize: 10 }}>
+                                    پاسخ صحیح
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Download button */}
+                <div className="text-end mt-4">
+                  <button
+                    type="button"
+                    className="btn btn-primary rounded-pill d-inline-flex align-items-center"
+                    onClick={downloadAnswerSheet}
+                  >
+                    <i className="isax isax-import me-2" />
+                    دانلود پاسخنامه
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* /Answer Sheet Modal */}
     </>
   );
 };

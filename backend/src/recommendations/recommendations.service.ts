@@ -185,10 +185,23 @@ export class RecommendationsService {
         ? levels.reduce((a, b) => a + b, 0) / levels.length
         : null;
 
-    // دسته‌بندی‌های محبوب
-    const favoriteCategoryIds = [
-      ...new Set(certificates.map((c) => c.Courses.CategoryId)),
-    ];
+    // دسته‌بندی‌های محبوب — از گواهینامه + ثبت‌نام (fallback برای تازه‌واردین)
+    const certCategoryIds = certificates.map((c) => c.Courses.CategoryId);
+
+    let favoriteCategoryIds = [...new Set(certCategoryIds)];
+
+    // اگر گواهینامه‌ای نداره، از دوره‌های ثبت‌نامی category بگیر
+    if (favoriteCategoryIds.length === 0) {
+      const enrollments = await this.prisma.enrollments.findMany({
+        where: { Student_Id: studentId },
+        include: {
+          Courses: { select: { CategoryId: true } },
+        },
+      });
+      favoriteCategoryIds = [
+        ...new Set(enrollments.map((e) => e.Courses.CategoryId)),
+      ];
+    }
 
     // مهارت‌های ضعیف (از analytics service)
     const { skills } = await this.analyticsService.getMySkillProfile(studentId);
@@ -214,7 +227,15 @@ export class RecommendationsService {
       select: { Course_Id: true },
     });
     const enrolledIds = enrollments.map((e) => e.Course_Id);
-    const allExcluded = [...excludeCourseIds, ...enrolledIds];
+    
+    // دوره‌های مالکانهٔ این کاربر (اگر مدرس باشد) را نیز استثنا کن
+    const ownedCourses = await this.prisma.courses.findMany({
+      where: { Teacher_Id: studentId },
+      select: { Id: true },
+    });
+    const ownedCourseIds = ownedCourses.map((c) => c.Id);
+    
+    const allExcluded = [...excludeCourseIds, ...enrolledIds, ...ownedCourseIds];
 
     const courses = await this.prisma.courses.findMany({
       where: {
@@ -267,10 +288,13 @@ export class RecommendationsService {
     course: ScoredCourse,
   ): Promise<string> {
     // Fallback قالبی برای زمانی که LLM در دسترس نیست یا خطا می‌دهد
-    const fallback = `این دوره روی مهارت‌های ${course.matchedSkillTags.join('، ')} تمرکز دارد که در آزمون‌های شما نیاز به تقویت دارند.`;
+    const fallback =
+      course.matchedSkillTags.length > 0
+        ? `این دوره روی مهارت‌های «${course.matchedSkillTags.join('، ')}» تمرکز دارد که در آزمون‌های شما نیاز به تقویت دارند.`
+        : `دوره «${course.title}» با توجه به حوزه یادگیری شما انتخاب شده و می‌تواند دانش شما را گسترش دهد.`;
 
     if (course.matchedSkillTags.length === 0) {
-      return `این دوره با سطح و زمینه یادگیری شما هم‌راستا است و می‌تواند مهارت‌های جدیدی به شما آموزش دهد.`;
+      return fallback;
     }
 
     const apiUrl =
@@ -282,9 +306,14 @@ export class RecommendationsService {
     const user = `دانشجو در مهارت‌های «${course.matchedSkillTags.join('، ')}» ضعیف است. دوره «${course.title}» این مهارت‌ها را پوشش می‌دهد. یک جمله توصیه کوتاه (حداکثر ۲۰ کلمه) بنویس.`;
 
     try {
+      // timeout 5 ثانیه — اگه LLM کند بود، فوری fallback برگردون
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
           model,
           messages: [
@@ -296,6 +325,8 @@ export class RecommendationsService {
           chat_template_kwargs: { enable_thinking: false },
         }),
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         console.warn(
@@ -386,11 +417,58 @@ export class RecommendationsService {
       }));
     }
 
-    // کش قدیمی یا موجود نیست → محاسبه جدید
-    await this.refresh(studentId, 5);
+    // کش قدیمی یا موجود نیست → محاسبه جدید (بدون recursive call)
+    try {
+      await this.refresh(studentId, 5);
+    } catch (refreshErr) {
+      console.error(`[Recommendations] refresh() failed for studentId=${studentId}:`, refreshErr);
+    }
 
-    // بازخوانی از دیتابیس
-    return this.getRecommendations(studentId, currentUser);
+    // بازخوانی مستقیم از دیتابیس بدون recursive call
+    const fresh = await this.prisma.courseRecommendations.findMany({
+      where: {
+        Student_Id: studentId,
+        Status: 'Active',
+        GeneratedAt: { gte: new Date(Date.now() - CACHE_VALIDITY_HOURS * 60 * 60 * 1000) },
+      },
+      include: {
+        Courses: {
+          select: {
+            Id: true,
+            Title: true,
+            Thumbnail: true,
+            ShortDescription: true,
+            Price: true,
+            DiscountPrice: true,
+            AverageRating: true,
+            Category: { select: { Title: true } },
+            Level: { select: { LevelName: true } },
+          },
+        },
+      },
+      orderBy: { Score: 'desc' },
+    });
+
+    return fresh.map((r) => ({
+      id: r.Id,
+      courseId: r.Course_Id,
+      score: Number(r.Score),
+      reason: r.Reason,
+      matchedSkillTags: r.MatchedSkillTags ? JSON.parse(r.MatchedSkillTags) : [],
+      status: r.Status,
+      generatedAt: r.GeneratedAt,
+      course: {
+        id: r.Courses.Id,
+        title: r.Courses.Title,
+        thumbnail: r.Courses.Thumbnail,
+        shortDescription: r.Courses.ShortDescription,
+        price: Number(r.Courses.Price),
+        discountPrice: r.Courses.DiscountPrice ? Number(r.Courses.DiscountPrice) : null,
+        averageRating: Number(r.Courses.AverageRating),
+        category: r.Courses.Category.Title,
+        level: r.Courses.Level?.LevelName ?? null,
+      },
+    }));
   }
 
   /**
@@ -403,8 +481,16 @@ export class RecommendationsService {
       profile.completedCourseIds,
     );
 
+    console.log(`[Recommendations] studentId=${studentId}`, {
+      completedCourses: profile.completedCourseIds.length,
+      weakSkills: profile.weakSkills.map((s) => `${s.tag}(${s.percentage}%)`),
+      favoriteCategoryIds: profile.favoriteCategoryIds,
+      candidates: candidates.length,
+      candidateTitles: candidates.map((c) => c.title),
+    });
+
     if (candidates.length === 0) {
-      // دانشجو در همه دوره‌ها ثبت‌نام کرده یا دوره‌ای منتشر نیست
+      console.log(`[Recommendations] No candidates for studentId=${studentId} — all published courses are enrolled or none exist`);
       return;
     }
 
@@ -431,13 +517,13 @@ export class RecommendationsService {
       course.reason = await this.generateReason(studentName, course);
     }
 
-    // حذف پیشنهادهای قدیمی Active برای همان دوره‌ها (جلوگیری از تکراری)
+    // حذف همه رکوردهای قبلی برای همان دوره‌ها (هر Status) تا unique constraint نقض نشود
+    // دلیل: رکوردهای Dismissed یا Enrolled قدیمی هم روی (Student_Id, Course_Id) unique هستند
     const topCourseIds = topCourses.map((c) => c.courseId);
     await this.prisma.courseRecommendations.deleteMany({
       where: {
         Student_Id: studentId,
         Course_Id: { in: topCourseIds },
-        Status: 'Active',
       },
     });
 

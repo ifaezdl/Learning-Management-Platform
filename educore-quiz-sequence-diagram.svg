@@ -1,0 +1,292 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2480 3380" width="2480" height="3380">
+  <defs>
+    <style>
+      text { font-family: 'Segoe UI', 'Tahoma', 'Arial', sans-serif; }
+      .title { font-size: 38px; font-weight: bold; fill: #1a1a2e; }
+      .subtitle { font-size: 22px; fill: #555; }
+      .lifeline-header { font-size: 24px; font-weight: bold; fill: #fff; }
+      .lifeline-sub { font-size: 16px; fill: #ddd; }
+      .msg-label { font-size: 20px; fill: #222; }
+      .msg-label-rtl { font-size: 20px; fill: #222; direction: rtl; }
+      .self-label { font-size: 19px; fill: #333; }
+      .note-text { font-size: 18px; fill: #333; }
+      .note-title { font-size: 19px; font-weight: bold; fill: #b71c1c; }
+      .loop-label { font-size: 20px; font-weight: bold; fill: #1565c0; }
+      .loop-cond { font-size: 17px; fill: #1565c0; }
+      .legend-text { font-size: 18px; fill: #333; }
+      .legend-title { font-size: 22px; font-weight: bold; fill: #1a1a2e; }
+      .figure-label { font-size: 20px; fill: #444; font-style: italic; }
+    </style>
+    <!-- Arrowhead markers -->
+    <marker id="arrow" markerWidth="12" markerHeight="8" refX="11" refY="4" orient="auto">
+      <path d="M0,0 L12,4 L0,8 Z" fill="#333"/>
+    </marker>
+    <marker id="arrow-open" markerWidth="12" markerHeight="8" refX="11" refY="4" orient="auto">
+      <path d="M0,0 L12,4 L0,8" fill="none" stroke="#333" stroke-width="2"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="12" markerHeight="8" refX="11" refY="4" orient="auto">
+      <path d="M0,0 L12,4 L0,8 Z" fill="#b71c1c"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="2480" height="3380" fill="#fafafa"/>
+
+  <!-- Title -->
+  <text x="1240" y="42" text-anchor="middle" class="title">نمودار Sequence — فرآیند شرکت دانشجو در آزمون و ثبت نتیجه</text>
+  <text x="1240" y="70" text-anchor="middle" class="subtitle">EduCore Learning Management System — UML Sequence Diagram</text>
+
+  <!-- ═══════════ LIFELINE HEADERS ═══════════ -->
+  <!-- Student -->
+  <rect x="130" y="90" width="180" height="56" rx="8" fill="#1565c0"/>
+  <text x="220" y="114" text-anchor="middle" class="lifeline-header">دانشجو</text>
+  <text x="220" y="134" text-anchor="middle" class="lifeline-sub">Student</text>
+
+  <!-- React Frontend -->
+  <rect x="445" y="90" width="200" height="56" rx="8" fill="#0277bd"/>
+  <text x="545" y="114" text-anchor="middle" class="lifeline-header">React</text>
+  <text x="545" y="134" text-anchor="middle" class="lifeline-sub">Frontend</text>
+
+  <!-- NestJS Backend -->
+  <rect x="775" y="90" width="200" height="56" rx="8" fill="#2e7d32"/>
+  <text x="875" y="114" text-anchor="middle" class="lifeline-header">NestJS</text>
+  <text x="875" y="134" text-anchor="middle" class="lifeline-sub">Backend</text>
+
+  <!-- Quiz Service -->
+  <rect x="1105" y="90" width="200" height="56" rx="8" fill="#e65100"/>
+  <text x="1205" y="114" text-anchor="middle" class="lifeline-header">Quiz Service</text>
+  <text x="1205" y="134" text-anchor="middle" class="lifeline-sub">+ Analytics</text>
+
+  <!-- Prisma -->
+  <rect x="1435" y="90" width="180" height="56" rx="8" fill="#6a1b9a"/>
+  <text x="1525" y="114" text-anchor="middle" class="lifeline-header">Prisma</text>
+  <text x="1525" y="134" text-anchor="middle" class="lifeline-sub">ORM</text>
+
+  <!-- SQL Server -->
+  <rect x="1765" y="90" width="200" height="56" rx="8" fill="#b71c1c"/>
+  <text x="1865" y="114" text-anchor="middle" class="lifeline-header">SQL Server</text>
+  <text x="1865" y="134" text-anchor="middle" class="lifeline-sub">Database</text>
+
+  <!-- ═══════════ LIFELINE DASHED LINES ═══════════ -->
+  <line x1="220" y1="146" x2="220" y2="3250" stroke="#999" stroke-width="1.5" stroke-dasharray="8,5"/>
+  <line x1="545" y1="146" x2="545" y2="3250" stroke="#999" stroke-width="1.5" stroke-dasharray="8,5"/>
+  <line x1="875" y1="146" x2="875" y2="3250" stroke="#999" stroke-width="1.5" stroke-dasharray="8,5"/>
+  <line x1="1205" y1="146" x2="1205" y2="3250" stroke="#999" stroke-width="1.5" stroke-dasharray="8,5"/>
+  <line x1="1525" y1="146" x2="1525" y2="3250" stroke="#999" stroke-width="1.5" stroke-dasharray="8,5"/>
+  <line x1="1865" y1="146" x2="1865" y2="3250" stroke="#999" stroke-width="1.5" stroke-dasharray="8,5"/>
+
+  <!-- ═══════════ PHASE 1: START QUIZ ═══════════ -->
+  <!-- Message 1: Student → Frontend -->
+  <line x1="220" y1="180" x2="540" y2="180" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="380" y="172" text-anchor="middle" class="msg-label">درخواست شروع آزمون</text>
+  <text x="380" y="195" text-anchor="middle" class="msg-label" style="font-size:15px; fill:#666">startQuiz()</text>
+
+  <!-- Message 2: Frontend → Backend -->
+  <line x1="550" y1="220" x2="870" y2="220" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="710" y="212" text-anchor="middle" class="msg-label">POST /quiz/start</text>
+
+  <!-- Message 3: Backend → Quiz Service -->
+  <line x1="880" y1="260" x2="1200" y2="260" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="1040" y="252" text-anchor="middle" class="msg-label">getQuizInfo()</text>
+
+  <!-- Message 4: Quiz Service → Prisma -->
+  <line x1="1210" y1="300" x2="1520" y2="300" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="1365" y="292" text-anchor="middle" class="msg-label">findQuestions()</text>
+
+  <!-- Message 5: Prisma → SQL Server -->
+  <line x1="1530" y1="340" x2="1860" y2="340" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="1695" y="332" text-anchor="middle" class="msg-label">Query: SELECT *</text>
+  <text x="1695" y="355" text-anchor="middle" class="msg-label" style="font-size:15px; fill:#666">FROM QuizQuestions</text>
+
+  <!-- Message 6: SQL Server → Prisma (return) -->
+  <line x1="1860" y1="385" x2="1530" y2="385" stroke="#333" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#arrow-open)"/>
+  <text x="1695" y="377" text-anchor="middle" class="msg-label">QuestionBank[]</text>
+
+  <!-- Message 7: Prisma → Quiz Service (return) -->
+  <line x1="1520" y1="420" x2="1210" y2="420" stroke="#333" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#arrow-open)"/>
+  <text x="1365" y="412" text-anchor="middle" class="msg-label">QuestionBank[]</text>
+
+  <!-- ═══════════ PHASE 2: FISHER-YATES SHUFFLE (HIGHLIGHTED) ═══════════ -->
+  <!-- Self-loop: Fisher-Yates Shuffle -->
+  <rect x="1125" y="448" width="160" height="14" rx="3" fill="#b71c1c" opacity="0.12"/>
+  <path d="M1205,455 L1250,455 L1250,490 L1210,490" fill="none" stroke="#b71c1c" stroke-width="2" marker-end="url(#arrow-red)"/>
+  <path d="M1205,455 L1160,455 L1160,490 L1200,490" fill="none" stroke="#b71c1c" stroke-width="2" stroke-dasharray="6,3"/>
+  <text x="1205" y="480" text-anchor="middle" class="self-label" style="fill:#b71c1c; font-weight:bold">Fisher-Yates Shuffle</text>
+
+  <!-- Self-loop: Select random subset -->
+  <path d="M1205,510 L1250,510 L1250,545 L1210,545" fill="none" stroke="#b71c1c" stroke-width="2" marker-end="url(#arrow-red)"/>
+  <path d="M1205,510 L1160,510 L1160,545 L1200,545" fill="none" stroke="#b71c1c" stroke-width="2" stroke-dasharray="6,3"/>
+  <text x="1205" y="535" text-anchor="middle" class="self-label" style="fill:#b71c1c; font-weight:bold">انتخاب زیرمجموعه تصادفی</text>
+
+  <!-- Self-loop: Register selected questions -->
+  <path d="M1205,560 L1250,560 L1250,595 L1210,595" fill="none" stroke="#b71c1c" stroke-width="2" marker-end="url(#arrow-red)"/>
+  <path d="M1205,560 L1160,560 L1160,595 L1200,595" fill="none" stroke="#b71c1c" stroke-width="2" stroke-dasharray="6,3"/>
+  <text x="1205" y="585" text-anchor="middle" class="self-label" style="fill:#b71c1c; font-weight:bold">ثبت سؤالات Attempt</text>
+
+  <!-- Innovation Note 1 -->
+  <rect x="1960" y="448" width="460" height="162" rx="6" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/>
+  <text x="2190" y="474" text-anchor="middle" class="note-title" style="fill:#e65100">🔴 نوآوری ۱</text>
+  <text x="2190" y="500" text-anchor="middle" class="note-text">Fisher-Yates Shuffle</text>
+  <text x="2190" y="522" text-anchor="middle" class="note-text">ترتیب سؤالات برای هر Attempt</text>
+  <text x="2190" y="544" text-anchor="middle" class="note-text">به‌صورت تصادفی و یکتا تغییر می‌کند</text>
+  <text x="2190" y="566" text-anchor="middle" class="note-text" style="fill:#666">مجموعه سؤالات ثابت می‌ماند</text>
+  <text x="2190" y="588" text-anchor="middle" class="note-text" style="fill:#666">فقط ترتیب نمایش تغییر می‌کند</text>
+  <line x1="1960" y1="530" x2="1285" y2="490" stroke="#e65100" stroke-width="1" stroke-dasharray="4,3"/>
+
+  <!-- Message 8: Quiz Service → Frontend (send questions without answers) -->
+  <line x1="1200" y1="630" x2="550" y2="630" stroke="#333" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#arrow-open)"/>
+  <text x="875" y="622" text-anchor="middle" class="msg-label">ارسال سؤالات (بدون پاسخ صحیح)</text>
+  <text x="875" y="645" text-anchor="middle" class="msg-label" style="font-size:15px; fill:#666">QuizResponse { questions[] }</text>
+
+  <!-- ═══════════ PHASE 3: STUDENT ANSWERS ═══════════ -->
+  <!-- Separator -->
+  <line x1="180" y1="680" x2="2000" y2="680" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+
+  <!-- Message 9: Student → Frontend (submit answers) -->
+  <line x1="220" y1="710" x2="540" y2="710" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="380" y="702" text-anchor="middle" class="msg-label">ثبت پاسخ‌ها</text>
+  <text x="380" y="725" text-anchor="middle" class="msg-label" style="font-size:15px; fill:#666">submitAnswers()</text>
+
+  <!-- Message 10: Frontend → Backend -->
+  <line x1="550" y1="750" x2="870" y2="750" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="710" y="742" text-anchor="middle" class="msg-label">POST /quiz/submit</text>
+  <text x="710" y="765" text-anchor="middle" class="msg-label" style="font-size:15px; fill:#666">{ attemptId, answers[] }</text>
+
+  <!-- Message 11: Backend → Quiz Service -->
+  <line x1="880" y1="790" x2="1200" y2="790" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="1040" y="782" text-anchor="middle" class="msg-label">evaluateAnswers()</text>
+
+  <!-- Self-loop: Calculate Score -->
+  <path d="M1205,815 L1250,815 L1250,850 L1210,850" fill="none" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M1205,815 L1160,815 L1160,850 L1200,850" fill="none" stroke="#333" stroke-width="2" stroke-dasharray="6,3"/>
+  <text x="1205" y="840" text-anchor="middle" class="self-label">محاسبه Score</text>
+
+  <!-- ═══════════ PHASE 4: PERSIST DATA ═══════════ -->
+  <!-- Message 12: Quiz Service → Prisma (save attempt) -->
+  <line x1="1210" y1="885" x2="1520" y2="885" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="1365" y="877" text-anchor="middle" class="msg-label">saveAttempt()</text>
+
+  <!-- Message 13: Prisma → SQL Server (transaction) -->
+  <line x1="1530" y1="920" x2="1860" y2="920" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="1695" y="912" text-anchor="middle" class="msg-label">Transaction: INSERT</text>
+  <text x="1695" y="935" text-anchor="middle" class="msg-label" style="font-size:15px; fill:#666">QuizAttempt + Answers</text>
+
+  <!-- Message 14: SQL Server → Prisma (success) -->
+  <line x1="1860" y1="960" x2="1530" y2="960" stroke="#333" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#arrow-open)"/>
+  <text x="1695" y="952" text-anchor="middle" class="msg-label">✓ Success</text>
+
+  <!-- Message 15: Prisma → Quiz Service (return) -->
+  <line x1="1520" y1="995" x2="1210" y2="995" stroke="#333" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#arrow-open)"/>
+  <text x="1365" y="987" text-anchor="middle" class="msg-label">SavedAttempt</text>
+
+  <!-- ═══════════ PHASE 5: SKILL ANALYSIS (HIGHLIGHTED) ═══════════ -->
+  <!-- Separator -->
+  <line x1="180" y1="1040" x2="2000" y2="1040" stroke="#b71c1c" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+  <!-- Self-loop: Analyze answers by SkillTag -->
+  <path d="M1205,1065 L1260,1065 L1260,1100 L1210,1100" fill="none" stroke="#b71c1c" stroke-width="2.5" marker-end="url(#arrow-red)"/>
+  <path d="M1205,1065 L1150,1065 L1150,1100 L1200,1100" fill="none" stroke="#b71c1c" stroke-width="2.5" stroke-dasharray="6,3"/>
+  <text x="1205" y="1090" text-anchor="middle" class="self-label" style="fill:#b71c1c; font-weight:bold">تحلیل پاسخ‌ها بر اساس SkillTag</text>
+
+  <!-- Self-loop: Calculate skill mastery -->
+  <path d="M1205,1120 L1260,1120 L1260,1155 L1210,1155" fill="none" stroke="#b71c1c" stroke-width="2.5" marker-end="url(#arrow-red)"/>
+  <path d="M1205,1120 L1150,1120 L1150,1155 L1200,1155" fill="none" stroke="#b71c1c" stroke-width="2.5" stroke-dasharray="6,3"/>
+  <text x="1205" y="1145" text-anchor="middle" class="self-label" style="fill:#b71c1c; font-weight:bold">محاسبه درصد تسلط مهارت‌ها</text>
+
+  <!-- Self-loop: Learning trend analysis -->
+  <path d="M1205,1175 L1260,1175 L1260,1210 L1210,1210" fill="none" stroke="#b71c1c" stroke-width="2.5" marker-end="url(#arrow-red)"/>
+  <path d="M1205,1175 L1150,1175 L1150,1210 L1200,1210" fill="none" stroke="#b71c1c" stroke-width="2.5" stroke-dasharray="6,3"/>
+  <text x="1205" y="1200" text-anchor="middle" class="self-label" style="fill:#b71c1c; font-weight:bold">تحلیل روند یادگیری</text>
+
+  <!-- Innovation Note 2 -->
+  <rect x="1960" y="1060" width="460" height="152" rx="6" fill="#fce4ec" stroke="#c62828" stroke-width="1.5"/>
+  <text x="2190" y="1086" text-anchor="middle" class="note-title">🔴 نوآوری ۲</text>
+  <text x="2190" y="1112" text-anchor="middle" class="note-text">تحلیل SkillTag پس از ثبت نتیجه</text>
+  <text x="2190" y="1134" text-anchor="middle" class="note-text">هر پاسخ با SkillTag مرتبط ارزیابی می‌شود</text>
+  <text x="2190" y="1156" text-anchor="middle" class="note-text">درصد تسلط هر مهارت محاسبه می‌شود</text>
+  <text x="2190" y="1178" text-anchor="middle" class="note-text" style="fill:#666">روندهای یادگیری در طول زمان ردیابی می‌شوند</text>
+  <text x="2190" y="1200" text-anchor="middle" class="note-text" style="fill:#666">توصیه دوره‌های شخصی‌سازی‌شده تولید می‌شود</text>
+  <line x1="1960" y1="1140" x2="1270" y2="1110" stroke="#c62828" stroke-width="1" stroke-dasharray="4,3"/>
+
+  <!-- ═══════════ PHASE 6: CERTIFICATE (conditional) ═══════════ -->
+  <!-- alt/opt frame for pass condition -->
+  <rect x="175" y="1260" width="1860" height="520" rx="4" fill="none" stroke="#2e7d32" stroke-width="2"/>
+  <rect x="175" y="1260" width="280" height="28" rx="4" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+  <text x="315" y="1280" text-anchor="middle" class="loop-label" style="fill:#2e7d32">alt [score ≥ passScore]</text>
+
+  <!-- Message: Quiz Service → Prisma (create certificate) -->
+  <line x1="1210" y1="1310" x2="1520" y2="1310" stroke="#2e7d32" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="1365" y="1302" text-anchor="middle" class="msg-label" style="fill:#2e7d32">createCertificate()</text>
+
+  <!-- Message: Prisma → SQL Server -->
+  <line x1="1530" y1="1350" x2="1860" y2="1350" stroke="#2e7d32" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="1695" y="1342" text-anchor="middle" class="msg-label" style="fill:#2e7d32">INSERT INTO Certificates</text>
+
+  <!-- Message: SQL Server → Prisma (return) -->
+  <line x1="1860" y1="1390" x2="1530" y2="1390" stroke="#2e7d32" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#arrow-open)"/>
+  <text x="1695" y="1382" text-anchor="middle" class="msg-label" style="fill:#2e7d32">✓ Certificate Created</text>
+
+  <!-- Message: Prisma → Quiz Service (return) -->
+  <line x1="1520" y1="1425" x2="1210" y2="1425" stroke="#2e7d32" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#arrow-open)"/>
+  <text x="1365" y="1417" text-anchor="middle" class="msg-label" style="fill:#2e7d32">Certificate</text>
+
+  <!-- Message: Quiz Service → Backend (return) -->
+  <line x1="1200" y1="1460" x2="880" y2="1460" stroke="#2e7d32" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#arrow-open)"/>
+  <text x="1040" y="1452" text-anchor="middle" class="msg-label" style="fill:#2e7d32">Result { score, cert }</text>
+
+  <!-- Message: Backend → Frontend -->
+  <line x1="870" y1="1495" x2="550" y2="1495" stroke="#2e7d32" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#arrow-open)"/>
+  <text x="710" y="1487" text-anchor="middle" class="msg-label" style="fill:#2e7d32">QuizResult + Certificate</text>
+
+  <!-- Message: Frontend → Student (show result) -->
+  <line x1="540" y1="1530" x2="225" y2="1530" stroke="#2e7d32" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#arrow-open)"/>
+  <text x="380" y="1522" text-anchor="middle" class="msg-label" style="fill:#2e7d32">نمایش نتیجه و گواهینامه</text>
+
+  <!-- Else branch: fail -->
+  <line x1="175" y1="1580" x2="2035" y2="1580" stroke="#2e7d32" stroke-width="1" stroke-dasharray="4,4"/>
+  <rect x="175" y="1575" width="240" height="28" rx="4" fill="#fff3e0" stroke="#2e7d32" stroke-width="2"/>
+  <text x="295" y="1595" text-anchor="middle" class="loop-cond" style="fill:#e65100">else [score &lt; passScore]</text>
+
+  <!-- Message: Quiz Service → Backend (return fail) -->
+  <line x1="1200" y1="1625" x2="880" y2="1625" stroke="#e65100" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#arrow-open)"/>
+  <text x="1040" y="1617" text-anchor="middle" class="msg-label" style="fill:#e65100">Result { score, failed }</text>
+
+  <!-- Message: Backend → Frontend -->
+  <line x1="870" y1="1660" x2="550" y2="1660" stroke="#e65100" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#arrow-open)"/>
+  <text x="710" y="1652" text-anchor="middle" class="msg-label" style="fill:#e65100">QuizResult { failed }</text>
+
+  <!-- Message: Frontend → Student (show fail) -->
+  <line x1="540" y1="1695" x2="225" y2="1695" stroke="#e65100" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#arrow-open)"/>
+  <text x="380" y="1687" text-anchor="middle" class="msg-label" style="fill:#e65100">نمایش نتیجه + نقاط ضعف</text>
+
+  <!-- Close alt frame -->
+  <rect x="175" y="1260" width="1860" height="520" rx="4" fill="none" stroke="#2e7d32" stroke-width="2"/>
+
+  <!-- ═══════════ LEGEND ═══════════ -->
+  <rect x="175" y="1840" width="1860" height="200" rx="8" fill="#f5f5f5" stroke="#ccc" stroke-width="1.5"/>
+  <text x="1105" y="1870" text-anchor="middle" class="legend-title">راهنمای نمودار / Legend</text>
+
+  <!-- Legend items -->
+  <line x1="220" y1="1910" x2="320" y2="1910" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="340" y="1916" class="legend-text">پیام همزمان (Synchronous Message)</text>
+
+  <line x1="220" y1="1945" x2="320" y2="1945" stroke="#333" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#arrow-open)"/>
+  <text x="340" y="1951" class="legend-text">پیام بازگشتی (Return Message)</text>
+
+  <path d="M800,1910 L840,1910 L840,1930 L805,1930" fill="none" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M800,1910 L760,1910 L760,1930 L795,1930" fill="none" stroke="#333" stroke-width="2" stroke-dasharray="6,3"/>
+  <text x="860" y="1924" class="legend-text">عملیات داخلی (Self-Message)</text>
+
+  <rect x="1240" y="1895" width="24" height="24" rx="3" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1.5"/>
+  <text x="1280" y="1913" class="legend-text">شرط قبولی (Pass)</text>
+
+  <rect x="1240" y="1930" width="24" height="24" rx="3" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/>
+  <text x="1280" y="1948" class="legend-text">شرط مردودی (Fail)</text>
+
+  <line x1="1620" y1="1910" x2="1720" y2="1910" stroke="#b71c1c" stroke-width="2.5"/>
+  <text x="1740" y="1916" class="legend-text" style="fill:#b71c1c">نوآوری (Innovation)</text>
+
+  <!-- ═══════════ FIGURE LABEL ═══════════ -->
+  <text x="1240" y="2090" text-anchor="middle" class="figure-label">شکل ۳-۶ — نمودار Sequence فرآیند شرکت دانشجو در آزمون و ثبت نتیجه در EduCore</text>
+
+</svg>
