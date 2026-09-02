@@ -7,7 +7,7 @@ import { RecommendationsModule } from '../recommendations/recommendations.module
 
 @Module({
   imports: [PrismaModule, RecommendationsModule],
-  controllers: [QuizController, StudentQuizController],
+  controllers: [StudentQuizController, QuizController],
   providers: [QuizService],
   exports: [QuizService],
 })

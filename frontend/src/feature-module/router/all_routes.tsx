@@ -85,6 +85,10 @@ export const all_routes = {
 
   studentRecommendations: "/student/recommendations",
 
+  studentPracticeExams: "/student/practice-exams",
+  studentPracticeExamsTake: "/student/practice-exams/take",
+  studentPracticeExamsResult: "/student/practice-exams/result/:resultId",
+
   instructorAnalytics: "/instructor/instructor-analytics",
 
   chat: "/chat",

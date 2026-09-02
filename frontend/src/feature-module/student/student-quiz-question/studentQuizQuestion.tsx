@@ -97,7 +97,13 @@ const StudentQuizQuestion = () => {
   const handleSelect = (questionId: number, choiceId: number) =>
     setAnswers((prev) => ({ ...prev, [questionId]: choiceId }));
 
+  // ── صفحه نتیجه آزمون ────────────────────────────────────────────────────────
   if (result) {
+    const scorePercent =
+      result.maxScore > 0
+        ? Math.round((result.score / result.maxScore) * 100)
+        : 0;
+
     return (
       <div className="content mt-5">
         <div className="container">
@@ -105,33 +111,150 @@ const StudentQuizQuestion = () => {
           <div className="row">
             <StudentSidebar />
             <div className="col-lg-12">
-              <div className="page-title d-flex align-items-center justify-content-between">
-                <h5>My Quiz Attempts</h5>
-              </div>
-              <div className="card">
-                <div className="card-body">
-                  <div className="text-center mb-3">
-                    <h6 className="mb-1">
-                      {result.isPassed
-                        ? "Congratulations! You Passed"
-                        : "Sorry, You Didn't Pass This Time"}
-                    </h6>
-                    <p className="fs-14">
-                      نمره شما: {result.score} از {result.maxScore} — پاسخ صحیح:{" "}
-                      {result.correctCount} از {result.totalQuestions}
-                    </p>
+
+              {/* ── کارت اصلی نتیجه ── */}
+              <div
+                className="rounded-4 overflow-hidden mb-4"
+                style={{
+                  background: result.isPassed
+                    ? "linear-gradient(135deg, #0f9b58 0%, #0d7a46 100%)"
+                    : "linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)",
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
+                }}
+              >
+                <div className="p-5 text-center text-white">
+                  {/* آیکون وضعیت */}
+                  <div
+                    className="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
+                    style={{
+                      width: 96,
+                      height: 96,
+                      background: "rgba(255,255,255,0.2)",
+                      backdropFilter: "blur(8px)",
+                    }}
+                  >
+                    <i
+                      className={`isax ${result.isPassed ? "isax-tick-circle" : "isax-close-circle"}`}
+                      style={{ fontSize: 48 }}
+                    />
                   </div>
-                  <div className="d-flex align-items-center justify-content-center">
-                    <Link
-                      to={route.studentDashboard}
-                      className="btn btn-secondary rounded-pill"
-                    >
-                      <i className="isax isax-arrow-left-2 me-1 fs-10" />
-                      Back to Dashboard
-                    </Link>
+
+                  <h3 className="fw-bold mb-1">
+                    {result.isPassed ? "تبریک! 🎉" : "دلسرد نشو!"}
+                  </h3>
+                  <p className="mb-0 opacity-75" style={{ fontSize: 16 }}>
+                    {result.isPassed
+                      ? "در این آزمون موفق شدید"
+                      : "این بار قبول نشدید، اما تلاش مهم است"}
+                  </p>
+                </div>
+
+                {/* نوار نمره درصدی */}
+                <div
+                  className="px-5 pb-4"
+                  style={{ background: "rgba(0,0,0,0.12)" }}
+                >
+                  <div className="d-flex justify-content-between text-white mb-1 pt-3">
+                    <span style={{ fontSize: 13, opacity: 0.85 }}>نمره کسب‌شده</span>
+                    <span className="fw-bold">{scorePercent}٪</span>
+                  </div>
+                  <div
+                    className="rounded-pill overflow-hidden"
+                    style={{ height: 8, background: "rgba(255,255,255,0.25)" }}
+                  >
+                    <div
+                      className="h-100 rounded-pill"
+                      style={{
+                        width: `${scorePercent}%`,
+                        background: "rgba(255,255,255,0.9)",
+                        transition: "width 1s ease",
+                      }}
+                    />
                   </div>
                 </div>
               </div>
+
+              {/* ── کارت‌های آمار ── */}
+              <div className="row g-3 mb-4">
+                {[
+                  {
+                    label: "نمره نهایی",
+                    value: `${result.score} / ${result.maxScore}`,
+                    icon: "isax-medal-star",
+                    color: "#6366f1",
+                    bg: "#eef2ff",
+                  },
+                  {
+                    label: "پاسخ صحیح",
+                    value: result.correctCount,
+                    icon: "isax-tick-square",
+                    color: "#0f9b58",
+                    bg: "#ecfdf5",
+                  },
+                  {
+                    label: "پاسخ غلط",
+                    value: result.wrongCount,
+                    icon: "isax-close-square",
+                    color: "#e74c3c",
+                    bg: "#fef2f2",
+                  },
+                  {
+                    label: "کل سوالات",
+                    value: result.totalQuestions,
+                    icon: "isax-message-question5",
+                    color: "#f59e0b",
+                    bg: "#fffbeb",
+                  },
+                ].map((stat) => (
+                  <div className="col-6 col-md-3" key={stat.label}>
+                    <div
+                      className="rounded-3 p-3 text-center h-100 d-flex flex-column align-items-center justify-content-center gap-2"
+                      style={{ background: stat.bg, border: `1.5px solid ${stat.bg}` }}
+                    >
+                      <div
+                        className="d-flex align-items-center justify-content-center rounded-circle"
+                        style={{
+                          width: 44,
+                          height: 44,
+                          background: `${stat.color}18`,
+                        }}
+                      >
+                        <i
+                          className={`isax ${stat.icon}`}
+                          style={{ fontSize: 20, color: stat.color }}
+                        />
+                      </div>
+                      <div>
+                        <div className="fw-bold fs-18" style={{ color: stat.color }}>
+                          {stat.value}
+                        </div>
+                        <div className="text-muted" style={{ fontSize: 12 }}>
+                          {stat.label}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* ── دکمه بازگشت ── */}
+              <div className="text-center">
+                <Link
+                  to={route.studentQuiz}
+                  className="btn btn-outline-secondary rounded-pill me-2"
+                >
+                  <i className="isax isax-clipboard-text me-1" />
+                  بازگشت به آزمون‌ها
+                </Link>
+                <Link
+                  to={route.studentDashboard}
+                  className="btn btn-secondary rounded-pill"
+                >
+                  <i className="isax isax-home-2 me-1" />
+                  داشبورد
+                </Link>
+              </div>
+
             </div>
           </div>
         </div>
@@ -139,6 +262,7 @@ const StudentQuizQuestion = () => {
     );
   }
 
+  // ── صفحه سوالات آزمون ───────────────────────────────────────────────────────
   return (
     <div className="content mt-5">
       <div className="container">
@@ -162,11 +286,10 @@ const StudentQuizQuestion = () => {
                       <div className="mb-3">
                         <div className="d-flex align-items-center justify-content-between mb-1">
                           <span className="fw-semibold text-gray-9">
-                            Quiz Progress
+                            پیشرفت آزمون
                           </span>
                           <span>
-                            Question {currentIndex + 1} out of{" "}
-                            {questions.length}
+                            سوال {currentIndex + 1} از {questions.length}
                           </span>
                         </div>
                         <div className="progress progress-xs flex-grow-1 mb-1">
@@ -217,8 +340,8 @@ const StudentQuizQuestion = () => {
                     className="btn bg-gray-100 rounded-pill"
                     onClick={() => setCurrentIndex((i) => i - 1)}
                   >
-                    <i className="isax isax-arrow-left-2 me-1 fs-10" />
-                    Previous
+                    <i className="isax isax-arrow-right-3 me-1 fs-10" />
+                    سوال قبلی
                   </button>
                 )}
               <div className="ms-auto">
@@ -229,7 +352,7 @@ const StudentQuizQuestion = () => {
                     disabled={submitting}
                     onClick={() => finishQuiz(false)}
                   >
-                    {submitting ? "در حال ثبت..." : "Finish"}
+                    {submitting ? "در حال ثبت..." : "پایان و ثبت آزمون"}
                   </button>
                 ) : (
                   <button
@@ -237,8 +360,8 @@ const StudentQuizQuestion = () => {
                     className="btn btn-secondary rounded-pill"
                     onClick={() => setCurrentIndex((i) => i + 1)}
                   >
-                    Next
-                    <i className="isax isax-arrow-right-3 ms-1 fs-10" />
+                    سوال بعدی
+                    <i className="isax isax-arrow-left-3 ms-1 fs-10" />
                   </button>
                 )}
               </div>

@@ -2283,3 +2283,231 @@
     }
   }
 }
+
+  /* =======================================================
+     PAGINATION CONTROLS
+  ======================================================= */
+
+  .modern-chat-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    padding: 12px 10px;
+    margin-top: 8px;
+
+    border-top: 1px solid $gray-200;
+    background: $gray-100;
+    border-radius: 0 0 12px 12px;
+  }
+
+  .modern-chat-pagination-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    span {
+      color: $gray-600;
+      font-size: 11px;
+      font-weight: 600;
+      min-width: 120px;
+      text-align: center;
+    }
+  }
+
+  .modern-chat-pagination button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid $gray-300;
+    background: $white;
+    color: $gray-700;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      color 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background: $primary-100;
+      border-color: $primary;
+      color: $primary;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+
+      &:hover {
+        background: $white;
+        border-color: $gray-300;
+        color: $gray-700;
+      }
+    }
+
+    i {
+      font-size: 10px;
+    }
+  }
+
+  /* =======================================================
+     RESPONSIVE STYLES
+  ======================================================= */
+
+  @media (max-width: 1199.98px) {
+    .modern-chat-sidebar {
+      width: 300px;
+      flex: 0 0 300px;
+    }
+
+    .modern-message-column {
+      max-width: min(75%, 420px);
+    }
+  }
+
+  @media (max-width: 991.98px) {
+    .modern-chat-sidebar {
+      width: 280px;
+      flex: 0 0 280px;
+    }
+
+    .modern-message-column {
+      max-width: min(85%, 380px);
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .modern-chat-back {
+      display: flex;
+    }
+
+    .modern-chat-sidebar {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 75%;
+      max-width: 320px;
+
+      z-index: 1050;
+
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+
+      &.mobile-hidden {
+        transform: translateX(100%);
+      }
+
+      &.mobile-visible {
+        transform: translateX(0);
+      }
+    }
+
+    .modern-chat-window {
+      &.mobile-visible {
+        z-index: 1040;
+      }
+    }
+
+    .modern-chat-overlay {
+      position: absolute;
+      inset: 0;
+
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1045;
+      display: none;
+
+      &.visible {
+        display: block;
+      }
+    }
+
+    .modern-message-column {
+      max-width: min(90%, 300px);
+    }
+
+    .modern-chat-pagination {
+      gap: 6px;
+      padding: 8px 8px;
+    }
+
+    .modern-chat-pagination-info {
+      span {
+        min-width: 100px;
+      }
+    }
+
+    .modern-chat-pagination button {
+      padding: 5px 10px;
+      font-size: 10px;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .modern-chat-app {
+      min-height: 600px;
+      border-radius: 8px;
+    }
+
+    .modern-chat-sidebar {
+      width: 100%;
+      max-width: none;
+    }
+
+    .modern-message-column {
+      max-width: min(100%, 260px);
+    }
+
+    .modern-chat-pagination {
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .modern-chat-pagination button {
+      flex: 1;
+      min-width: 70px;
+    }
+  }
+
+  /* =======================================================
+     ANIMATIONS
+  ======================================================= */
+
+  @keyframes modernSpin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes modernPulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  @keyframes modernTyping {
+    0%,
+    60%,
+    100% {
+      opacity: 0.3;
+      transform: translateY(0);
+    }
+
+    30% {
+      opacity: 1;
+      transform: translateY(-8px);
+    }
+  }

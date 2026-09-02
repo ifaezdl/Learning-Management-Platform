@@ -31,4 +31,10 @@ export class CertificatesController {
   getOne(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: any) {
     return this.certificatesService.getOne(id, user.id);
   }
+
+  @Get(':id/answers')
+  @ApiOperation({ summary: 'Get answer sheet (pasokhnameh) for a certificate' })
+  getAnswers(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: any) {
+    return this.certificatesService.getAnswers(id, user.id);
+  }
 }

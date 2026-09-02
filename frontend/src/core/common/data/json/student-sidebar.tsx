@@ -27,6 +27,11 @@ export const studentSidebarData = [
     route: all_routes.studentQuiz,
   },
   {
+    title: "آزمون های تمرینی",
+    icon: "isax isax-book-square",
+    route: all_routes.studentPracticeExams,
+  },
+  {
     title: "گواهینامه های من",
     icon: "isax isax-teacher5",
     route: all_routes.studentCertificates,
@@ -36,9 +41,15 @@ export const studentSidebarData = [
     icon: "isax isax-chart-2",
     route: all_routes.studentAnalytics,
   },
+  {
+    title: "پیشنهاد دوره‌ها",
+    icon: "isax isax-lamp-on",
+    route: all_routes.studentRecommendations,
+  },
   // {
   //   title: "تاریخچه سفارشات",
   //   icon: "isax isax-shopping-cart5",
   //   route: all_routes.studentOrderHistory,
   // },
 ];
+
