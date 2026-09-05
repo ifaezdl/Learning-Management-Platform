@@ -9,11 +9,13 @@ interface LessonManagerProps {
   courseId: number;
   sectionId: number;
   onLessonsChanged: () => void;
+  mode?: "sections" | "lessons" | "files";
 }
 
 const LessonManager: React.FC<LessonManagerProps> = ({
   sectionId,
   onLessonsChanged,
+  mode = "sections",
 }) => {
   const getApiUrl = () => "http://localhost:3001";
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -400,129 +402,187 @@ const LessonManager: React.FC<LessonManagerProps> = ({
 
   return (
     <>
-      <div className="lesson-manager-header">
-        <div className="lesson-manager-title">
-          <div className="lesson-manager-icon">
-            <i className="fas fa-book-open" />
-          </div>
-
-          <div>
-            <h6>دروس</h6>
-            <span>درس‌های این سرفصل را مدیریت کنید</span>
-          </div>
-        </div>
-
-        <button
-          className="lesson-add-btn"
-          onClick={() => {
-            resetForm();
-            setShowAddModal(true);
-          }}
-        >
-          <i className="fas fa-plus" />
-          افزودن درس
-        </button>
-      </div>
-
-      {loading ? (
-        <div className="lesson-loading">
-          <div className="spinner-border spinner-border-sm" />
-          <span>در حال بارگذاری درس‌ها...</span>
-        </div>
-      ) : lessons.length === 0 ? (
-        <div className="lesson-empty-state">
-          <div className="lesson-empty-icon">
-            <i className="fas fa-book-open" />
-          </div>
-
-          <h6>هنوز درسی اضافه نشده است</h6>
-
-          <p>
-            برای این سرفصل هنوز هیچ درسی ایجاد نشده است.
-            <br />
-            اولین درس را اضافه کنید.
-          </p>
-
-          <button
-            className="lesson-empty-btn"
-            onClick={() => {
-              resetForm();
-              setShowAddModal(true);
-            }}
-          >
-            <i className="fas fa-plus me-1" />
-            افزودن اولین درس
-          </button>
-        </div>
-      ) : (
-        <div className="lesson-list">
-          {lessons.map((lesson, index) => (
-            <div className="lesson-card" key={lesson.Id}>
-              <div className="lesson-card-main">
-                <div className="lesson-number">{index + 1}</div>
-
-                <div className="lesson-content">
-                  <div className="lesson-title-row">
-                    <h6>{lesson.Title}</h6>
-
-                    {lesson.IsFreePreview && (
-                      <span className="lesson-free-badge">
-                        <i className="fas fa-unlock-alt" />
-                        پیش‌نمایش رایگان
-                      </span>
-                    )}
-                  </div>
-
-                  {lesson.Description && (
-                    <p className="lesson-description">{lesson.Description}</p>
-                  )}
-
-                  <div className="lesson-meta">
-                    {lesson.DurationMinutes != null && (
-                      <span>
-                        <i className="fas fa-clock" />
-                        {lesson.DurationMinutes} دقیقه
-                      </span>
-                    )}
-
-                    {lesson.VideoUrl && (
-                      <span>
-                        <i className="fas fa-video" />
-                        ویدیو
-                      </span>
-                    )}
-
-                    <span>
-                      <i className="fas fa-paperclip" />
-                      {lesson.LessonFiles?.length || 0} فایل
-                    </span>
-                  </div>
-                </div>
-
-                <div className="lesson-actions">
-                  <button
-                    className="lesson-action edit"
-                    title="ویرایش درس"
-                    onClick={() => openEditModal(lesson)}
-                  >
-                    <i className="fas fa-pen" />
-                  </button>
-
-                  <button
-                    className="lesson-action delete"
-                    title="حذف درس"
-                    onClick={() => openDeleteModal(lesson)}
-                  >
-                    <i className="fas fa-trash" />
-                  </button>
-                </div>
+      {mode !== "files" && (
+        <>
+          <div className="lesson-manager-header">
+            <div className="lesson-manager-title">
+              <div className="lesson-manager-icon">
+                <i className="fas fa-book-open" />
               </div>
 
-              <div className="lesson-files">
-                <LessonFileManager lessonId={lesson.Id} />
+              <div>
+                <h6>دروس</h6>
+                <span>درس‌های این سرفصل را مدیریت کنید</span>
               </div>
             </div>
-          ))}
+
+            <button
+              className="lesson-add-btn"
+              onClick={() => {
+                resetForm();
+                setShowAddModal(true);
+              }}
+            >
+              <i className="fas fa-plus" />
+              افزودن درس
+            </button>
+          </div>
+
+          {loading ? (
+            <div className="lesson-loading">
+              <div className="spinner-border spinner-border-sm" />
+              <span>در حال بارگذاری درس‌ها...</span>
+            </div>
+          ) : lessons.length === 0 ? (
+            <div className="lesson-empty-state">
+              <div className="lesson-empty-icon">
+                <i className="fas fa-book-open" />
+              </div>
+
+              <h6>هنوز درسی اضافه نشده است</h6>
+
+              <p>
+                برای این سرفصل هنوز هیچ درسی ایجاد نشده است.
+                <br />
+                اولین درس را اضافه کنید.
+              </p>
+
+              <button
+                className="lesson-empty-btn"
+                onClick={() => {
+                  resetForm();
+                  setShowAddModal(true);
+                }}
+              >
+                <i className="fas fa-plus me-1" />
+                افزودن اولین درس
+              </button>
+            </div>
+          ) : (
+            <div className="lesson-list">
+              {lessons.map((lesson, index) => (
+                <div className="lesson-card" key={lesson.Id}>
+                  <div className="lesson-card-main">
+                    <div className="lesson-number">{index + 1}</div>
+
+                    <div className="lesson-content">
+                      <div className="lesson-title-row">
+                        <h6>{lesson.Title}</h6>
+
+                        {lesson.IsFreePreview && (
+                          <span className="lesson-free-badge">
+                            <i className="fas fa-unlock-alt" />
+                            پیش‌نمایش رایگان
+                          </span>
+                        )}
+                      </div>
+
+                      {lesson.Description && (
+                        <p className="lesson-description">{lesson.Description}</p>
+                      )}
+
+                      <div className="lesson-meta">
+                        {lesson.DurationMinutes != null && (
+                          <span>
+                            <i className="fas fa-clock" />
+                            {lesson.DurationMinutes} دقیقه
+                          </span>
+                        )}
+
+                        {lesson.VideoUrl && (
+                          <span>
+                            <i className="fas fa-video" />
+                            ویدیو
+                          </span>
+                        )}
+
+                        <span>
+                          <i className="fas fa-paperclip" />
+                          {lesson.LessonFiles?.length || 0} فایل
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="lesson-actions">
+                      <button
+                        className="lesson-action edit"
+                        title="ویرایش درس"
+                        onClick={() => openEditModal(lesson)}
+                      >
+                        <i className="fas fa-pen" />
+                      </button>
+
+                      <button
+                        className="lesson-action delete"
+                        title="حذف درس"
+                        onClick={() => openDeleteModal(lesson)}
+                      >
+                        <i className="fas fa-trash" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="lesson-files">
+                    {mode !== "lessons" && <LessonFileManager lessonId={lesson.Id} />}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {mode === "files" && (
+        <div className="lesson-files-for-all-lessons">
+          {loading ? (
+            <div className="lesson-loading">
+              <div className="spinner-border spinner-border-sm" />
+              <span>در حال بارگذاری دروس...</span>
+            </div>
+          ) : lessons.length === 0 ? (
+            <div className="lesson-empty-state">
+              <div className="lesson-empty-icon">
+                <i className="fas fa-book-open" />
+              </div>
+
+              <h6>هنوز درسی ایجاد نشده است</h6>
+
+              <p>
+                برای افزودن فایل‌های آموزشی، ابتدا دروس را در مرحله قبل ایجاد کنید.
+              </p>
+            </div>
+          ) : (
+            <div className="lesson-list">
+              {lessons.map((lesson, index) => (
+                <div className="lesson-card" key={lesson.Id}>
+                  <div className="lesson-card-main">
+                    <div className="lesson-number">{index + 1}</div>
+
+                    <div className="lesson-content">
+                      <div className="lesson-title-row">
+                        <h6>{lesson.Title}</h6>
+
+                        {lesson.IsFreePreview && (
+                          <span className="lesson-free-badge">
+                            <i className="fas fa-unlock-alt" />
+                            پیش‌نمایش رایگان
+                          </span>
+                        )}
+                      </div>
+
+                      {lesson.Description && (
+                        <p className="lesson-description">{lesson.Description}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="lesson-files">
+                    <LessonFileManager lessonId={lesson.Id} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
