@@ -1,0 +1,92 @@
+@startuml QuestionGenerationAndValidation
+skinparam backgroundColor transparent
+skinparam DefaultFontName "B Titr"
+skinparam ActivityFontSize 9
+skinparam ActivityBackgroundColor #E3F2FD
+skinparam ActivityBorderColor #1976D2
+skinparam DecisionBackgroundColor #FFF9C4
+skinparam DecisionBorderColor #F57F17
+skinparam ActivityEndColor #E8F5E9
+skinparam ActivityStartColor #E8F5E9
+skinparam ArrowColor #424242
+skinparam Margin 5
+skinparam Padding 2
+
+|مدرس|
+start
+:انتخاب دوره و آزمون;
+:انتخاب زمینه آموزشی;
+
+|سامانه Mentorito|
+:تهیه‌ی داده‌های زمینه‌ای;
+
+|سرویس AI|
+:تولید سؤال\nتوسط مدل زبانی;
+
+|سامانه Mentorito|
+:دریافت پیش‌نمایش\nسؤال;
+
+|مدرس|
+:نمایش و بررسی\nسؤال;
+
+if (تأیید؟) then (بله)
+  :تعیین SkillTag;
+  
+  |سامانه Mentorito|
+  :ذخیره‌ی سؤال\nدر بانک;
+  :به‌روزرسانی آزمون;
+  
+  stop
+  
+else (خیر)
+  if (ویرایش یا\nتولید مجدد؟) then (ویرایش)
+    :ویرایش سؤال;
+    
+    |سامانه Mentorito|
+    :ذخیره تغییرات;
+    
+    |مدرس|
+    :بررسی نهایی;
+    
+    if (تأیید شده؟) then (بله)
+      :تعیین SkillTag;
+      
+      |سامانه Mentorito|
+      :ذخیره‌ی سؤال\nدر بانک;
+      :به‌روزرسانی آزمون;
+      
+      stop
+    else (خیر)
+      |سامانه Mentorito|
+      :حذف سؤال موقت;
+      
+      |مدرس|
+      :درخواست تولید جدید;
+    endif
+    
+  else (تولید مجدد)
+    |سامانه Mentorito|
+    :حذف سؤال موقت;
+    
+    |مدرس|
+    :درخواست تولید جدید;
+  endif
+  
+  |سامانه Mentorito|
+  :تهیه‌ی داده‌های زمینه‌ای;
+  
+  |سرویس AI|
+  :تولید سؤال\nتوسط مدل زبانی;
+  
+  |سامانه Mentorito|
+  :دریافت پیش‌نمایش\nسؤال;
+  
+  |مدرس|
+  :نمایش و بررسی\nسؤال;
+  
+  note right
+    بازگشت به مرحله تصمیم‌گیری
+  end note
+endif
+
+@enduml

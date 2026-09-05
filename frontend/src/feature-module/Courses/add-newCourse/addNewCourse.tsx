@@ -136,7 +136,7 @@ const AddNewCourse = () => {
       1: {
         title: "سرفصل‌های دوره",
         description:
-          "سرفصل‌های اصلی دوره را ایجاد و ساختار آموزشی آن را مشخص کنید.",
+          "سرفصل‌های اصلی دوره را ایجاد کنید. درس‌ها در مرحله بعد به هر سرفصل اضافه می‌شوند.",
         backText: "اطلاعات دوره",
         nextText: "دروس",
         nextStep: 2,
@@ -145,7 +145,7 @@ const AddNewCourse = () => {
       2: {
         title: "دروس دوره",
         description:
-          "درس‌های مربوط به هر سرفصل را ایجاد و محتوای آموزشی دوره را سازماندهی کنید.",
+          "برای هر سرفصل درس‌های مربوطه را ایجاد کنید. فایل‌های آموزشی در مرحله بعد اضافه می‌شوند.",
         backText: "سرفصل‌ها",
         nextText: "فایل‌های دروس",
         nextStep: 3,
@@ -154,7 +154,7 @@ const AddNewCourse = () => {
       3: {
         title: "فایل‌های دروس",
         description:
-          "فایل‌های آموزشی مربوط به هر درس را مدیریت و به درس موردنظر اضافه کنید.",
+          "برای هر درس فایل‌های آموزشی (جزوه، ارائه و غیره) را مدیریت کنید.",
         backText: "دروس",
         nextText: "آزمون دوره",
         nextStep: 4,
@@ -262,19 +262,19 @@ const AddNewCourse = () => {
       case 1:
         return renderManagementStep(
           1,
-          courseId ? <SectionManager courseId={courseId} /> : null,
+          courseId ? <SectionManager courseId={courseId} mode="sections" /> : null,
         );
 
       case 2:
         return renderManagementStep(
           2,
-          courseId ? <SectionManager courseId={courseId} /> : null,
+          courseId ? <SectionManager courseId={courseId} mode="lessons" /> : null,
         );
 
       case 3:
         return renderManagementStep(
           3,
-          courseId ? <SectionManager courseId={courseId} /> : null,
+          courseId ? <SectionManager courseId={courseId} mode="files" /> : null,
         );
 
       case 4:

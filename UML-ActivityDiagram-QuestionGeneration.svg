@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="900" height="1600" viewBox="0 0 900 1600">
+  <defs>
+    <style type="text/css">
+      .swimlane-label { font-family: 'B Titr', Arial, sans-serif; font-size: 14px; font-weight: bold; text-anchor: middle; fill: #1976D2; }
+      .activity-text { font-family: 'B Titr', Arial, sans-serif; font-size: 11px; text-anchor: middle; fill: #333; }
+      .decision-text { font-family: 'B Titr', Arial, sans-serif; font-size: 10px; text-anchor: middle; fill: #333; }
+      .swimlane-line { stroke: #BDBDBD; stroke-width: 2; fill: none; stroke-dasharray: 5,5; }
+      .activity-box { stroke: #1976D2; stroke-width: 2; fill: #E3F2FD; rx: 15; }
+      .decision-diamond { stroke: #F57F17; stroke-width: 2; fill: #FFF9C4; }
+      .start-end-circle { stroke: #2E7D32; stroke-width: 2; fill: #E8F5E9; }
+      .arrow { stroke: #424242; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .arrow-label { font-family: 'B Titr', Arial, sans-serif; font-size: 10px; fill: #F57F17; font-weight: bold; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#424242" />
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="1600" fill="#FFFFFF"/>
+
+  <!-- Swimlane Headers -->
+  <rect x="0" y="0" width="300" height="50" fill="#F5F5F5" stroke="#BDBDBD" stroke-width="1"/>
+  <rect x="300" y="0" width="300" height="50" fill="#F5F5F5" stroke="#BDBDBD" stroke-width="1"/>
+  <rect x="600" y="0" width="300" height="50" fill="#F5F5F5" stroke="#BDBDBD" stroke-width="1"/>
+
+  <text x="150" y="35" class="swimlane-label">مدرس</text>
+  <text x="450" y="35" class="swimlane-label">سامانه Mentorito</text>
+  <text x="750" y="35" class="swimlane-label">سرویس AI</text>
+
+  <!-- Swimlane vertical lines -->
+  <line x1="300" y1="50" x2="300" y2="1600" class="swimlane-line"/>
+  <line x1="600" y1="50" x2="600" y2="1600" class="swimlane-line"/>
+
+  <!-- START -->
+  <circle cx="150" cy="80" r="15" class="start-end-circle"/>
+
+  <!-- Arrow to Activity 1 -->
+  <path d="M 150 95 L 150 120" class="arrow"/>
+
+  <!-- Activity 1: انتخاب دوره و آزمون -->
+  <rect x="90" y="120" width="120" height="60" class="activity-box"/>
+  <text x="150" y="145" class="activity-text">انتخاب دوره</text>
+  <text x="150" y="160" class="activity-text">و آزمون</text>
+
+  <!-- Arrow -->
+  <path d="M 150 180 L 150 210" class="arrow"/>
+
+  <!-- Activity 2: انتخاب زمینه آموزشی -->
+  <rect x="90" y="210" width="120" height="60" class="activity-box"/>
+  <text x="150" y="235" class="activity-text">انتخاب زمینه</text>
+  <text x="150" y="250" class="activity-text">آموزشی</text>
+
+  <!-- Arrow to Mentorito -->
+  <path d="M 210 240 L 360 240" class="arrow"/>
+
+  <!-- Activity 3: تهیه‌ی داده‌های زمینه‌ای -->
+  <rect x="360" y="210" width="120" height="60" class="activity-box"/>
+  <text x="420" y="235" class="activity-text">تهیه‌ی داده‌های</text>
+  <text x="420" y="250" class="activity-text">زمینه‌ای</text>
+
+  <!-- Arrow to AI Service -->
+  <path d="M 480 240 L 660 240" class="arrow"/>
+
+  <!-- Activity 4: تولید سؤال -->
+  <rect x="660" y="210" width="120" height="60" class="activity-box"/>
+  <text x="720" y="235" class="activity-text">تولید سؤال</text>
+  <text x="720" y="250" class="activity-text">توسط AI</text>
+
+  <!-- Arrow back to Mentorito -->
+  <path d="M 660 240 L 480 240 L 480 300" class="arrow"/>
+
+  <!-- Activity 5: دریافت پیش‌نمایش -->
+  <rect x="360" y="300" width="120" height="60" class="activity-box"/>
+  <text x="420" y="325" class="activity-text">دریافت</text>
+  <text x="420" y="340" class="activity-text">پیش‌نمایش</text>
+
+  <!-- Arrow to Teacher -->
+  <path d="M 360 330 L 210 330" class="arrow"/>
+
+  <!-- Activity 6: نمایش و بررسی سؤال -->
+  <rect x="90" y="300" width="120" height="60" class="activity-box"/>
+  <text x="150" y="318" class="activity-text">نمایش و</text>
+  <text x="150" y="333" class="activity-text">بررسی سؤال</text>
+
+  <!-- Arrow to Decision 1 -->
+  <path d="M 150 360 L 150 400" class="arrow"/>
+
+  <!-- Decision 1: تأیید؟ -->
+  <polygon points="150,400 200,450 150,500 100,450" class="decision-diamond"/>
+  <text x="150" y="455" class="decision-text">تأیید؟</text>
+
+  <!-- YES path (right) -->
+  <path d="M 200 450 L 280 450" class="arrow"/>
+  <text x="240" y="440" class="arrow-label">بله</text>
+
+  <!-- Activity 7: تعیین SkillTag -->
+  <rect x="280" y="420" width="120" height="60" class="activity-box"/>
+  <text x="340" y="445" class="activity-text">تعیین</text>
+  <text x="340" y="460" class="activity-text">SkillTag</text>
+
+  <!-- Arrow to Activity 8 -->
+  <path d="M 340 480 L 340 520" class="arrow"/>
+
+  <!-- Activity 8: ذخیره‌ی سؤال -->
+  <rect x="280" y="520" width="120" height="60" class="activity-box"/>
+  <text x="340" y="545" class="activity-text">ذخیره‌ی سؤال</text>
+  <text x="340" y="560" class="activity-text">در بانک</text>
+
+  <!-- Arrow to Activity 9 -->
+  <path d="M 340 580 L 340 620" class="arrow"/>
+
+  <!-- Activity 9: به‌روزرسانی آزمون -->
+  <rect x="280" y="620" width="120" height="60" class="activity-box"/>
+  <text x="340" y="645" class="activity-text">به‌روزرسانی</text>
+  <text x="340" y="660" class="activity-text">آزمون</text>
+
+  <!-- Arrow to END -->
+  <path d="M 340 680 L 340 720" class="arrow"/>
+
+  <!-- END Circle (right path) -->
+  <circle cx="340" cy="735" r="15" class="start-end-circle"/>
+
+  <!-- NO path (down) -->
+  <path d="M 150 500 L 150 550" class="arrow"/>
+  <text x="165" y="530" class="arrow-label">خیر</text>
+
+  <!-- Decision 2: ویرایش یا تولید مجدد -->
+  <polygon points="150,550 220,600 150,650 80,600" class="decision-diamond"/>
+  <text x="150" y="595" class="decision-text">ویرایش یا</text>
+  <text x="150" y="610" class="decision-text">تولید مجدد؟</text>
+
+  <!-- EDIT path (right) -->
+  <path d="M 220 600 L 360 600" class="arrow"/>
+  <text x="280" y="590" class="arrow-label">ویرایش</text>
+
+  <!-- Activity 10: ویرایش سؤال -->
+  <rect x="360" y="570" width="120" height="60" class="activity-box"/>
+  <text x="420" y="595" class="activity-text">ویرایش</text>
+  <text x="420" y="610" class="activity-text">سؤال</text>
+
+  <!-- Arrow to Activity 11 -->
+  <path d="M 420 630 L 420 670" class="arrow"/>
+
+  <!-- Activity 11: ذخیره تغییرات -->
+  <rect x="360" y="670" width="120" height="60" class="activity-box"/>
+  <text x="420" y="695" class="activity-text">ذخیره</text>
+  <text x="420" y="710" class="activity-text">تغییرات</text>
+
+  <!-- Arrow back to Teacher -->
+  <path d="M 360 700 L 210 700" class="arrow"/>
+
+  <!-- Activity 12: بررسی نهایی -->
+  <rect x="90" y="670" width="120" height="60" class="activity-box"/>
+  <text x="150" y="695" class="activity-text">بررسی</text>
+  <text x="150" y="710" class="activity-text">نهایی</text>
+
+  <!-- Arrow to Decision 3 -->
+  <path d="M 150 730 L 150 770" class="arrow"/>
+
+  <!-- Decision 3: تأیید شده؟ -->
+  <polygon points="150,770 200,820 150,870 100,820" class="decision-diamond"/>
+  <text x="150" y="825" class="decision-text">تأیید</text>
+  <text x="150" y="840" class="decision-text">شده؟</text>
+
+  <!-- YES from Decision 3 -->
+  <path d="M 200 820 L 280 820" class="arrow"/>
+  <text x="240" y="810" class="arrow-label">بله</text>
+
+  <!-- Activity 13: تعیین SkillTag (2) -->
+  <rect x="280" y="790" width="120" height="60" class="activity-box"/>
+  <text x="340" y="815" class="activity-text">تعیین</text>
+  <text x="340" y="830" class="activity-text">SkillTag</text>
+
+  <!-- Arrow -->
+  <path d="M 340 850 L 340 890" class="arrow"/>
+
+  <!-- Activity 14: ذخیره‌ی سؤال (2) -->
+  <rect x="280" y="890" width="120" height="60" class="activity-box"/>
+  <text x="340" y="915" class="activity-text">ذخیره‌ی سؤال</text>
+  <text x="340" y="930" class="activity-text">در بانک</text>
+
+  <!-- Arrow -->
+  <path d="M 340 950 L 340 990" class="arrow"/>
+
+  <!-- Activity 15: به‌روزرسانی آزمون (2) -->
+  <rect x="280" y="990" width="120" height="60" class="activity-box"/>
+  <text x="340" y="1015" class="activity-text">به‌روزرسانی</text>
+  <text x="340" y="1030" class="activity-text">آزمون</text>
+
+  <!-- Arrow to END -->
+  <path d="M 340 1050 L 340 1090" class="arrow"/>
+
+  <!-- END Circle -->
+  <circle cx="340" cy="1105" r="15" class="start-end-circle"/>
+
+  <!-- NO from Decision 3 - goes down -->
+  <path d="M 150 870 L 150 920" class="arrow"/>
+  <text x="165" y="900" class="arrow-label">خیر</text>
+
+  <!-- Activity 16: حذف سؤال موقت -->
+  <rect x="360" y="920" width="120" height="60" class="activity-box"/>
+  <text x="420" y="945" class="activity-text">حذف سؤال</text>
+  <text x="420" y="960" class="activity-text">موقت</text>
+
+  <!-- Arrow -->
+  <path d="M 360 950 L 210 950" class="arrow"/>
+
+  <!-- Activity 17: درخواست تولید جدید -->
+  <rect x="90" y="920" width="120" height="60" class="activity-box"/>
+  <text x="150" y="940" class="activity-text">درخواست</text>
+  <text x="150" y="955" class="activity-text">تولید جدید</text>
+
+  <!-- REGENERATE path from Decision 2 (down) -->
+  <path d="M 150 650 L 150 1000 L 420 1000" class="arrow"/>
+  <text x="155" y="825" class="arrow-label">تولید مجدد</text>
+
+  <!-- Activity 18: تهیه‌ی داده‌های زمینه‌ای (2) -->
+  <rect x="360" y="1000" width="120" height="60" class="activity-box"/>
+  <text x="420" y="1025" class="activity-text">تهیه‌ی داده‌های</text>
+  <text x="420" y="1040" class="activity-text">زمینه‌ای</text>
+
+  <!-- Arrow to AI -->
+  <path d="M 480 1030 L 660 1030" class="arrow"/>
+
+  <!-- Activity 19: تولید سؤال (2) -->
+  <rect x="660" y="1000" width="120" height="60" class="activity-box"/>
+  <text x="720" y="1025" class="activity-text">تولید سؤال</text>
+  <text x="720" y="1040" class="activity-text">توسط AI</text>
+
+  <!-- Arrow back -->
+  <path d="M 660 1030 L 480 1030 L 480 1070" class="arrow"/>
+
+  <!-- Activity 20: دریافت پیش‌نمایش (2) -->
+  <rect x="360" y="1070" width="120" height="60" class="activity-box"/>
+  <text x="420" y="1095" class="activity-text">دریافت</text>
+  <text x="420" y="1110" class="activity-text">پیش‌نمایش</text>
+
+  <!-- Arrow back to Teacher -->
+  <path d="M 360 1100 L 210 1100" class="arrow"/>
+
+  <!-- Activity 21: نمایش و بررسی (2) -->
+  <rect x="90" y="1070" width="120" height="60" class="activity-box"/>
+  <text x="150" y="1088" class="activity-text">نمایش و</text>
+  <text x="150" y="1103" class="activity-text">بررسی سؤال</text>
+
+  <!-- Loop back arrow -->
+  <path d="M 90 1100 L 30 1100 L 30 450 L 100 450" class="arrow" stroke-dasharray="3,3"/>
+  <text x="20" y="775" class="arrow-label" text-anchor="start">بازگشت</text>
+  <text x="20" y="790" class="arrow-label" text-anchor="start">به مرحله</text>
+  <text x="20" y="805" class="arrow-label" text-anchor="start">تصمیم‌گیری</text>
+
+</svg>

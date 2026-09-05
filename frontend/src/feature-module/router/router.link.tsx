@@ -100,6 +100,7 @@ import LearningAnalytics from "../student/analytics/LearningAnalytics";
 import InstructorCourseAnalytics from "../Instructor/instructor-analytics/InstructorCourseAnalytics";
 import RecommendedCourses from "../student/recommendations/RecommendedCourses";
 import PracticeExams from "../student/practice-exams/PracticeExams";
+import PracticeExamTake from "../student/practice-exams/PracticeExamTake";
 const routes = all_routes;
 
 export const publicRoutes = [
@@ -631,6 +632,15 @@ export const publicRoutes = [
     element: (
       <RoleRoute roles={[1]}>
         <PracticeExams />
+      </RoleRoute>
+    ),
+    route: Route,
+  },
+  {
+    path: `${routes.studentPracticeExamsTake}/:practiceExamId`,
+    element: (
+      <RoleRoute roles={[1]}>
+        <PracticeExamTake />
       </RoleRoute>
     ),
     route: Route,

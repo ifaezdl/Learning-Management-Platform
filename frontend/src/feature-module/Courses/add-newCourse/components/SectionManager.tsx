@@ -9,9 +9,10 @@ import "./section-manager.scss";
 
 interface SectionManagerProps {
   courseId: number;
+  mode?: "sections" | "lessons" | "files";
 }
 
-const SectionManager: React.FC<SectionManagerProps> = ({ courseId }) => {
+const SectionManager: React.FC<SectionManagerProps> = ({ courseId, mode = "sections" }) => {
   const [sections, setSections] = useState<
     (Section & { Lessons?: Lesson[] })[]
   >([]);
@@ -276,12 +277,13 @@ const SectionManager: React.FC<SectionManagerProps> = ({ courseId }) => {
                     </div>
 
                     {/* Lessons */}
-                    {isExpanded && (
+                    {isExpanded && mode !== "sections" && (
                       <div className="section-lessons">
                         <LessonManager
                           courseId={courseId}
                           sectionId={section.Id}
                           onLessonsChanged={fetchSections}
+                          mode={mode}
                         />
                       </div>
                     )}
