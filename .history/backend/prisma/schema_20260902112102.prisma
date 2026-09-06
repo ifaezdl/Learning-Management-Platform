@@ -67,6 +67,9 @@ model Courses {
   Payments               Payments[]
   Quizzes                Quizzes[]
   Reviews                Reviews[]
+  ChatMessages           ChatMessages[]
+  ChatReads              ChatReads[]
+  ChatPolls              ChatPolls[]
   PracticeExamResults    PracticeExamResults[]
 
   @@index([CategoryId], map: "IX_Courses_CategoryId")
@@ -209,6 +212,7 @@ model Users {
   RefreshTokens                                           RefreshTokens[]
   Reviews                                                 Reviews[]
   ChatMessages                                            ChatMessages[]
+  ChatReads                                               ChatReads[]
   ContactMessages                                         ContactMessages[]
   ChatMessageReactions                                    ChatMessageReactions[]
   ChatPolls                                               ChatPolls[]
