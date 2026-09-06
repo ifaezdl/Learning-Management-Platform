@@ -264,7 +264,7 @@ export class PracticeExamsService {
       let maxScore = 0;
       let correctCount = 0;
 
-      const answerDetails: { questionId: number; isCorrect: boolean }[] = [];
+      const answerDetails: { questionId: number; studentChoiceId: number; isCorrect: boolean }[] = [];
 
       for (const answer of answers) {
         const question = questions.find((q) => q.Id === answer.questionId);
@@ -286,6 +286,7 @@ export class PracticeExamsService {
 
         answerDetails.push({
           questionId: answer.questionId,
+          studentChoiceId: answer.choiceId,
           isCorrect,
         });
       }
@@ -395,6 +396,32 @@ export class PracticeExamsService {
       }
 
       const answerDetails = JSON.parse(result.AnswerDetails || '[]');
+      
+      // Fetch full question and choice data for enrichment
+      const questionIds = answerDetails.map((a: any) => a.questionId);
+      const questions = await this.prisma.quizQuestions.findMany({
+        where: { Id: { in: questionIds } },
+        include: { QuizChoices: true },
+      });
+
+      // Enrich answer details with full question and choice data
+      const enrichedQuestions = answerDetails.map((answer: any) => {
+        const question = questions.find((q) => q.Id === answer.questionId);
+        if (!question) return null;
+
+        return {
+          questionId: answer.questionId,
+          questionText: question.QuestionText,
+          skillTag: question.SkillTag || 'سایر',
+          isCorrect: answer.isCorrect,
+          studentChoiceId: answer.studentChoiceId || null,
+          choices: question.QuizChoices.map((choice) => ({
+            id: choice.Id,
+            text: choice.ChoiceText,
+            isCorrect: choice.IsCorrect,
+          })),
+        };
+      }).filter(q => q !== null);
 
       return {
         id: result.Id,
@@ -409,7 +436,7 @@ export class PracticeExamsService {
         wrongCount: result.TotalQuestions - result.CorrectCount,
         isPassed: Number(result.Score) >= Number(result.MaxScore) * 0.7,
         completedAt: result.CompletedAt,
-        answerDetails,
+        questions: enrichedQuestions,
       };
     } catch (error: any) {
       if (error.code === 'P2021') {

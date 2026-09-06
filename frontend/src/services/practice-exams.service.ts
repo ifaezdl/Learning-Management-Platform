@@ -67,7 +67,18 @@ export interface PracticeExamResultDetails {
   wrongCount: number;
   isPassed: boolean;
   completedAt: string;
-  answerDetails: { questionId: number; isCorrect: boolean }[];
+  questions: Array<{
+    questionId: number;
+    questionText: string;
+    skillTag: string;
+    isCorrect: boolean;
+    studentChoiceId: number | null;
+    choices: Array<{
+      id: number;
+      text: string;
+      isCorrect: boolean;
+    }>;
+  }>;
 }
 
 export interface ProgressComparison {
