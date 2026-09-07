@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import practiceExamsService from "../../../services/practice-exams.service";
 import "./practice-exams.scss";
+import { color } from "html2canvas/dist/types/css/types/color";
 
 interface Question {
   id: number;
@@ -9,11 +10,15 @@ interface Question {
   skillTag: string;
   choices: Array<{ id: number; text: string }>;
   score: number;
+  correctChoiceIndex?: number; // Index of the correct choice for AI-generated questions
+  isGenerated?: boolean;
 }
 
 interface Answer {
   questionId: number;
   choiceId: number | null;
+  questionText?: string;
+  correctChoiceIndex?: number;
 }
 
 const PracticeExamTake = () => {
@@ -50,10 +55,10 @@ const PracticeExamTake = () => {
       const examData = JSON.parse(storedData);
       const practiceQuestions = examData.questions || [];
 
-      // بررسی حداقل 10 سوال
-      if (practiceQuestions.length < 10) {
+      // بررسی حداقل 1 سوال (برای آزمون‌های تولید شده با AI)
+      if (practiceQuestions.length < 1) {
         setError(
-          `برای ایجاد آزمون تمرینی، حداقل ۱۰ سوال نیاز است. فقط ${practiceQuestions.length} سوال دردسترس است.`,
+          `برای ایجاد آزمون تمرینی، حداقل ۱ سوال نیاز است. فقط ${practiceQuestions.length} سوال دردسترس است.`,
         );
         return;
       }
@@ -62,13 +67,14 @@ const PracticeExamTake = () => {
       setCourseId(examData.courseId);
       setSkillTag(examData.skillTag);
 
-      // Initialize answers
-      const initialAnswers: Answer[] = practiceQuestions.map(
-        (q: Question) => ({
-          questionId: q.id,
-          choiceId: null,
-        }),
-      );
+      // Initialize answers - handling both DB and AI-generated questions
+      const initialAnswers: Answer[] = practiceQuestions.map((q: Question) => ({
+        questionId: q.id,
+        choiceId: null,
+        questionText: q.questionText,
+        // برای سوالات توسط AI، استفاده از correctChoiceIndex از داده‌های سوال
+        correctChoiceIndex: q.correctChoiceIndex || 0,
+      }));
       setAnswers(initialAnswers);
     } catch (err: any) {
       setError(err.message || "خطایی در بارگذاری آزمون رخ داد");
@@ -109,13 +115,28 @@ const PracticeExamTake = () => {
         return;
       }
 
-      // فیلتر کردن جواب‌های مختار (بدون null)
+      // فیلتر کردن جواب‌های مختار (بدون null) و فرماتینگ برای تحت API
       const validAnswers = answers
         .filter((a) => a.choiceId !== null)
-        .map((a) => ({
-          questionId: a.questionId,
-          choiceId: a.choiceId as number,
-        }));
+        .map((answerData, idx) => {
+          const questionData = questions[idx];
+
+          return {
+            questionId: answerData.questionId,
+            choiceId: answerData.choiceId as number,
+            questionText: answerData.questionText,
+            // برای سوالات توسط AI، شامل اطلاعات اضافی
+            ...(questionData?.isGenerated && {
+              correctChoiceIndex: answerData.correctChoiceIndex,
+              // ارسال تمام گزینه‌ها برای سوالات AI
+              choices: questionData.choices?.map((choice, idx) => ({
+                id: choice.id,
+                text: choice.text,
+                choiceIndex: idx,
+              })) || [],
+            }),
+          };
+        });
 
       const response = await practiceExamsService.submitPracticeExam(
         courseId,
@@ -179,24 +200,25 @@ const PracticeExamTake = () => {
   const answeredCount = answers.filter((a) => a.choiceId !== null).length;
 
   return (
-    <div className="container-fluid">
+    <div className="container-fluid pt-5 d-flex flex-column align-items-center">
       {/* Header */}
-      <div className="practice-exams-header mb-4">
-        <div className="row align-items-center">
+      <div className="practice-exams-header mb-4 mt-5 ms-5 me-5 col-8">
+        <div className="row align-items-center flex-column">
           <div className="col">
-            <h2>
+            <h2 style={{ color: "white" }}>
               <i className="isax isax-book-square me-2"></i>
               آزمون تمرینی - {skillTag}
             </h2>
-            <p className="mb-0">
+            <p className="mb-0 p-2" style={{ color: "#fff" }}>
               سوال {currentQuestionIndex + 1} از {questions.length}
             </p>
           </div>
-          <div className="col-auto">
-            <div className="progress" style={{ width: "200px", height: "8px" }}>
+          <div className="col">
+            <div className="progress" style={{ height: "10px" }}>
               <div
                 className="progress-bar"
                 style={{
+                  background: "#49b887",
                   width: `${((currentQuestionIndex + 1) / questions.length) * 100}%`,
                 }}
               ></div>
@@ -204,123 +226,124 @@ const PracticeExamTake = () => {
           </div>
         </div>
       </div>
+      <div className="col-12">
+        {/* Question */}
+        <div className="row">
+          <div className="col-lg-8 mx-auto mb-4">
+            <div className="card">
+              <div className="card-body">
+                {/* Question Text */}
+                <div className="mb-4">
+                  <h5 className="card-title text-start">
+                    <span className="badge bg-primary me-2">
+                      سوال {currentQuestionIndex + 1}
+                    </span>
+                  </h5>
+                  <p className="text-start fs-15">
+                    {currentQuestion.questionText}
+                  </p>
+                </div>
 
-      {/* Question */}
-      <div className="row">
-        <div className="col-lg-8 mx-auto mb-4">
-          <div className="card">
-            <div className="card-body">
-              {/* Question Text */}
-              <div className="mb-4">
-                <h5 className="card-title text-end">
-                  <span className="badge bg-primary me-2">
-                    سوال {currentQuestionIndex + 1}
-                  </span>
-                </h5>
-                <p className="text-end fs-5">{currentQuestion.questionText}</p>
-              </div>
+                {/* Choices */}
+                <div className="choices-container">
+                  {currentQuestion.choices.map((choice) => (
+                    <div key={choice.id} className="mb-3">
+                      <label className="form-check form-check-lg">
+                        <input
+                          type="radio"
+                          className="form-check-input"
+                          name={`question-${currentQuestion.id}`}
+                          value={choice.id}
+                          checked={currentAnswer.choiceId === choice.id}
+                          onChange={() => handleAnswerChange(choice.id)}
+                        />
+                        <span className="form-check-label text-end ms-2">
+                          {choice.text}
+                        </span>
+                      </label>
+                    </div>
+                  ))}
+                </div>
 
-              {/* Choices */}
-              <div className="choices-container">
-                {currentQuestion.choices.map((choice) => (
-                  <div key={choice.id} className="mb-3">
-                    <label className="form-check form-check-lg">
-                      <input
-                        type="radio"
-                        className="form-check-input"
-                        name={`question-${currentQuestion.id}`}
-                        value={choice.id}
-                        checked={currentAnswer.choiceId === choice.id}
-                        onChange={() => handleAnswerChange(choice.id)}
-                      />
-                      <span className="form-check-label text-end ms-2">
-                        {choice.text}
-                      </span>
-                    </label>
+                {/* Navigation */}
+                <div className="row mt-5 pt-3 border-top">
+                  <div className="col">
+                    <button
+                      className="btn btn-outline-primary d-flex align-items-center"
+                      onClick={handlePrevious}
+                      disabled={currentQuestionIndex === 0}
+                    >
+                      <i className="isax isax-arrow-right me-2"></i>
+                      سوال قبلی
+                    </button>
                   </div>
-                ))}
-              </div>
-
-              {/* Navigation */}
-              <div className="row mt-5 pt-3 border-top">
-                <div className="col">
-                  <button
-                    className="btn btn-outline-primary"
-                    onClick={handlePrevious}
-                    disabled={currentQuestionIndex === 0}
-                  >
-                    <i className="isax isax-arrow-left me-2"></i>
-                    سوال قبلی
-                  </button>
-                </div>
-                <div className="col text-center">
-                  <small className="text-muted">
-                    {answeredCount} از {questions.length} سوال پاسخ داده شده
-                  </small>
-                </div>
-                <div className="col text-end">
-                  {currentQuestionIndex === questions.length - 1 ? (
-                    <button
-                      className="btn btn-success"
-                      onClick={handleSubmit}
-                      disabled={submitting}
-                    >
-                      {submitting ? (
-                        <>
-                          <span
-                            className="spinner-border spinner-border-sm me-2"
-                            role="status"
-                            aria-hidden="true"
-                          ></span>
-                          درحال ثبت...
-                        </>
-                      ) : (
-                        <>
-                          <i className="isax isax-check-circle me-2"></i>
-                          تکمیل و ارسال
-                        </>
-                      )}
-                    </button>
-                  ) : (
-                    <button
-                      className="btn btn-primary"
-                      onClick={handleNext}
-                      disabled={submitting}
-                    >
-                      سوال بعدی
-                      <i className="isax isax-arrow-right ms-2"></i>
-                    </button>
-                  )}
+                  <div className="col text-center">
+                    <small className="text-muted">
+                      {answeredCount} از {questions.length} سوال پاسخ داده شده
+                    </small>
+                  </div>
+                  <div className="col text-end" style={{ direction: "ltr" }}>
+                    {currentQuestionIndex === questions.length - 1 ? (
+                      <button
+                        className="btn btn-success"
+                        onClick={handleSubmit}
+                        disabled={submitting}
+                      >
+                        {submitting ? (
+                          <>
+                            <span
+                              className="spinner-border spinner-border-sm me-2"
+                              role="status"
+                              aria-hidden="true"
+                            ></span>
+                            درحال ثبت...
+                          </>
+                        ) : (
+                          <>
+                            <i className="isax isax-check-circle me-2"></i>
+                            تکمیل و ارسال
+                          </>
+                        )}
+                      </button>
+                    ) : (
+                      <button
+                        className="btn btn-primary d-flex align-items-center"
+                        onClick={handleNext}
+                        disabled={submitting}
+                      >
+                        <i className="isax isax-arrow-left ms-2"></i>
+                        سوال بعدی
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Questions Preview Sidebar */}
-      <div className="row mt-4">
-        <div className="col-lg-8 mx-auto mb-4">
-          <div className="card">
-            <div className="card-body">
-              <h6 className="card-title mb-3">خلاصه سوالات</h6>
-              <div className="row">
-                {questions.map((q, index) => (
-                  <div key={q.id} className="col-auto mb-2">
-                    <button
-                      className={`btn btn-sm ${
-                        answers[index].choiceId !== null
-                          ? "btn-success"
-                          : "btn-outline-secondary"
-                      } ${
-                        currentQuestionIndex === index ? "active" : ""
-                      }`}
-                      onClick={() => setCurrentQuestionIndex(index)}
-                    >
-                      {index + 1}
-                    </button>
-                  </div>
-                ))}
+        {/* Questions Preview Sidebar */}
+        <div className="row">
+          <div className="col-lg-8 mx-auto mb-4">
+            <div className="card">
+              <div className="card-body">
+                <h6 className="card-title mb-3">خلاصه سوالات</h6>
+                <div className="row">
+                  {questions.map((q, index) => (
+                    <div key={q.id} className="col-auto mb-2">
+                      <button
+                        className={`btn btn-sm ${
+                          answers[index].choiceId !== null
+                            ? "btn-success"
+                            : "btn-outline-secondary"
+                        } ${currentQuestionIndex === index ? "active" : ""}`}
+                        onClick={() => setCurrentQuestionIndex(index)}
+                      >
+                        {index + 1}
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

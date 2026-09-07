@@ -101,6 +101,7 @@ import InstructorCourseAnalytics from "../Instructor/instructor-analytics/Instru
 import RecommendedCourses from "../student/recommendations/RecommendedCourses";
 import PracticeExams from "../student/practice-exams/PracticeExams";
 import PracticeExamTake from "../student/practice-exams/PracticeExamTake";
+import PracticeExamResult from "../student/practice-exams/PracticeExamResult";
 const routes = all_routes;
 
 export const publicRoutes = [
@@ -641,6 +642,15 @@ export const publicRoutes = [
     element: (
       <RoleRoute roles={[1]}>
         <PracticeExamTake />
+      </RoleRoute>
+    ),
+    route: Route,
+  },
+  {
+    path: routes.studentPracticeExamsResult,
+    element: (
+      <RoleRoute roles={[1]}>
+        <PracticeExamResult />
       </RoleRoute>
     ),
     route: Route,

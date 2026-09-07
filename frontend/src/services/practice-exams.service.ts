@@ -23,6 +23,7 @@ export interface PracticeQuestion {
   skillTag: string;
   choices: { id: number; text: string }[];
   score: number;
+  isGenerated?: boolean; // تولید شده توسط AI
 }
 
 export interface PracticeExamResult {
@@ -143,10 +144,25 @@ class PracticeExamsService {
   /**
    * ثبت نتیجه آزمون تمرینی
    * POST /practice-exams/courses/:courseId/submit
+   *
+   * تولید شده از طریق AI:
+   * - questionId: منفی (مثال: -1، -2)
+   * - choiceId: شاخص گزینه (0-3)
+   * - questionText: متن سوال (اختیاری)
+   * - correctChoiceIndex: شاخص گزینه صحیح (اختیاری برای AI)
+   *
+   * از پایگاه داده:
+   * - questionId: مثبت
+   * - choiceId: ID گزینه
    */
   async submitPracticeExam(
     courseId: number,
-    answers: { questionId: number; choiceId: number }[],
+    answers: Array<{
+      questionId: number;
+      choiceId: number;
+      questionText?: string;
+      correctChoiceIndex?: number;
+    }>,
     skillTag?: string,
   ): Promise<PracticeExamResult> {
     const params: Record<string, string> = {};

@@ -1,0 +1,57 @@
+### Test Practice Exams API with AI Generation
+
+# Variables
+@baseUrl = http://localhost:3000/api
+@courseId = 1
+@studentId = 1
+@token = your_jwt_token_here
+
+### 1. Get weak skills for student
+GET {{baseUrl}}/practice-exams/weak-skills
+Authorization: Bearer {{token}}
+
+### 2. Generate practice exam for a course (general questions)
+POST {{baseUrl}}/practice-exams/courses/{{courseId}}/generate?questionCount=5
+Authorization: Bearer {{token}}
+
+### 3. Generate practice exam for a specific skill
+POST {{baseUrl}}/practice-exams/courses/{{courseId}}/generate?skillTag=حلقه%20های%20تکرار&questionCount=5
+Authorization: Bearer {{token}}
+
+### 4. Submit practice exam answers (with AI-generated questions)
+POST {{baseUrl}}/practice-exams/courses/{{courseId}}/submit
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "answers": [
+    {
+      "questionId": -1,
+      "choiceId": 0,
+      "questionText": "متن سوال اول",
+      "correctChoiceIndex": 0
+    },
+    {
+      "questionId": -2,
+      "choiceId": 1,
+      "questionText": "متن سوال دوم",
+      "correctChoiceIndex": 1
+    }
+  ]
+}
+
+### 5. Get practice exam results
+GET {{baseUrl}}/practice-exams/results
+Authorization: Bearer {{token}}
+
+### 6. Get practice exam results for specific course
+GET {{baseUrl}}/practice-exams/results?courseId={{courseId}}
+Authorization: Bearer {{token}}
+
+### 7. Get result details
+GET {{baseUrl}}/practice-exams/results/1
+Authorization: Bearer {{token}}
+
+### 8. Compare progress
+GET {{baseUrl}}/practice-exams/courses/{{courseId}}/progress-comparison?skillTag=حلقه%20های%20تکرار
+Authorization: Bearer {{token}}

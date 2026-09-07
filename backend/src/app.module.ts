@@ -24,6 +24,7 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { StudentDashboardController } from './student-dashboard.controller';
 import { InstructorDashboardController } from './instructor-dashboard.controller';
 import { PracticeExamsModule } from './practice-exams/practice-exams.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { PracticeExamsModule } from './practice-exams/practice-exams.module';
     AnalyticsModule,
     RecommendationsModule,
     ReviewsModule,
+    AiModule,
     PracticeExamsModule,
   ],
   controllers: [AppController, StudentDashboardController, InstructorDashboardController],

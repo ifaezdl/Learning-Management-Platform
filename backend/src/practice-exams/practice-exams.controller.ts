@@ -48,31 +48,47 @@ export class PracticeExamsController {
   }
 
   /**
-   * Endpoint 2: ایجاد آزمون تمرینی
+   * Endpoint 2: ایجاد آزمون تمرینی با تولید سوالات از طریق هوش مصنوعی
    * POST /practice-exams/courses/:courseId/generate
+   *
+   * تولید سوالات برای آزمون تمرینی استفاده می‌کند از مدل هوش مصنوعی Qwen3-4B.
+   * هر سوال یک برچسب مهارت دارد که بخشی از نوآوری این پروژه است.
    */
   @Post('courses/:courseId/generate')
   @Roles(1) // فقط دانشجو
   @ApiOperation({
-    summary: 'ایجاد آزمون تمرینی برای دانشجو',
+    summary: 'ایجاد آزمون تمرینی با تولید سوالات از AI',
     description:
-      'بر اساس مهارت مشخص‌شده (یا تمام دوره) سوالات تمرینی تولید می‌کند.',
+      'تولید سوالات تمرینی برای دانشجو با استفاده از مدل هوش مصنوعی Qwen3-4B. ' +
+      'سوالات با برچسب مهارت برای تمرین هدفمند تولید می‌شوند. ' +
+      'اگر مهارت خاص انتخاب شود، سوالات فقط برای آن مهارت تولید می‌شوند.',
   })
   @ApiQuery({
     name: 'skillTag',
     required: false,
     type: String,
-    description: 'برچسب مهارت خاص (اختیاری)',
+    description:
+      'برچسب مهارت خاص برای تمرین (اختیاری). ' +
+      'مثال: "حلقه‌های تکرار"، "مدیریت حافظه". ' +
+      'اگر داده نشود، سوالات کلی دوره تولید می‌شوند.',
   })
   @ApiQuery({
     name: 'questionCount',
     required: false,
     type: Number,
-    description: 'تعداد سوالات (پیش‌فرض: 5)',
+    description: 'تعداد سوالات (پیش‌فرض: 10، حداکثر: 20)',
   })
   @ApiResponse({
     status: 200,
-    description: 'لیست سوالات برای آزمون تمرینی',
+    description: 'آرایه سوالات تولید شده با برچسب‌های مهارت',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'خطا در تولید سوالات یا اعتبارسنجی',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'دانشجو در این دوره ثبت‌نام نکرده است',
   })
   generatePracticeExam(
     @Param('courseId', ParseIntPipe) courseId: number,
@@ -80,22 +96,34 @@ export class PracticeExamsController {
     @Query('questionCount') questionCount?: string,
     @CurrentUser() user?: any,
   ) {
+    let count = questionCount ? Number(questionCount) : 10;
+    
+    // تحدید تعداد سوالات
+    if (count < 1) count = 1;
+    if (count > 20) count = 20;
+
     return this.practiceExamsService.generatePracticeExam(
       user.id,
       courseId,
-      skillTag,
-      questionCount ? Number(questionCount) : 5,
+      skillTag?.trim(),
+      count,
     );
   }
 
   /**
    * Endpoint 3: ثبت نتیجه آزمون تمرینی
    * POST /practice-exams/courses/:courseId/submit
+   *
+   * پذیرش پاسخ‌های دانشجو برای سوالات تمرینی (توسط AI یا پایگاه داده).
+   * برای سوالات توسط AI: questionId منفی، choiceId شامل شاخص گزینه صحیح.
    */
   @Post('courses/:courseId/submit')
   @Roles(1) // فقط دانشجو
   @ApiOperation({
     summary: 'ثبت نتیجه آزمون تمرینی',
+    description:
+      'ثبت پاسخ‌های دانشجو برای آزمون تمرینی تولید شده. ' +
+      'سوالات توسط AI تولید شده با ID منفی و سوالات پایگاه داده با ID مثبت شناسایی می‌شوند.',
   })
   @ApiQuery({
     name: 'skillTag',
@@ -105,22 +133,36 @@ export class PracticeExamsController {
   })
   @ApiResponse({
     status: 200,
-    description: 'نتیجه آزمون تمرینی',
+    description: 'نتیجه آزمون تمرینی شامل امتیاز، درصد و وضعیت قبولی',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'خطا در پردازش پاسخ‌ها',
   })
   submitPracticeExam(
     @Param('courseId', ParseIntPipe) courseId: number,
     @Body()
     body: {
-      answers: { questionId: number; choiceId: number }[];
+      answers: Array<{
+        questionId: number;
+        choiceId: number;
+        questionText?: string;
+        correctChoiceIndex?: number;
+        choices?: Array<{id: number; text: string; choiceIndex: number}>;
+      }>;
     },
     @Query('skillTag') skillTag?: string,
     @CurrentUser() user?: any,
   ) {
+    if (!body.answers || body.answers.length === 0) {
+      throw new Error('لطفا حداقل یک پاسخ ارسال کنید');
+    }
+
     return this.practiceExamsService.submitPracticeExam(
       user.id,
       courseId,
       body.answers,
-      skillTag,
+      skillTag?.trim(),
     );
   }
 
@@ -132,6 +174,9 @@ export class PracticeExamsController {
   @Roles(1) // فقط دانشجو
   @ApiOperation({
     summary: 'دریافت لیست نتایج آزمون‌های تمرینی',
+    description:
+      'لیست تمام آزمون‌های تمرینی که دانشجو شرکت کرده است. ' +
+      'هر نتیجه شامل امتیاز، درصد، برچسب مهارت و تاریخ ثبت است.',
   })
   @ApiQuery({
     name: 'courseId',
