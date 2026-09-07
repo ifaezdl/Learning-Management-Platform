@@ -1,5 +1,6 @@
 import html2canvas from "html2canvas";
 import { Certificate } from "../../../services/certificate.service";
+import ImageWithBasePath from "../imageWithBasePath";
 
 // ------------------------------------------------------------------
 // گواهینامه — الگوی مشترک صفحه دانشجو و صفحه مدیریت
@@ -55,10 +56,11 @@ const CertificateTemplate = ({
           }}
         >
           {/* لوگو */}
-          <img
-            src="assets/img/logo.png"
-            alt="لوگو"
-            style={{ width: 150, margin: "0 auto 18px", display: "block" }}
+          <ImageWithBasePath
+            width={200}
+            src="assets/img/logo-side.png"
+            className="logo"
+            alt="Logo"
           />
 
           <h2
