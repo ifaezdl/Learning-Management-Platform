@@ -99,6 +99,12 @@ export class PracticeExamsController {
   ) {
     let count = questionCount ? Number(questionCount) : 10;
 
+    if (!Number.isFinite(count)) {
+      throw new BadRequestException('تعداد سوالات باید یک عدد معتبر باشد.');
+    }
+
+    count = Math.trunc(count);
+
     // تحدید تعداد سوالات
     if (count < 1) count = 1;
     if (count > 20) count = 20;

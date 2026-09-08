@@ -361,6 +361,28 @@ export class PracticeExamsService {
 
       // برای سوالات تولید شده توسط AI
       for (const answer of generatedQuestions) {
+        const hasValidCorrectIndex =
+          Number.isInteger(answer.correctChoiceIndex) &&
+          answer.correctChoiceIndex! >= 0 &&
+          answer.correctChoiceIndex! < (answer.choices?.length ?? 0);
+        const hasUniqueChoiceIds =
+          answer.choices !== undefined &&
+          new Set(answer.choices.map((choice) => choice.id)).size ===
+            answer.choices.length;
+        const selectedChoiceExists = answer.choices?.some(
+          (choice) => choice.id === answer.choiceId,
+        );
+
+        if (
+          !hasValidCorrectIndex ||
+          !hasUniqueChoiceIds ||
+          !selectedChoiceExists
+        ) {
+          throw new BadRequestException(
+            'اطلاعات آزمون ناقص یا منقضی شده است. لطفاً آزمون را دوباره شروع کنید.',
+          );
+        }
+
         maxScore += 1; // هر سوال 1 امتیاز
 
         const correctChoice = answer.choices?.find(

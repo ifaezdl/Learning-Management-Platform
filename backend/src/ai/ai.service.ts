@@ -391,17 +391,6 @@ export class AiService {
       // بررسی برچسب مهارت
       if (!question.skillTag || question.skillTag.trim().length === 0) {
         issues.push(`سوال ${qNum}: برچسب مهارت خالی است.`);
-      } else {
-        const wordCount = question.skillTag.trim().split(' ').length;
-        if (wordCount < 2) {
-          issues.push(
-            `سوال ${qNum}: برچسب مهارت باید حداقل ۲ کلمه باشد (${question.skillTag}).`,
-          );
-        } else if (wordCount > 4) {
-          issues.push(
-            `سوال ${qNum}: برچسب مهارت بیش از ۴ کلمه است (${question.skillTag}).`,
-          );
-        }
       }
 
       // بررسی مهارت مورد انتظار
