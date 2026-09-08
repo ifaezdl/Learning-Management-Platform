@@ -42,14 +42,24 @@ const InstructorCourse = () => {
     try {
       setDeleting(true);
       await courseService.deleteCourse(selectedCourseId);
+      
+      // حذف دوره از لیست
       setData((prev) => prev.filter((c) => c.Id !== selectedCourseId));
+      
+      // بستن modal
+      const modalElement = document.getElementById("delete_modal");
+      if (modalElement) {
+        const modal = new (window as any).bootstrap.Modal(modalElement);
+        modal.hide();
+      }
+      
       toast.success("دوره حذف شد.");
+      setSelectedCourseId(null);
     } catch (err) {
       console.log(err);
       toast.error("حذف دوره با خطا مواجه شد.");
     } finally {
       setDeleting(false);
-      setSelectedCourseId(null);
     }
   };
 
@@ -282,7 +292,6 @@ const InstructorCourse = () => {
                   <button
                     type="button"
                     className="btn btn-danger rounded-pill"
-                    data-bs-dismiss="modal"
                     disabled={deleting}
                     onClick={handleConfirmDelete}
                   >

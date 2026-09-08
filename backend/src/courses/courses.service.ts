@@ -390,8 +390,161 @@ export class CoursesService {
   }  async remove(id: number, user: any) {
     await this.verifyOwnership(id, user);
 
-    await this.prisma.courses.delete({ where: { Id: id } });
-    return { message: 'Course deleted successfully' };
+    // حذف تمام وابستگی‌ها قبل از حذف دوره
+    try {
+      // حذف نظرات
+      await this.prisma.reviews.deleteMany({ where: { Course_Id: id } });
+
+      // حذف پرداخت‌ها
+      await this.prisma.payments.deleteMany({ where: { Course_Id: id } });
+
+      // حذف سبد خریدها
+      await this.prisma.carts.deleteMany({ where: { Course_Id: id } });
+
+      // حذف Certificates
+      await this.prisma.certificates.deleteMany({
+        where: {
+          Course_Id: id,
+        },
+      });
+
+      // حذف Course Recommendations
+      await this.prisma.courseRecommendations.deleteMany({
+        where: { Course_Id: id },
+      });
+
+      // حذف Course Progress
+      await this.prisma.courseProgress.deleteMany({ where: { Course_Id: id } });
+
+      // حذف Enrollments
+      await this.prisma.enrollments.deleteMany({ where: { Course_Id: id } });
+
+      // حذف Chat Reads
+      await this.prisma.chatReads.deleteMany({ where: { Course_Id: id } });
+
+      // حذف Chat Poll Votes (ابتدا options)
+      const pollIds = await this.prisma.chatPolls.findMany({
+        where: { Course_Id: id },
+        select: { Id: true },
+      });
+
+      for (const poll of pollIds) {
+        const optionIds = await this.prisma.chatPollOptions.findMany({
+          where: { Poll_Id: poll.Id },
+          select: { Id: true },
+        });
+
+        for (const option of optionIds) {
+          await this.prisma.chatPollVotes.deleteMany({
+            where: { Option_Id: option.Id },
+          });
+        }
+
+        await this.prisma.chatPollOptions.deleteMany({
+          where: { Poll_Id: poll.Id },
+        });
+      }
+
+      // حذف Chat Polls
+      await this.prisma.chatPolls.deleteMany({ where: { Course_Id: id } });
+
+      // حذف Chat Message Reactions
+      const messageIds = await this.prisma.chatMessages.findMany({
+        where: { Course_Id: id },
+        select: { Id: true },
+      });
+
+      for (const message of messageIds) {
+        await this.prisma.chatMessageReactions.deleteMany({
+          where: { Message_Id: message.Id },
+        });
+      }
+
+      // حذف Chat Messages (شامل replies)
+      await this.prisma.chatMessages.deleteMany({ where: { Course_Id: id } });
+
+      // حذف Practice Exam Results
+      await this.prisma.practiceExamResults.deleteMany({ where: { Course_Id: id } });
+
+      // حذف Quizzes و تمام وابستگی‌ها (Cascade خودکار)
+      // اما ابتدا Quiz Attempts را حذف می‌کنیم
+      const quizIds = await this.prisma.quizzes.findMany({
+        where: { Course_Id: id },
+        select: { Id: true },
+      });
+
+      for (const quiz of quizIds) {
+        // حذف Quiz Attempts
+        const attemptIds = await this.prisma.quizAttempts.findMany({
+          where: { Quiz_Id: quiz.Id },
+          select: { Id: true },
+        });
+
+        for (const attempt of attemptIds) {
+          // حذف Quiz Attempt Answers
+          await this.prisma.quizAttemptAnswers.deleteMany({
+            where: { Attempt_Id: attempt.Id },
+          });
+        }
+
+        await this.prisma.quizAttempts.deleteMany({
+          where: { Quiz_Id: quiz.Id },
+        });
+
+        // حذف Quiz Questions و Choices
+        const questionIds = await this.prisma.quizQuestions.findMany({
+          where: { Quiz_Id: quiz.Id },
+          select: { Id: true },
+        });
+
+        for (const question of questionIds) {
+          await this.prisma.quizChoices.deleteMany({
+            where: { Question_Id: question.Id },
+          });
+        }
+
+        await this.prisma.quizQuestions.deleteMany({
+          where: { Quiz_Id: quiz.Id },
+        });
+      }
+
+      await this.prisma.quizzes.deleteMany({ where: { Course_Id: id } });
+
+      // حذف Lessons و LessonFiles
+      const lessonIds = await this.prisma.lessons.findMany({
+        where: { Course_Id: id },
+        select: { Id: true },
+      });
+
+      for (const lesson of lessonIds) {
+        await this.prisma.lessonFiles.deleteMany({
+          where: { Lesson_Id: lesson.Id },
+        });
+      }
+
+      await this.prisma.lessons.deleteMany({ where: { Course_Id: id } });
+
+      // حذف Course Sections
+      await this.prisma.courseSections.deleteMany({ where: { Course_Id: id } });
+
+      // حذف Course Learning Outcomes (Cascade خودکار)
+      await this.prisma.courseLearningOutcomes.deleteMany({
+        where: { Course_Id: id },
+      });
+
+      // حذف Course Prerequisites (Cascade خودکار)
+      await this.prisma.coursePrequisties.deleteMany({
+        where: { Course_ID: id },
+      });
+
+      // در آخر دوره را حذف می‌کنیم
+      await this.prisma.courses.delete({ where: { Id: id } });
+
+      return { message: 'Course deleted successfully' };
+    } catch (error) {
+      console.error('Error deleting course:', error);
+      throw new Error(`Failed to delete course: ${error.message}`);
+    }
   }
   async publish(id: number, user: any) {
     const course = await this.verifyOwnership(id, user);

@@ -198,18 +198,12 @@ const StudentChangePassword = () => {
                       <div className="col-md-8">
                         <div className="mb-3">
                           <h5 className="mb-1 fs-18">تغییر رمز عبور</h5>
-                          <p>
-                            Can't remember your current password?&nbsp;
-                            <Link to="#" className="text-decoration-underline">
-                              Reset your password via email
-                            </Link>
-                          </p>
                         </div>
                         <form onSubmit={onsubmitPasswordChange}>
                           <div className="mb-3 position-relative">
                             <label className="form-label">
-                              رمز عبور فعلی شما{" "}
                               <span className="text-danger"> *</span>
+                              رمز عبور فعلی شما{" "}
                             </label>
                             <div className="position-relative">
                               <input
@@ -236,8 +230,8 @@ const StudentChangePassword = () => {
                           </div>
                           <div className="mb-3 position-relative">
                             <label className="form-label">
-                              رمز عبور جدید{" "}
                               <span className="text-danger"> *</span>
+                              رمز عبور جدید{" "}
                             </label>
                             <div
                               className="position-relative"
@@ -279,8 +273,8 @@ const StudentChangePassword = () => {
                           </div>
                           <div className="mb-3 position-relative">
                             <label className="form-label">
-                              تکرار رمز عبور جدید{" "}
                               <span className="text-danger"> *</span>
+                              تکرار رمز عبور جدید{" "}
                             </label>
                             <div className="position-relative">
                               <input
