@@ -125,7 +125,7 @@ export interface Course {
   AverageRating: number;
   Category: { Id: number; Title: string };
   Level: { Id: number; LevelName: string } | null;
-  Users?: { Id: number; FirstName: string; LastName: string };
+  Users?: { Id: number; FirstName: string; LastName: string; Avatar?: string };
   CourseSections?: Section[];
   isEnrolled: boolean;
   CoursePrequisties: [];

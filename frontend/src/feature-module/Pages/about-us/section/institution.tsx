@@ -1,9 +1,12 @@
 import React from "react";
 import Slider from "react-slick";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ImageWithBasePath from "../../../../core/common/imageWithBasePath";
+import { all_routes } from "../../../router/all_routes";
 
 const Institution = () => {
+  const navigate = useNavigate();
+
   const categoriesSlider = {
     slidesToShow: 6,
     slidesToScroll: 1,
@@ -106,6 +109,10 @@ const Institution = () => {
     },
   ];
 
+  const handleCategoryClick = (categoryId: number) => {
+    navigate(`${all_routes.courseGrid}?categoryId=${categoryId}`);
+  };
+
   return (
     <>
       {/* Popular Categories */}
@@ -130,9 +137,10 @@ const Institution = () => {
           >
             {categories.map((category) => (
               <div key={category.id} className="px-2">
-                <Link
-                  to={`/courses?category=${category.id}`}
-                  className="text-decoration-none"
+                <div
+                  onClick={() => handleCategoryClick(category.id)}
+                  className="text-decoration-none cursor-pointer"
+                  style={{ cursor: "pointer" }}
                 >
                   <div className="card border-0 shadow-sm h-100 category-card">
                     <div className="card-body text-center p-4">
@@ -151,7 +159,7 @@ const Institution = () => {
                       <p className="text-muted mb-0">{category.courses}</p>
                     </div>
                   </div>
-                </Link>
+                </div>
               </div>
             ))}
           </Slider>
