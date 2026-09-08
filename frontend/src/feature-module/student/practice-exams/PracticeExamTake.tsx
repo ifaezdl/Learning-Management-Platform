@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import practiceExamsService from "../../../services/practice-exams.service";
 import "./practice-exams.scss";
-import { color } from "html2canvas/dist/types/css/types/color";
 
 interface Question {
   id: number;
@@ -19,6 +18,7 @@ interface Answer {
   choiceId: number | null;
   questionText?: string;
   correctChoiceIndex?: number;
+  choices?: Array<{ id: number; text: string }>;
 }
 
 const PracticeExamTake = () => {
@@ -73,7 +73,8 @@ const PracticeExamTake = () => {
         choiceId: null,
         questionText: q.questionText,
         // برای سوالات توسط AI، استفاده از correctChoiceIndex از داده‌های سوال
-        correctChoiceIndex: q.correctChoiceIndex || 0,
+        correctChoiceIndex: q.correctChoiceIndex,
+        choices: q.choices,
       }));
       setAnswers(initialAnswers);
     } catch (err: any) {
@@ -86,8 +87,10 @@ const PracticeExamTake = () => {
 
   const handleAnswerChange = (choiceId: number) => {
     const updatedAnswers = [...answers];
+    // Preserve the generated-question metadata used by the API for grading and
+    // for rebuilding the answer sheet after submission.
     updatedAnswers[currentQuestionIndex] = {
-      questionId: questions[currentQuestionIndex].id,
+      ...updatedAnswers[currentQuestionIndex],
       choiceId,
     };
     setAnswers(updatedAnswers);
@@ -117,17 +120,18 @@ const PracticeExamTake = () => {
 
       // فیلتر کردن جواب‌های مختار (بدون null) و فرماتینگ برای تحت API
       const validAnswers = answers
-        .filter((a) => a.choiceId !== null)
-        .map((answerData, idx) => {
-          const questionData = questions[idx];
+        .map((answerData, questionIndex) => ({ answerData, questionIndex }))
+        .filter(({ answerData }) => answerData.choiceId !== null)
+        .map(({ answerData, questionIndex }) => {
+          const questionData = questions[questionIndex];
 
           return {
             questionId: answerData.questionId,
             choiceId: answerData.choiceId as number,
-            questionText: answerData.questionText,
+            questionText: questionData.questionText,
             // برای سوالات توسط AI، شامل اطلاعات اضافی
             ...(questionData?.isGenerated && {
-              correctChoiceIndex: answerData.correctChoiceIndex,
+              correctChoiceIndex: questionData.correctChoiceIndex,
               // ارسال تمام گزینه‌ها برای سوالات AI
               choices: questionData.choices?.map((choice, idx) => ({
                 id: choice.id,

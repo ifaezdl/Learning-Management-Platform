@@ -127,12 +127,15 @@ export class PracticeExamsService {
 
       for (const answer of answers) {
         const tag =
-          answer.QuizQuestions.SkillTag &&
-          answer.QuizQuestions.SkillTag.trim()
+          answer.QuizQuestions.SkillTag && answer.QuizQuestions.SkillTag.trim()
             ? answer.QuizQuestions.SkillTag.trim()
             : 'سایر';
 
-        const stat = skillMap.get(tag) || { correct: 0, total: 0, percentage: 0 };
+        const stat = skillMap.get(tag) || {
+          correct: 0,
+          total: 0,
+          percentage: 0,
+        };
         stat.total += 1;
         if (answer.IsCorrect) stat.correct += 1;
         stat.percentage =
@@ -221,18 +224,18 @@ export class PracticeExamsService {
         // بهتر error message ارسال کن
         const errorMessage = error.message || 'خطا در تولید سوالات';
         console.error('AI Question Generation Error:', errorMessage);
-        
+
         if (errorMessage.includes('در دسترس نیست')) {
           throw new BadRequestException(errorMessage);
         }
-        
-        throw new BadRequestException(
-          `❌ ${errorMessage}`,
-        );
+
+        throw new BadRequestException(`❌ ${errorMessage}`);
       }
 
       if (aiQuestions.length === 0) {
-        throw new BadRequestException('❌ هوش مصنوعی نتوانست سوالات معتبری تولید کند.');
+        throw new BadRequestException(
+          '❌ هوش مصنوعی نتوانست سوالات معتبری تولید کند.',
+        );
       }
 
       // تبدیل سوالات تولید شده به فرمت مورد انتظار فرانت‌اند
@@ -240,7 +243,7 @@ export class PracticeExamsService {
       return aiQuestions.map((q, index) => {
         // پیدا کردن شاخص گزینه صحیح
         const correctChoiceIndex = q.choices.findIndex((c: any) => c.isCorrect);
-        
+
         return {
           id: -(index + 1), // ID منفی برای نشان‌دادن سوالات تولید شده
           questionText: q.questionText,
@@ -273,7 +276,13 @@ export class PracticeExamsService {
   async submitPracticeExam(
     studentId: number,
     courseId: number,
-    answers: { questionId: number; choiceId: number; questionText?: string; correctChoiceIndex?: number; choices?: Array<{id: number; text: string; choiceIndex: number}>  }[],
+    answers: {
+      questionId: number;
+      choiceId: number;
+      questionText?: string;
+      correctChoiceIndex?: number;
+      choices?: Array<{ id: number; text: string; choiceIndex: number }>;
+    }[],
     skillTag?: string,
   ) {
     try {
@@ -294,7 +303,7 @@ export class PracticeExamsService {
       const dbQuestionIds = answers
         .filter((a) => a.questionId > 0)
         .map((a) => a.questionId);
-      
+
       const generatedQuestions = answers.filter((a) => a.questionId < 0);
 
       // برای سوالات پایگاه داده
@@ -302,7 +311,10 @@ export class PracticeExamsService {
       if (dbQuestionIds.length > 0) {
         dbQuestions = await this.prisma.quizQuestions.findMany({
           where: { Id: { in: dbQuestionIds } },
-          include: { QuizChoices: true, Quizzes: { select: { Course_Id: true } } },
+          include: {
+            QuizChoices: true,
+            Quizzes: { select: { Course_Id: true } },
+          },
         });
 
         const isValidCourse = dbQuestions.every(
@@ -351,16 +363,16 @@ export class PracticeExamsService {
       for (const answer of generatedQuestions) {
         maxScore += 1; // هر سوال 1 امتیاز
 
-        // Log برای debugging
-        console.log(`\n=== AI Question ${answer.questionId} ===`);
-        console.log(`correctChoiceIndex: ${answer.correctChoiceIndex}`);
-        console.log(`studentChoiceId (choiceId): ${answer.choiceId}`);
-        console.log(`choices: ${answer.choices?.length || 0} items`);
+        const correctChoice = answer.choices?.find(
+          (choice) => choice.choiceIndex === answer.correctChoiceIndex,
+        );
+        // The UI submits the stable choice id. Keep accepting an index too so
+        // exams opened from older localStorage data continue to work.
+        const isCorrect =
+          answer.correctChoiceIndex !== undefined &&
+          (answer.choiceId === correctChoice?.id ||
+            answer.choiceId === answer.correctChoiceIndex);
 
-        // seatCheck: choiceId باید با correctChoiceIndex برابر باشد
-        const isCorrect = answer.choiceId === answer.correctChoiceIndex;
-        console.log(`isCorrect: ${isCorrect}`);
-        
         if (isCorrect) {
           totalScore += 1;
           correctCount += 1;
@@ -374,11 +386,12 @@ export class PracticeExamsService {
           skillTag: skillTag || 'تمرین عمومی',
           correctChoiceIndex: answer.correctChoiceIndex,
           // ذخیره گزینه‌ها برای سوالات AI (جدید!)
-          choices: answer.choices?.map((choice, idx) => ({
-            id: choice.id,
-            text: choice.text,
-            isCorrect: idx === answer.correctChoiceIndex,
-          })) || [],
+          choices:
+            answer.choices?.map((choice) => ({
+              id: choice.id,
+              text: choice.text,
+              isCorrect: choice.choiceIndex === answer.correctChoiceIndex,
+            })) || [],
           isGenerated: true,
         });
       }
@@ -488,7 +501,7 @@ export class PracticeExamsService {
       }
 
       const answerDetails = JSON.parse(result.AnswerDetails || '[]');
-      
+
       // جداسازی سوالات پایگاه داده و AI
       const dbQuestionIds = answerDetails
         .filter((a: any) => !a.isGenerated && a.questionId > 0)
@@ -508,8 +521,10 @@ export class PracticeExamsService {
         .map((answer: any, index: number) => {
           // برای سوالات پایگاه داده
           if (!answer.isGenerated && answer.questionId > 0) {
-            const question = dbQuestions.find((q) => q.Id === answer.questionId);
-            
+            const question = dbQuestions.find(
+              (q) => q.Id === answer.questionId,
+            );
+
             // اگر سوال در DB وجود نداشته باشد، از stored data استفاده کن
             if (!question) {
               // حتی اگر سوال حذف شده باشد، داده‌های ذخیره شده را نمایش بده
@@ -520,7 +535,7 @@ export class PracticeExamsService {
                 isCorrect: answer.isCorrect,
                 studentChoiceId: answer.studentChoiceId || null,
                 choices: answer.choices || [
-                  { id: -1, text: 'پاسخ‌نامه حذف شده', isCorrect: false }
+                  { id: -1, text: 'پاسخ‌نامه حذف شده', isCorrect: false },
                 ],
               };
             }
@@ -531,20 +546,23 @@ export class PracticeExamsService {
               skillTag: answer.skillTag || question.SkillTag || 'سایر',
               isCorrect: answer.isCorrect,
               studentChoiceId: answer.studentChoiceId || null,
-              choices: answer.choices || question.QuizChoices.map((choice) => ({
-                id: choice.Id,
-                text: choice.ChoiceText,
-                isCorrect: choice.IsCorrect,
-              })),
+              choices:
+                answer.choices ||
+                question.QuizChoices.map((choice) => ({
+                  id: choice.Id,
+                  text: choice.ChoiceText,
+                  isCorrect: choice.IsCorrect,
+                })),
             };
           }
 
           // برای سوالات توسط AI (بازسازی از داده‌های ذخیره شده)
           if (answer.isGenerated || answer.questionId < 0) {
             // اگر correctChoiceIndex تعریف نشده باشد، از stored data استفاده کن
-            const correctIdx = answer.correctChoiceIndex !== undefined 
-              ? answer.correctChoiceIndex 
-              : 0;
+            const correctIdx =
+              answer.correctChoiceIndex !== undefined
+                ? answer.correctChoiceIndex
+                : 0;
 
             return {
               questionId: answer.questionId,
@@ -553,17 +571,23 @@ export class PracticeExamsService {
               isCorrect: answer.isCorrect,
               studentChoiceId: answer.studentChoiceId,
               // برای سوالات AI، گزینه‌ها را بازسازی کن از correctChoiceIndex
-              choices: answer.choices && Array.isArray(answer.choices) 
-                ? answer.choices 
-                : Array(4)
-                    .fill(null)
-                    .map((_, choiceIdx) => ({
-                      id: -(Math.abs(answer.questionId) * 100 + choiceIdx + 1),
-                      text: choiceIdx === correctIdx 
-                        ? `گزینه ${choiceIdx + 1} (صحیح)` 
-                        : `گزینه ${choiceIdx + 1}`,
-                      isCorrect: choiceIdx === correctIdx,
-                    })),
+              choices:
+                answer.choices && Array.isArray(answer.choices)
+                  ? answer.choices
+                  : Array(4)
+                      .fill(null)
+                      .map((_, choiceIdx) => ({
+                        id: -(
+                          Math.abs(answer.questionId) * 100 +
+                          choiceIdx +
+                          1
+                        ),
+                        text:
+                          choiceIdx === correctIdx
+                            ? `گزینه ${choiceIdx + 1} (صحیح)`
+                            : `گزینه ${choiceIdx + 1}`,
+                        isCorrect: choiceIdx === correctIdx,
+                      })),
             };
           }
 
@@ -574,10 +598,12 @@ export class PracticeExamsService {
             skillTag: answer.skillTag || 'نامشخص',
             isCorrect: answer.isCorrect,
             studentChoiceId: answer.studentChoiceId || null,
-            choices: answer.choices || [{ id: -1, text: 'داده‌ای موجود نیست', isCorrect: false }],
+            choices: answer.choices || [
+              { id: -1, text: 'داده‌ای موجود نیست', isCorrect: false },
+            ],
           };
         })
-        .filter(q => q !== null && q !== undefined);
+        .filter((q) => q !== null && q !== undefined);
 
       return {
         id: result.Id,
@@ -586,7 +612,9 @@ export class PracticeExamsService {
         skillTag: result.SkillTag,
         score: Number(result.Score),
         maxScore: Number(result.MaxScore),
-        percentage: Math.round((Number(result.Score) / Number(result.MaxScore)) * 100),
+        percentage: Math.round(
+          (Number(result.Score) / Number(result.MaxScore)) * 100,
+        ),
         totalQuestions: result.TotalQuestions,
         correctCount: result.CorrectCount,
         wrongCount: result.TotalQuestions - result.CorrectCount,
@@ -596,7 +624,9 @@ export class PracticeExamsService {
       };
     } catch (error: any) {
       if (error.code === 'P2021') {
-        throw new NotFoundException('جدول PracticeExamResults هنوز ایجاد نشده است.');
+        throw new NotFoundException(
+          'جدول PracticeExamResults هنوز ایجاد نشده است.',
+        );
       }
       throw error;
     }
@@ -638,7 +668,8 @@ export class PracticeExamsService {
       );
 
       const improvement = latestPercentage - previousPercentage;
-      const trend = improvement > 0 ? 'صعودی' : improvement < 0 ? 'نزولی' : 'ثابت';
+      const trend =
+        improvement > 0 ? 'صعودی' : improvement < 0 ? 'نزولی' : 'ثابت';
 
       return {
         hasComparison: true,

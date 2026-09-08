@@ -43,12 +43,7 @@ export class AiService {
     count: number,
   ): Promise<AiQuestion[]> {
     const { system, user } = this.buildCourseQuestionPrompt(course, count);
-    const questions = await this.callAiModel(system, user, course.Category?.Title);
-    
-    // تحقق از کیفیت
-    this.throwIfValidationFails(questions);
-    
-    return questions;
+    return this.generateValidQuestions(system, user, course.Category?.Title);
   }
 
   /**
@@ -65,12 +60,40 @@ export class AiService {
       skillTag,
       count,
     );
-    const questions = await this.callAiModel(system, user, skillTag);
-    
-    // تحقق از کیفیت و اطمینان از مطابقت برچسب مهارت
-    this.throwIfValidationFails(questions, skillTag);
-    
-    return questions;
+    return this.generateValidQuestions(system, user, skillTag, skillTag);
+  }
+
+  /** Retry malformed/transient model responses inside the server request. */
+  private async generateValidQuestions(
+    systemPrompt: string,
+    userPrompt: string,
+    fallbackTag?: string,
+    expectedSkillTag?: string,
+  ): Promise<AiQuestion[]> {
+    let lastError: unknown;
+
+    for (let attempt = 1; attempt <= 3; attempt += 1) {
+      try {
+        let questions = await this.callAiModel(
+          systemPrompt,
+          userPrompt,
+          fallbackTag,
+        );
+        if (expectedSkillTag) {
+          questions = questions.map((question) => ({
+            ...question,
+            skillTag: expectedSkillTag,
+          }));
+        }
+        this.throwIfValidationFails(questions, expectedSkillTag);
+        return questions;
+      } catch (error) {
+        lastError = error;
+        console.warn(`AI question generation attempt ${attempt}/3 failed`);
+      }
+    }
+
+    throw lastError;
   }
 
   /**
@@ -81,15 +104,14 @@ export class AiService {
     course: any,
     count: number,
   ): { system: string; user: string } {
-    const outcomes = course.CourseLearningOutcomes?.map(
-      (o: any) => o.Title,
-    ).join('، ') || '';
-    const prerequisites = course.CoursePrequisties?.map(
-      (p: any) => p.Title,
-    ).join('، ') || '';
-    const lessonTitles = course.CourseSections?.flatMap((s: any) =>
-      s.Lessons?.map((l: any) => l.Title) || [],
-    ).join('، ') || '';
+    const outcomes =
+      course.CourseLearningOutcomes?.map((o: any) => o.Title).join('، ') || '';
+    const prerequisites =
+      course.CoursePrequisties?.map((p: any) => p.Title).join('، ') || '';
+    const lessonTitles =
+      course.CourseSections?.flatMap(
+        (s: any) => s.Lessons?.map((l: any) => l.Title) || [],
+      ).join('، ') || '';
 
     const system = `تو یک طراح آزمون حرفه‌ای هستی. باید فقط و فقط یک آرایه JSON معتبر برگردانی، بدون هیچ توضیح اضافه، بدون Markdown، بدون backtick.
 هر آیتم آرایه باید این ساختار را داشته باشد:
@@ -119,15 +141,14 @@ export class AiService {
     skillTag: string,
     count: number,
   ): { system: string; user: string } {
-    const outcomes = course.CourseLearningOutcomes?.map(
-      (o: any) => o.Title,
-    ).join('، ') || '';
-    const prerequisites = course.CoursePrequisties?.map(
-      (p: any) => p.Title,
-    ).join('، ') || '';
-    const lessonTitles = course.CourseSections?.flatMap((s: any) =>
-      s.Lessons?.map((l: any) => l.Title) || [],
-    ).join('، ') || '';
+    const outcomes =
+      course.CourseLearningOutcomes?.map((o: any) => o.Title).join('، ') || '';
+    const prerequisites =
+      course.CoursePrequisties?.map((p: any) => p.Title).join('، ') || '';
+    const lessonTitles =
+      course.CourseSections?.flatMap(
+        (s: any) => s.Lessons?.map((l: any) => l.Title) || [],
+      ).join('، ') || '';
 
     const system = `تو یک طراح آزمون حرفه‌ای متمرکز بر یک مهارت خاص هستی. باید فقط و فقط یک آرایه JSON معتبر برگردانی، بدون هیچ توضیح اضافه، بدون Markdown، بدون backtick.
 هر آیتم آرایه باید این ساختار را داشته باشد:
@@ -180,14 +201,14 @@ export class AiService {
       });
     } catch (error: any) {
       console.error('AI API Connection Error:', error);
-      
+
       // بررسی نوع خطا
       if (error.code === 'ECONNREFUSED') {
         throw new BadRequestException(
           '❌ سرویس هوش مصنوعی در دسترس نیست. لطفاً بعداً دوباره تلاش کنید.',
         );
       }
-      
+
       if (error.code === 'ETIMEDOUT' || error.code === 'EHOSTUNREACH') {
         throw new BadRequestException(
           '❌ اتصال به سرویس هوش مصنوعی قطع شد. لطفاً اتصال اینترنت خود را بررسی کنید.',
@@ -200,21 +221,25 @@ export class AiService {
     }
 
     if (!response.ok) {
-      console.error('AI API Response Error:', response.status, response.statusText);
-      
+      console.error(
+        'AI API Response Error:',
+        response.status,
+        response.statusText,
+      );
+
       // پیغام‌های مختلف برای status code‌های مختلف
       if (response.status === 503) {
         throw new BadRequestException(
           '❌ سرویس هوش مصنوعی موقتاً در دسترس نیست. لطفاً بعداً دوباره تلاش کنید.',
         );
       }
-      
+
       if (response.status === 401 || response.status === 403) {
         throw new BadRequestException(
           '❌ خطای احراز هویت سرویس هوش مصنوعی. لطفاً تنظیمات سرور را بررسی کنید.',
         );
       }
-      
+
       if (response.status === 429) {
         throw new BadRequestException(
           '❌ تعداد درخواست‌های هوش مصنوعی بیش از حد است. لطفاً بعداً تلاش کنید.',
@@ -289,19 +314,21 @@ export class AiService {
     }
 
     const questions = parsed
-      .filter(
-        (q) =>
-          q &&
-          typeof q.questionText === 'string' &&
-          Array.isArray(q.choices) &&
-          q.choices.length >= 2 &&
-          q.choices.some((c: any) => c?.isCorrect === true),
-      )
       .map((q) => {
-        // Ensure isCorrect is explicitly set (not undefined)
-        const processedChoices = q.choices.map((c: any) => ({
-          text: String(c.text).trim(),
-          isCorrect: c.isCorrect === true ? true : false, // Explicitly ensure boolean
+        if (
+          !q ||
+          typeof q.questionText !== 'string' ||
+          !Array.isArray(q.choices)
+        ) {
+          return null;
+        }
+
+        const processedChoices = q.choices.map((c: any, index: number) => ({
+          text: String(c?.text ?? '').trim(),
+          isCorrect:
+            c?.isCorrect === true ||
+            String(c?.isCorrect).toLowerCase() === 'true' ||
+            q.correctChoiceIndex === index,
         }));
 
         return {
@@ -312,7 +339,13 @@ export class AiService {
               : (fallbackTag ?? ''),
           choices: processedChoices,
         };
-      });
+      })
+      .filter(
+        (q): q is AiQuestion =>
+          q !== null &&
+          q.choices.length >= 2 &&
+          q.choices.some((c) => c.isCorrect),
+      );
 
     if (questions.length === 0) {
       console.error('No valid questions extracted from AI response');
@@ -328,7 +361,10 @@ export class AiService {
    * اعتبارسنجی کیفیت سوالات تولید شده
    * Validate quality of generated questions
    */
-  validateQuestionQuality(questions: AiQuestion[], expectedSkillTag?: string): { valid: boolean; issues: string[] } {
+  validateQuestionQuality(
+    questions: AiQuestion[],
+    expectedSkillTag?: string,
+  ): { valid: boolean; issues: string[] } {
     const issues: string[] = [];
 
     if (!questions || questions.length === 0) {
@@ -343,9 +379,13 @@ export class AiService {
       if (!question.questionText || question.questionText.trim().length === 0) {
         issues.push(`سوال ${qNum}: متن سوال خالی است.`);
       } else if (question.questionText.length < 10) {
-        issues.push(`سوال ${qNum}: متن سوال بسیار کوتاه است (کمتر از 10 کاراکتر).`);
+        issues.push(
+          `سوال ${qNum}: متن سوال بسیار کوتاه است (کمتر از 10 کاراکتر).`,
+        );
       } else if (question.questionText.length > 500) {
-        issues.push(`سوال ${qNum}: متن سوال بسیار طولانی است (بیش از 500 کاراکتر).`);
+        issues.push(
+          `سوال ${qNum}: متن سوال بسیار طولانی است (بیش از 500 کاراکتر).`,
+        );
       }
 
       // بررسی برچسب مهارت
@@ -354,9 +394,13 @@ export class AiService {
       } else {
         const wordCount = question.skillTag.trim().split(' ').length;
         if (wordCount < 2) {
-          issues.push(`سوال ${qNum}: برچسب مهارت باید حداقل ۲ کلمه باشد (${question.skillTag}).`);
+          issues.push(
+            `سوال ${qNum}: برچسب مهارت باید حداقل ۲ کلمه باشد (${question.skillTag}).`,
+          );
         } else if (wordCount > 4) {
-          issues.push(`سوال ${qNum}: برچسب مهارت بیش از ۴ کلمه است (${question.skillTag}).`);
+          issues.push(
+            `سوال ${qNum}: برچسب مهارت بیش از ۴ کلمه است (${question.skillTag}).`,
+          );
         }
       }
 
@@ -381,17 +425,25 @@ export class AiService {
       }
 
       // بررسی اینکه دقیقاً یک گزینه صحیح وجود دارد
-      const correctChoices = question.choices.filter((c) => c.isCorrect === true);
+      const correctChoices = question.choices.filter(
+        (c) => c.isCorrect === true,
+      );
       if (correctChoices.length === 0) {
         issues.push(`سوال ${qNum}: هیچ گزینه صحیحی وجود ندارد. ⚠️`);
       } else if (correctChoices.length > 1) {
-        issues.push(`سوال ${qNum}: بیش از یک گزینه صحیح وجود دارد (${correctChoices.length} تا).`);
+        issues.push(
+          `سوال ${qNum}: بیش از یک گزینه صحیح وجود دارد (${correctChoices.length} تا).`,
+        );
       }
 
       // بررسی اینکه حداقل یک گزینه غلط وجود دارد
-      const incorrectChoices = question.choices.filter((c) => c.isCorrect === false);
+      const incorrectChoices = question.choices.filter(
+        (c) => c.isCorrect === false,
+      );
       if (incorrectChoices.length === 0) {
-        issues.push(`سوال ${qNum}: تمام گزینه‌ها صحیح هستند! این سوال نامعتبر است.`);
+        issues.push(
+          `سوال ${qNum}: تمام گزینه‌ها صحیح هستند! این سوال نامعتبر است.`,
+        );
       }
 
       // بررسی متن گزینه‌ها
@@ -402,7 +454,9 @@ export class AiService {
         } else if (choice.text.length < 2) {
           issues.push(`سوال ${qNum} گزینه ${cNum}: متن گزینه بسیار کوتاه است.`);
         } else if (choice.text.length > 200) {
-          issues.push(`سوال ${qNum} گزینه ${cNum}: متن گزینه بسیار طولانی است.`);
+          issues.push(
+            `سوال ${qNum} گزینه ${cNum}: متن گزینه بسیار طولانی است.`,
+          );
         }
       });
     });
@@ -417,20 +471,29 @@ export class AiService {
    * اعتبارسنجی سوالات و پرتاب خطا در صورت مشکل
    * Validate questions and throw if issues found
    */
-  throwIfValidationFails(questions: AiQuestion[], expectedSkillTag?: string): void {
-    const validation = this.validateQuestionQuality(questions, expectedSkillTag);
+  throwIfValidationFails(
+    questions: AiQuestion[],
+    expectedSkillTag?: string,
+  ): void {
+    const validation = this.validateQuestionQuality(
+      questions,
+      expectedSkillTag,
+    );
     if (!validation.valid) {
       console.error('Question validation failed:', validation.issues);
-      
+
       // اگر فقط مشکل کم تعداد سوال باشد
-      if (validation.issues.length === 1 && validation.issues[0].includes('تولید نشده')) {
+      if (
+        validation.issues.length === 1 &&
+        validation.issues[0].includes('تولید نشده')
+      ) {
         throw new BadRequestException(
           '❌ هوش مصنوعی نتوانست سوالات معتبری تولید کند. لطفاً دوباره تلاش کنید.',
         );
       }
 
       // اگر مشکل skill tag matching باشد
-      if (validation.issues.some(issue => issue.includes('مطابقت ندارد'))) {
+      if (validation.issues.some((issue) => issue.includes('مطابقت ندارد'))) {
         throw new BadRequestException(
           `❌ سوالات تولید شده با مهارت درخواستی مطابقت ندارند. لطفاً دوباره تلاش کنید.`,
         );

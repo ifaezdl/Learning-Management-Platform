@@ -7,6 +7,7 @@ import {
   Query,
   UseGuards,
   ParseIntPipe,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -97,7 +98,7 @@ export class PracticeExamsController {
     @CurrentUser() user?: any,
   ) {
     let count = questionCount ? Number(questionCount) : 10;
-    
+
     // تحدید تعداد سوالات
     if (count < 1) count = 1;
     if (count > 20) count = 20;
@@ -148,14 +149,14 @@ export class PracticeExamsController {
         choiceId: number;
         questionText?: string;
         correctChoiceIndex?: number;
-        choices?: Array<{id: number; text: string; choiceIndex: number}>;
+        choices?: Array<{ id: number; text: string; choiceIndex: number }>;
       }>;
     },
     @Query('skillTag') skillTag?: string,
     @CurrentUser() user?: any,
   ) {
     if (!body.answers || body.answers.length === 0) {
-      throw new Error('لطفا حداقل یک پاسخ ارسال کنید');
+      throw new BadRequestException('لطفا حداقل یک پاسخ ارسال کنید');
     }
 
     return this.practiceExamsService.submitPracticeExam(

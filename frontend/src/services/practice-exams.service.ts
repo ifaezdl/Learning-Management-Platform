@@ -24,6 +24,7 @@ export interface PracticeQuestion {
   choices: { id: number; text: string }[];
   score: number;
   isGenerated?: boolean; // تولید شده توسط AI
+  correctChoiceIndex?: number;
 }
 
 export interface PracticeExamResult {
@@ -162,6 +163,7 @@ class PracticeExamsService {
       choiceId: number;
       questionText?: string;
       correctChoiceIndex?: number;
+      choices?: Array<{ id: number; text: string; choiceIndex: number }>;
     }>,
     skillTag?: string,
   ): Promise<PracticeExamResult> {
