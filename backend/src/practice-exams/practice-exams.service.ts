@@ -221,9 +221,20 @@ export class PracticeExamsService {
           );
         }
       } catch (error: any) {
-        // بهتر error message ارسال کن
         const errorMessage = error.message || 'خطا در تولید سوالات';
         console.error('AI Question Generation Error:', errorMessage);
+
+        // Keep practice exams available while the external model is down.
+        // Database questions retain positive ids, so submission is graded
+        // server-side from QuizChoices rather than client-provided metadata.
+        const fallbackQuestions = await this.getQuestionBankFallback(
+          courseId,
+          skillTag,
+          questionCount,
+        );
+        if (fallbackQuestions.length > 0) {
+          return fallbackQuestions;
+        }
 
         if (errorMessage.includes('در دسترس نیست')) {
           throw new BadRequestException(errorMessage);
@@ -734,5 +745,48 @@ export class PracticeExamsService {
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     return shuffled;
+  }
+
+  private async getQuestionBankFallback(
+    courseId: number,
+    skillTag: string | undefined,
+    questionCount: number,
+  ) {
+    const loadQuestions = (filterBySkill: boolean) =>
+      this.prisma.quizQuestions.findMany({
+        where: {
+          Quizzes: { Course_Id: courseId, IsPublished: true },
+          ...(filterBySkill && skillTag ? { SkillTag: skillTag } : {}),
+        },
+        include: {
+          QuizChoices: { orderBy: { DisplayOrder: 'asc' } },
+        },
+      });
+
+    let questions = await loadQuestions(Boolean(skillTag));
+    if (questions.length === 0 && skillTag) {
+      questions = await loadQuestions(false);
+    }
+
+    return this.shuffleArray(
+      questions.filter(
+        (question) =>
+          question.QuizChoices.length >= 2 &&
+          question.QuizChoices.filter((choice) => choice.IsCorrect).length ===
+            1,
+      ),
+    )
+      .slice(0, questionCount)
+      .map((question) => ({
+        id: question.Id,
+        questionText: question.QuestionText,
+        skillTag: question.SkillTag || skillTag || 'تمرین عمومی',
+        choices: question.QuizChoices.map((choice) => ({
+          id: choice.Id,
+          text: choice.ChoiceText,
+        })),
+        score: Number(question.Score),
+        isGenerated: false,
+      }));
   }
 }

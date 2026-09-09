@@ -23,6 +23,10 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
 
   // دریافت نظر موجود (اگر وجود داشته باشد)
   useEffect(() => {
+    if (!Number.isInteger(courseId) || courseId <= 0) {
+      return;
+    }
+
     loadMyReview();
   }, [courseId]);
 
@@ -42,6 +46,11 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!Number.isInteger(courseId) || courseId <= 0) {
+      toast.error("شناسه دوره معتبر نیست");
+      return;
+    }
 
     if (rating < 1 || rating > 5) {
       toast.error("رتینگ باید بین ۱ تا ۵ باشد");

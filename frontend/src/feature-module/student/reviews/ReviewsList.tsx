@@ -19,6 +19,14 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
   const [averageRating, setAverageRating] = useState<number>(0);
 
   useEffect(() => {
+    if (!Number.isInteger(courseId) || courseId <= 0) {
+      setReviews([]);
+      setTotalReviews(0);
+      setAverageRating(0);
+      setLoading(false);
+      return;
+    }
+
     loadReviews();
   }, [courseId]);
 
@@ -28,7 +36,7 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
       const data = await reviewsService.getCourseReviews(
         courseId,
         1,
-        maxReviews
+        maxReviews,
       );
       setReviews(data.reviews);
       setTotalReviews(data.pagination.total);
@@ -77,22 +85,20 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
                       }`}
                       style={{
                         color:
-                          star <= Math.round(averageRating) ? "#ffc107" : "#ddd",
+                          star <= Math.round(averageRating)
+                            ? "#ffc107"
+                            : "#ddd",
                         marginRight: "2px",
                       }}
                     />
                   ))}
                 </div>
-                <small className="text-muted">
-                  {totalReviews} نظر
-                </small>
+                <small className="text-muted">{totalReviews} نظر</small>
               </div>
               <div className="flex-grow-1">
                 {/* توزیع رتینگ‌ها */}
                 {[5, 4, 3, 2, 1].map((star) => {
-                  const count = reviews.filter(
-                    (r) => r.rating === star
-                  ).length;
+                  const count = reviews.filter((r) => r.rating === star).length;
                   const percentage =
                     totalReviews > 0 ? (count / totalReviews) * 100 : 0;
                   return (
@@ -123,7 +129,9 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
         {/* لیست نظرات */}
         {reviews.length === 0 ? (
           <div className="text-center py-4">
-            <p className="text-muted mb-0">هیچ نظری برای این دوره ثبت نشده‌است</p>
+            <p className="text-muted mb-0">
+              هیچ نظری برای این دوره ثبت نشده‌است
+            </p>
           </div>
         ) : (
           <div className="reviews-list">
@@ -162,7 +170,8 @@ const ReviewsList: React.FC<ReviewsListProps> = ({
               <div className="alert alert-info mt-3 mb-0 py-2">
                 <i className="isax isax-info-circle me-2" />
                 <small>
-                  این دوره {totalReviews} نظر دارد. برای دیدن تمام نظرات و ثبت نظر خود، دوره را خریداری کنید.
+                  این دوره {totalReviews} نظر دارد. برای دیدن تمام نظرات و ثبت
+                  نظر خود، دوره را خریداری کنید.
                 </small>
               </div>
             )}

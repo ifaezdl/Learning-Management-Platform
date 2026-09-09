@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import practiceExamsService from "../../../services/practice-exams.service";
+import { getApiErrorMessage } from "../../../services/api-error";
 import "./practice-exams.scss";
 
 interface Question {
@@ -133,11 +134,12 @@ const PracticeExamTake = () => {
             ...(questionData?.isGenerated && {
               correctChoiceIndex: questionData.correctChoiceIndex,
               // ارسال تمام گزینه‌ها برای سوالات AI
-              choices: questionData.choices?.map((choice, idx) => ({
-                id: choice.id,
-                text: choice.text,
-                choiceIndex: idx,
-              })) || [],
+              choices:
+                questionData.choices?.map((choice, idx) => ({
+                  id: choice.id,
+                  text: choice.text,
+                  choiceIndex: idx,
+                })) || [],
             }),
           };
         });
@@ -151,7 +153,7 @@ const PracticeExamTake = () => {
       // Navigate to results page
       navigate(`/student/practice-exams/result/${response.id}`);
     } catch (err: any) {
-      setError(err.message || "خطایی در ثبت نتایج رخ داد");
+      setError(getApiErrorMessage(err, "خطایی در ثبت نتایج رخ داد"));
       console.error(err);
     } finally {
       setSubmitting(false);

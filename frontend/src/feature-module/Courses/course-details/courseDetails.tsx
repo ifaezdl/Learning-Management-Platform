@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Breadcrumb from "../../../core/common/Breadcrumb/breadcrumb";
 import ImageWithBasePath from "../../../core/common/imageWithBasePath";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import VideoModal from "../../HomePages/home-one/section/videoModal";
@@ -64,9 +63,13 @@ const CourseDetails = () => {
     ) ?? 0;
   const loadCourse = async () => {
     try {
-      debugger;
       setLoading(true);
-      const data = await courseService.getCourse(Number(id));
+      const courseId = Number(id);
+      if (!Number.isInteger(courseId) || courseId <= 0) {
+        throw new Error("Invalid course id");
+      }
+
+      const data = await courseService.getCourse(courseId);
       setCourse(data);
       setIsEnrolled(data.isEnrolled);
       setCourseLearningOutcomes(data?.CourseLearningOutcomes);
@@ -131,6 +134,24 @@ const CourseDetails = () => {
   };
 
   const route = all_routes;
+
+  if (loading) {
+    return (
+      <div className="container py-5 mt-5 text-center">
+        <div className="spinner-border text-primary" role="status" />
+      </div>
+    );
+  }
+
+  if (error || !course) {
+    return (
+      <div className="container py-5 mt-5">
+        <div className="alert alert-danger" role="alert">
+          دوره یافت نشد.
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -250,14 +271,24 @@ const CourseDetails = () => {
                       چه چیزهایی در این دوره فرا خواهید گرفت
                     </h6>
                     <ul className="custom-list mb-3">
-                      {CourseLearningOutcomes?.map((item: any) => (
-                        <li className="list-item">{item?.Title}</li>
+                      {CourseLearningOutcomes?.map((item: any, index) => (
+                        <li
+                          key={item?.Id ?? `outcome-${index}`}
+                          className="list-item"
+                        >
+                          {item?.Title}
+                        </li>
                       ))}
                     </ul>
                     <h6 className="mb-2">پیش نیاز های دوره</h6>
                     <ul className="custom-list mb-0">
-                      {CoursePrequisties?.map((item: any) => (
-                        <li className="list-item">{item?.Title}</li>
+                      {CoursePrequisties?.map((item: any, index) => (
+                        <li
+                          key={item?.ID ?? `prerequisite-${index}`}
+                          className="list-item"
+                        >
+                          {item?.Title}
+                        </li>
                       ))}
                     </ul>
                   </div>
@@ -321,10 +352,7 @@ const CourseDetails = () => {
                                 ) : (
                                   <ul>
                                     {lessons.map((lesson) => (
-                                      <li
-                                        key={lesson.Id}
-                                        className="p-4 px-3"
-                                      >
+                                      <li key={lesson.Id} className="p-4 px-3">
                                         <div className="d-flex justify-content-between align-items-center">
                                           <div>
                                             <ImageWithBasePath
@@ -386,29 +414,35 @@ const CourseDetails = () => {
                                               </span>
                                             )}
                                             <span>
-                                              {lesson.DurationMinutes ?? 0} دقیقه
+                                              {lesson.DurationMinutes ?? 0}{" "}
+                                              دقیقه
                                             </span>
                                           </div>
                                         </div>
-                                        {lesson.LessonFiles && lesson.LessonFiles.length > 0 && (
-                                          <div className="mt-2 ms-4 ps-2 border-start">
-                                            {lesson.LessonFiles.map((file) => (
-                                              <a
-                                                key={file.Id}
-                                                href={`${api_base_url}${file.FileUrl}`}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="d-inline-flex align-items-center text-decoration-none text-primary fs-13 me-3 mt-1"
-                                              >
-                                                <i className="fas fa-paperclip me-1"></i>
-                                                {file.FileName}
-                                                {file.FileExtension && (
-                                                  <span className="text-muted ms-1">({file.FileExtension})</span>
-                                                )}
-                                              </a>
-                                            ))}
-                                          </div>
-                                        )}
+                                        {lesson.LessonFiles &&
+                                          lesson.LessonFiles.length > 0 && (
+                                            <div className="mt-2 ms-4 ps-2 border-start">
+                                              {lesson.LessonFiles.map(
+                                                (file) => (
+                                                  <a
+                                                    key={file.Id}
+                                                    href={`${api_base_url}${file.FileUrl}`}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="d-inline-flex align-items-center text-decoration-none text-primary fs-13 me-3 mt-1"
+                                                  >
+                                                    <i className="fas fa-paperclip me-1"></i>
+                                                    {file.FileName}
+                                                    {file.FileExtension && (
+                                                      <span className="text-muted ms-1">
+                                                        ({file.FileExtension})
+                                                      </span>
+                                                    )}
+                                                  </a>
+                                                ),
+                                              )}
+                                            </div>
+                                          )}
                                       </li>
                                     ))}
                                   </ul>
@@ -585,13 +619,13 @@ const CourseDetails = () => {
       <section className="mt-5 mb-5">
         <div className="container">
           {/* فرم ثبت نظر - فقط برای خریداران */}
-          {isEnrolled && (
+          {isEnrolled && course.Id > 0 && (
             <div className="row mb-5">
               <div className="col-lg-8">
                 <h5 className="mb-4">نظر خود را ثبت کنید</h5>
                 <ReviewForm
-                  courseId={course?.Id || 0}
-                  courseTitle={course?.Title}
+                  courseId={course.Id}
+                  courseTitle={course.Title}
                   onSubmitSuccess={() => {
                     // می‌توانی اینجا صفحه رو ریفرش کنی یا لیست نظرات رو بروزرسانی کنی
                   }}
@@ -605,7 +639,7 @@ const CourseDetails = () => {
             <div className="col-lg-8">
               <h5 className="mb-4">نظرات و نقدهای کاربران</h5>
               <ReviewsList
-                courseId={course?.Id || 0}
+                courseId={course.Id}
                 maxReviews={10}
                 isEnrolled={isEnrolled}
               />

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import practiceExamsService from "../../../services/practice-exams.service";
+import { getApiErrorMessage } from "../../../services/api-error";
 import StudentSidebar from "../common/studentSidebar";
 import ProfileCard from "../common/profileCard";
 import "./practice-exams.scss";
@@ -65,7 +66,12 @@ const PracticeExamResult = () => {
       setResult(resultData);
     } catch (err: any) {
       console.error("Error loading result:", err);
-      setError(err.message || "خطا در بارگذاری نتایج. لطفاً دوباره تلاش کنید.");
+      setError(
+        getApiErrorMessage(
+          err,
+          "خطا در بارگذاری نتایج. لطفاً دوباره تلاش کنید.",
+        ),
+      );
     } finally {
       setLoading(false);
     }

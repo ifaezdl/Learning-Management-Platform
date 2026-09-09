@@ -95,4 +95,69 @@ describe('PracticeExamsService generated-question grading', () => {
 
     expect(prisma.practiceExamResults.create).not.toHaveBeenCalled();
   });
+
+  it('falls back to published database questions when the AI service is unavailable', async () => {
+    const prisma = {
+      enrollments: { findFirst: jest.fn().mockResolvedValue({ Id: 1 }) },
+      courses: {
+        findUnique: jest.fn().mockResolvedValue({
+          Id: 3,
+          Title: 'دوره تست',
+          Category: null,
+          Level: null,
+          CourseLearningOutcomes: [],
+          CoursePrequisties: [],
+          CourseSections: [],
+        }),
+      },
+      quizQuestions: {
+        findMany: jest.fn().mockResolvedValue([
+          {
+            Id: 11,
+            QuestionText: 'یک سوال معتبر از بانک سوال',
+            SkillTag: 'برنامه‌نویسی شی‌گرا',
+            Score: 1,
+            QuizChoices: [
+              {
+                Id: 101,
+                ChoiceText: 'پاسخ درست',
+                IsCorrect: true,
+                DisplayOrder: 1,
+              },
+              {
+                Id: 102,
+                ChoiceText: 'پاسخ غلط',
+                IsCorrect: false,
+                DisplayOrder: 2,
+              },
+            ],
+          },
+        ]),
+      },
+    };
+    const aiService = {
+      generateQuestionsForSkill: jest
+        .fn()
+        .mockRejectedValue(new Error('سرویس هوش مصنوعی در دسترس نیست')),
+    };
+    const service = new PracticeExamsService(prisma as any, aiService as any);
+
+    const questions = await service.generatePracticeExam(
+      7,
+      3,
+      'برنامه‌نویسی شی‌گرا',
+      10,
+    );
+
+    expect(questions).toEqual([
+      expect.objectContaining({
+        id: 11,
+        isGenerated: false,
+        choices: [
+          { id: 101, text: 'پاسخ درست' },
+          { id: 102, text: 'پاسخ غلط' },
+        ],
+      }),
+    ]);
+  });
 });

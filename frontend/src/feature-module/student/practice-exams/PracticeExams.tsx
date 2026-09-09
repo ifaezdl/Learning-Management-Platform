@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import practiceExamsService from "../../../services/practice-exams.service";
+import { getApiErrorMessage } from "../../../services/api-error";
 import StudentSidebar from "../common/studentSidebar";
 import ProfileCard from "../common/profileCard";
 import "./practice-exams.scss";
@@ -70,7 +71,7 @@ const PracticeExams = () => {
         setSelectedCourse(weakSkillsResponse[0].courseId);
       }
     } catch (err: any) {
-      setError(err.message || "خطایی رخ داد");
+      setError(getApiErrorMessage(err, "خطایی رخ داد"));
     } finally {
       setLoading(false);
     }
@@ -91,7 +92,7 @@ const PracticeExams = () => {
         state: { courseId, skillTag },
       });
     } catch (err: any) {
-      setError(err.message || "خطایی در ایجاد آزمون رخ داد");
+      setError(getApiErrorMessage(err, "خطایی در ایجاد آزمون رخ داد"));
     }
   };
 

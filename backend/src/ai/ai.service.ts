@@ -90,6 +90,17 @@ export class AiService {
       } catch (error) {
         lastError = error;
         console.warn(`AI question generation attempt ${attempt}/3 failed`);
+
+        const message = error instanceof Error ? error.message : '';
+        const isNonRetryable =
+          message.includes('اتصال به سرویس') ||
+          message.includes('در دسترس نیست') ||
+          message.includes('احراز هویت') ||
+          message.includes('تعداد درخواست‌های هوش مصنوعی');
+
+        if (isNonRetryable) {
+          throw error;
+        }
       }
     }
 
@@ -188,6 +199,7 @@ export class AiService {
     try {
       response = await fetch(this.apiUrl, {
         method: 'POST',
+        signal: AbortSignal.timeout(15_000),
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: this.model,
@@ -209,7 +221,12 @@ export class AiService {
         );
       }
 
-      if (error.code === 'ETIMEDOUT' || error.code === 'EHOSTUNREACH') {
+      if (
+        error.code === 'ETIMEDOUT' ||
+        error.code === 'EHOSTUNREACH' ||
+        error.name === 'TimeoutError' ||
+        error.name === 'AbortError'
+      ) {
         throw new BadRequestException(
           '❌ اتصال به سرویس هوش مصنوعی قطع شد. لطفاً اتصال اینترنت خود را بررسی کنید.',
         );
