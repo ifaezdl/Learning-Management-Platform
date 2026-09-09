@@ -210,11 +210,19 @@ const CourseDetails = () => {
                     <div className="d-sm-flex align-items-center justify-content-sm-between mt-3">
                       <div className="d-flex align-items-center">
                         <div className="avatar avatar-lg">
-                          <ImageWithBasePath
-                            className="rounded-circle"
-                            src="./assets/img/avatar/avatar10.jpg"
-                            alt="img"
-                          />
+                          {course?.Users?.Avatar ? (
+                            <img
+                              className="rounded-circle"
+                              src={`${api_base_url}${course.Users.Avatar}`}
+                              alt={`${course?.Users?.FirstName} ${course?.Users?.LastName}`}
+                            />
+                          ) : (
+                            <ImageWithBasePath
+                              className="rounded-circle"
+                              src="./assets/img/avatar/avatar10.jpg"
+                              alt="img"
+                            />
+                          )}
                         </div>
                         <div className="ms-2">
                           <h5 className="fs-18 fw-semibold">

@@ -277,11 +277,21 @@ const CourseGrid = () => {
                           <div className="course-content p-3">
                             <div className="d-flex justify-content-between align-items-start mb-3">
                               <div className="d-flex align-items-center">
-                                <ImageWithBasePath
-                                  src="assets/img/user/user-36.jpg"
-                                  alt="img"
-                                  className="img-fluid avatar avatar-sm rounded-circle"
-                                />
+                                <div className="avatar avatar-sm rounded-circle overflow-hidden">
+                                  {course?.Users?.Avatar ? (
+                                    <img
+                                      src={`${api_base_url}${course.Users.Avatar}`}
+                                      alt={`${course?.Users?.FirstName} ${course?.Users?.LastName}`}
+                                      className="img-fluid"
+                                    />
+                                  ) : (
+                                    <ImageWithBasePath
+                                      src="assets/img/user/user-36.jpg"
+                                      alt="img"
+                                      className="img-fluid"
+                                    />
+                                  )}
+                                </div>
 
                                 <div className="ms-2">
                                   <span

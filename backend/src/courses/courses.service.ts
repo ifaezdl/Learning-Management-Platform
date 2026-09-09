@@ -152,6 +152,7 @@ export class CoursesService {
             Id: true,
             FirstName: true,
             LastName: true,
+            Avatar: true,
           },
         },
       },
@@ -208,6 +209,7 @@ export class CoursesService {
             FirstName: true,
             LastName: true,
             Email: true,
+            Avatar: true,
           },
         },
       },
@@ -307,7 +309,7 @@ export class CoursesService {
       include: {
         ...this.courseInclude(),
         Users: {
-          select: { Id: true, FirstName: true, LastName: true },
+          select: { Id: true, FirstName: true, LastName: true, Avatar: true },
         },
         CourseSections: {
           orderBy: { DisplayOrder: 'asc' },
